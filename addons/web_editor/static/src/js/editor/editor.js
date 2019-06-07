@@ -20,6 +20,7 @@ var EditorMenuBar = Widget.extend({
     custom_events: {
         request_history_undo_record: '_onHistoryUndoRecordRequest',
         request_save: '_onSaveRequest',
+        force_destroy: '_onForceDestroy',
     },
 
     /**
@@ -326,6 +327,20 @@ var EditorMenuBar = Widget.extend({
     _onSaveRequest: function (ev) {
         ev.stopPropagation();
         this.save(ev.data.reload).then(ev.data.onSuccess, ev.data.onFailure);
+    },
+    /**
+     * after element is updated/replaced force to destroy rte $last variable
+     *
+     * @private
+     * @param {OdooEvent} ev
+     */
+    _onForceDestroy: function (ev) {
+        var $target = ev.data.$el;
+        var $last = this.rte.$last;
+        if ($target.has($last).length) {
+            $last.destroy();
+            this.rte.$last = null;
+        }
     },
 });
 
