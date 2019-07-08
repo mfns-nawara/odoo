@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
+import json
 
 from odoo import api, fields, models, _
 from odoo.tools.float_utils import float_compare
@@ -239,6 +240,7 @@ class PurchaseOrderLine(models.Model):
     propagate_date = fields.Boolean(string="Propagate Rescheduling", help='The rescheduling is propagated to the next move.')
     propagate_date_minimum_delta = fields.Integer(string='Reschedule if Higher Than', help='The change must be higher than this value to be propagated')
     propagate_cancel = fields.Boolean('Propagate cancellation', default=True)
+    product_custom_attribute_values = fields.Text()
 
     def _compute_qty_received_method(self):
         super(PurchaseOrderLine, self)._compute_qty_received_method()
@@ -266,6 +268,12 @@ class PurchaseOrderLine(models.Model):
                         else:
                             total += move.product_uom._compute_quantity(move.product_uom_qty, line.product_uom)
                 line.qty_received = total
+
+    @api.onchange('product_id')
+    def onchange_product_id(self):
+        if self.product_custom_attribute_values:
+            self.product_custom_attribute_values = ""
+        return super(PurchaseOrderLine, self).onchange_product_id()
 
     @api.model
     def create(self, values):
@@ -373,7 +381,7 @@ class PurchaseOrderLine(models.Model):
             'origin': self.order_id.name,
             'propagate_date': self.propagate_date,
             'propagate_date_minimum_delta': self.propagate_date_minimum_delta,
-            'description_picking': self.product_id._get_description(self.order_id.picking_type_id),
+            'description_picking': self.name or self.product_id._get_description(self.order_id.picking_type_id),
             'propagate_cancel': self.propagate_cancel,
             'route_ids': self.order_id.picking_type_id.warehouse_id and [(6, 0, [x.id for x in self.order_id.picking_type_id.warehouse_id.route_ids])] or [],
             'warehouse_id': self.order_id.picking_type_id.warehouse_id.id,
@@ -397,6 +405,8 @@ class PurchaseOrderLine(models.Model):
         res['propagate_cancel'] = values.get('propagate_cancel')
         res['propagate_date'] = values.get('propagate_date')
         res['propagate_date_minimum_delta'] = values.get('propagate_date_minimum_delta')
+        res['product_custom_attribute_values'] = values.get('product_custom_attribute_values')
+        res['name'] = product_id.get_product_multiline_description_sale() + values.get('description', '')
         return res
 
     def _create_stock_moves(self, picking):
@@ -411,5 +421,19 @@ class PurchaseOrderLine(models.Model):
         args can be merged. If it returns an empty record then a new line will
         be created.
         """
+        def _is_matching_attributes(c_line, custom_values):
+            if not c_line and not custom_values:
+                return True
+
+            if c_line and custom_values:
+                c_line = json.loads(c_line)
+                custom_values = json.loads(custom_values)
+
+                if all(l in custom_values for l in c_line):
+                    return True
+            return False
+
         lines = self.filtered(lambda l: l.propagate_date == values['propagate_date'] and l.propagate_date_minimum_delta == values['propagate_date_minimum_delta'] and l.propagate_cancel == values['propagate_cancel'] and l.orderpoint_id == values['orderpoint_id'])
+        lines = lines.filtered(lambda l: _is_matching_attributes(l[0].product_custom_attribute_values, values.get('product_custom_attribute_values')))
+
         return lines and lines[0] or self.env['purchase.order.line']

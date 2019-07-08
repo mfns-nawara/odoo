@@ -3,6 +3,7 @@
 
 from datetime import datetime, timedelta
 from collections import defaultdict
+import json
 
 from odoo import api, fields, models, _
 from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT, float_compare
@@ -411,6 +412,7 @@ class SaleOrderLine(models.Model):
         date_planned = self.order_id.date_order\
             + timedelta(days=self.customer_lead or 0.0) - timedelta(days=self.order_id.company_id.security_lead)
         values.update({
+            'description': self._get_sale_order_line_multiline_description_variants(),
             'group_id': group_id,
             'sale_line_id': self.id,
             'date_planned': date_planned,
@@ -526,3 +528,13 @@ class SaleOrderLine(models.Model):
             raise UserError(_('You cannot decrease the ordered quantity below the delivered quantity.\n'
                               'Create a return first.'))
         super(SaleOrderLine, self)._update_line_quantity(values)
+
+    def _prepare_custom_attributes(self):
+        custom_values = []
+        for pcav_id in self.product_custom_attribute_value_ids:
+            val = {
+                'template_attribute_id': pcav_id.custom_product_template_attribute_value_id.id,
+                'custom_value': pcav_id.custom_value or ''
+            }
+            custom_values.append(val)
+        return json.dumps(custom_values)

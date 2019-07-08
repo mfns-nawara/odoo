@@ -265,6 +265,7 @@ class StockRule(models.Model):
         qty_left = product_qty
         move_values = {
             'name': name[:2000],
+            'description': values.get('description'),
             'company_id': self.company_id.id or self.location_src_id.company_id.id or self.location_id.company_id.id or company_id.id,
             'product_id': product_id.id,
             'product_uom': product_uom.id,
@@ -285,7 +286,7 @@ class StockRule(models.Model):
             'propagate_cancel': self.propagate_cancel,
             'propagate_date': self.propagate_date,
             'propagate_date_minimum_delta': self.propagate_date_minimum_delta,
-            'description_picking': product_id._get_description(self.picking_type_id),
+            'description_picking': product_id.get_product_multiline_description_sale() + values.get('description'),
             'priority': values.get('priority', "1"),
             'delay_alert': self.delay_alert,
         }
