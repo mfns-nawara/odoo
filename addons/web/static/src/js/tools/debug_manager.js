@@ -23,6 +23,7 @@ var DebugManager = Widget.extend({
         var debug = odoo.debug;
         this.debug_mode = debug;
         this.debug_mode_help = debug && debug !== '1' ? ' (' + debug + ')' : '';
+        owl.config.mode = debug ? "dev" : "prod";
     },
     start: function () {
         core.bus.on('rpc:result', this, function (req, resp) {

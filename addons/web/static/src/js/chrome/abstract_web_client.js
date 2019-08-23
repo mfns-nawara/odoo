@@ -1,6 +1,8 @@
 odoo.define('web.AbstractWebClient', function (require) {
 "use strict";
 
+require('web.env');
+
 /**
  * AbstractWebClient
  *
