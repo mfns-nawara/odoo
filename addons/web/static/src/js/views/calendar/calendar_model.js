@@ -728,6 +728,7 @@ return AbstractModel.extend({
             // allow to resize in month mode
             r.reset_allday = r.allDay;
             r.allDay = true;
+            r.showTime = true;
         }
 
         return r;
