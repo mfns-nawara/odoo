@@ -544,7 +544,7 @@
                                 </div>
                             </div>
                             <hr />
-                            <p class="text-muted">
+                            <p class="text-muted oe_structure" id="oe_structure_website_sale_product_1">
                               30-day money-back guarantee<br />
                               Free Shipping in U.S.<br />
                               Buy now, get in 2 days
