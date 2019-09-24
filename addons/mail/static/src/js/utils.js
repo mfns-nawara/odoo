@@ -17,6 +17,15 @@ function parseAndTransform(htmlString, transformFunction) {
     return _parseAndTransform(children, transformFunction)
                 .replace(new RegExp(openToken, "g"), "&lt;");
 }
+/**
+ * @private
+ * @param {Node} nodes
+ * @param {function} transformFunction with:
+ *      param node
+ *      param function
+ *      return string
+ * @return {string}
+ */
 function _parseAndTransform(nodes, transformFunction) {
     return _.map(nodes, function (node) {
         return transformFunction(node, function () {
@@ -28,6 +37,16 @@ function _parseAndTransform(nodes, transformFunction) {
 // Suggested URL Javascript regex of http://stackoverflow.com/questions/3809401/what-is-a-good-regular-expression-to-match-a-url
 // Adapted to make http(s):// not required if (and only if) www. is given. So `should.notmatch` does not match.
 var urlRegexp = /\b(?:https?:\/\/\d{1,3}(?:\.\d{1,3}){3}|(?:https?:\/\/|(?:www\.))[-a-z0-9@:%._+~#=]{2,256}\.[a-z]{2,13})\b(?:[-a-z0-9@:%_+.~#?&'$//=;]*)/gi;
+/**
+ * @param {string} text string
+ * @param {Object} [attrs] never used
+ * @return {Object} with format:
+ *
+ *  {
+ *      hasChanged: {boolean}, // whether the linkify changed the text
+ *      value: {string}, // the text, updated with linkify
+ *  }
+ */
 function linkify(text, attrs) {
     attrs = attrs || {};
     if (attrs.target === undefined) {
@@ -36,18 +55,38 @@ function linkify(text, attrs) {
     attrs = _.map(attrs, function (value, key) {
         return key + '="' + _.escape(value) + '"';
     }).join(' ');
-    return text.replace(urlRegexp, function (url) {
+    var linkifiedText = text.replace(urlRegexp, function (url) {
         var href = (!/^https?:\/\//i.test(url)) ? "http://" + url : url;
         return '<a ' + attrs + ' href="' + href + '">' + url + '</a>';
     });
+    return {
+        hasChanged: text !== linkifiedText,
+        value: linkifiedText,
+    };
 }
 
+/**
+ * @param {Node} node
+ * @param {function} transformChildren function to apply same transformation on
+ *   children
+ * @return {string}
+ */
 function addLink(node, transformChildren) {
     if (node.nodeType === 3) {  // text node
-        return linkify(node.data);
+        var res = linkify(node.data);
+        if (res.hasChanged) {
+            var div = document.createElement('div');
+            div.innerHTML = res.value;
+            _.each(Array.prototype.slice.call(div.childNodes), function (childNode) {
+                node.parentNode.insertBefore(childNode, node);
+            });
+            node.parentNode.removeChild(node);
+            return res.value;
+        }
+        return node.textContent;
     }
     if (node.tagName === "A") return node.outerHTML;
-    node.innerHTML = transformChildren();
+    transformChildren();
     return node.outerHTML;
 }
 
@@ -104,10 +143,30 @@ function o_setTimeout(func, delay) {
     return setTimeout(func, delay);
 }
 
+/**
+ * @param {string} htmlString
+ * @return {string}
+ */
+function htmlToTextContentInline(htmlString) {
+    var fragment = document.createDocumentFragment();
+    var div = document.createElement('div');
+    fragment.appendChild(div);
+    try {
+        div.innerHTML = htmlString;
+    } catch (e) {
+        div.innerHTML = '<pre>' + htmlString + '</pre>';
+    }
+    return div.textContent
+              .trim()
+              .replace(/[\n\r]/g, '')
+              .replace(/\s\s+/g, ' ');
+}
+
 return {
     addLink: addLink,
     getTextToHTML: getTextToHTML,
     inline: inline,
+    htmlToTextContentInline: htmlToTextContentInline,
     linkify: linkify,
     parseAndTransform: parseAndTransform,
     parseEmail: parseEmail,

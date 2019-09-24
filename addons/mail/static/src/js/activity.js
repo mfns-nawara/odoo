@@ -580,7 +580,7 @@ var Activity = BasicActivity.extend({
      */
     _render: function () {
         _.each(this._activities, function (activity) {
-            var note = mailUtils.parseAndTransform(activity.note || '', mailUtils.inline);
+            var note = mailUtils.htmlToTextContentInline(activity.note || '');
             var is_blank = (/^\s*$/).test(note);
             if (!is_blank) {
                 activity.note = mailUtils.parseAndTransform(activity.note, mailUtils.addLink);

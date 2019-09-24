@@ -33,5 +33,61 @@ QUnit.test('add_link utility function', function (assert) {
     });
 });
 
+QUnit.test('add_link: linkify inside text node (1 occurence)', function (assert) {
+    assert.expect(5);
+
+    const content = '<p>some text https://somelink.com</p>';
+    const output = utils.parseAndTransform(content, utils.addLink);
+    assert.ok(
+        output.startsWith('<p>some text <a'),
+        "linkified text should starts with non-linkified start part + '<a' tag");
+    assert.ok(
+        output.endsWith('</a></p>'),
+        "linkified text should ends with '</a>' + non-linkified end part");
+    const fragment = document.createDocumentFragment();
+    const div = document.createElement('div');
+    fragment.appendChild(div);
+    div.innerHTML = output;
+    assert.strictEqual(
+        div.textContent,
+        'some text https://somelink.com',
+        "linkified text should have same text content as non-linkified version");
+    assert.strictEqual(
+        div.querySelectorAll(':scope a').length,
+        1,
+        "linkified text should have a link (newly introduced one)");
+    assert.strictEqual(
+        div.querySelector(':scope a').textContent,
+        'https://somelink.com',
+        "text content of link should be non-linkified link part of original text");
+});
+
+QUnit.test('add_link: linkify inside text node (2 occurences)', function (assert) {
+    assert.expect(4);
+
+    const content = '<p>some text https://somelink.com and again https://somelink2.com ...</p>';
+    const output = utils.parseAndTransform(content, utils.addLink);
+    const fragment = document.createDocumentFragment();
+    const div = document.createElement('div');
+    fragment.appendChild(div);
+    div.innerHTML = output;
+    assert.strictEqual(
+        div.textContent,
+        'some text https://somelink.com and again https://somelink2.com ...',
+        "linkified text should have same text content as non-linkified version");
+    assert.strictEqual(
+        div.querySelectorAll(':scope a').length,
+        2,
+        "linkified text should have 2 links (newly introduced ones)");
+    assert.strictEqual(
+        div.querySelectorAll(':scope a')[0].textContent,
+        'https://somelink.com',
+        "text content of 1st link should be 1st non-linkified link part of original text");
+    assert.strictEqual(
+        div.querySelectorAll(':scope a')[1].textContent,
+        'https://somelink2.com',
+        "text content of 2nd link should be 2nd non-linkified link part of original text");
+});
+
 });
 });
