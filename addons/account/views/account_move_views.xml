@@ -254,6 +254,10 @@
                     <attribute name="optional">hide</attribute>
                     <attribute name="readonly">1</attribute>
                 </field>
+                <field name="credit" position="after">
+                    <field name="balance" optional="hide"/>
+                    <field name="cumulated_balance" optional="show"/>
+                </field>
             </field>
         </record>
 
