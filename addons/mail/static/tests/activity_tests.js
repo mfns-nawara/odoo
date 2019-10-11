@@ -295,6 +295,7 @@ QUnit.test('activity view: activity widget', async function (assert) {
                     assert.step('serverGeneratedAction');
                 } else if (action.res_model === 'mail.compose.message') {
                     assert.deepEqual({
+                        custom_layout: "mail.mail_notification_light",
                         default_model: "task",
                         default_res_id: 30,
                         default_template_id: 8,
