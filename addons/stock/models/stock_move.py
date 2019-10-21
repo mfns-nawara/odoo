@@ -275,7 +275,7 @@ class StockMove(models.Model):
                 move.product_uom_qty, move.product_id.uom_id, rounding_method=rounding_method)
 
     def _get_move_lines(self):
-        """ This will return the move lines to consider when applying _quantity_done_compute on a stock.move. 
+        """ This will return the move lines to consider when applying _quantity_done_compute on a stock.move.
         In some context, such as MRP, it is necessary to compute quantity_done on filtered sock.move.line."""
         self.ensure_one()
         return self.move_line_ids or self.move_line_nosuggest_ids
@@ -338,7 +338,7 @@ class StockMove(models.Model):
         and is represented by the aggregated `product_qty` on the linked move lines. If the move
         is force assigned, the value will be 0.
         """
-        result = {data['move_id'][0]: data['product_qty'] for data in 
+        result = {data['move_id'][0]: data['product_qty'] for data in
             self.env['stock.move.line'].read_group([('move_id', 'in', self.ids)], ['move_id','product_qty'], ['move_id'])}
         for rec in self:
             rec.reserved_availability = rec.product_id.uom_id._compute_quantity(result.get(rec.id, 0.0), rec.product_uom, rounding_method='HALF-UP')
@@ -616,7 +616,19 @@ class StockMove(models.Model):
                 else:
                     raise UserError(_('You cannot unreserve a stock move that has been set to \'Done\'.'))
             moves_to_unreserve |= move
-        moves_to_unreserve.mapped('move_line_ids').unlink()
+        ml_to_update = self.env['stock.move.line']
+        ml_to_unlink = self.env['stock.move.line']
+        for ml in moves_to_unreserve.move_line_ids:
+            if ml.qty_done:
+                ml_to_update |= ml
+            else:
+                ml_to_unlink |= ml
+        if ml_to_update:
+            ml_to_update.write({'product_uom_qty': 0})
+        ml_to_unlink.unlink()
+        # unlink call _recompute_state but it's possible to have a move with all its
+        # move lines so its state won't be updated
+        moves_to_unreserve._recompute_state()
         return True
 
     def _generate_serial_numbers(self, next_serial_count=False):
@@ -1311,7 +1323,7 @@ class StockMove(models.Model):
         """ If the quantity done on a move exceeds its quantity todo, this method will create an
         extra move attached to a (potentially split) move line. If the previous condition is not
         met, it'll return an empty recordset.
-        
+
         The rationale for the creation of an extra move is the application of a potential push
         rule that will handle the extra quantities.
         """
