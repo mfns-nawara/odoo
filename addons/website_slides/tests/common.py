@@ -82,3 +82,4 @@ class SlidesCase(common.SavepointCase):
             'completion_time': 1.5,
             'sequence': 4,
         })
+

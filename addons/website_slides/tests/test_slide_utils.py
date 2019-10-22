@@ -63,12 +63,6 @@ class TestSequencing(slides_common.SlidesCase):
         self.assertEqual([s.id for s in self.channel.slide_ids], [self.slide.id, self.slide_3.id, self.category.id, self.slide_2.id])
 
         self.assertEqual(self.slide.sequence, 1)
-        # self.channel._resequence_slides(self.slide)
-        # self.channel.invalidate_cache()
-        # # self.assertEqual([s.id for s in self.channel.slide_ids], [self.slide.id, self.slide_3.id, self.category.id, self.slide_2.id])
-        # self.assertEqual(self.slide_3.sequence, 2)
-        # self.assertEqual(self.category.sequence, 3)
-        # self.assertEqual(self.slide_2.sequence, 4)
 
 
 class TestFromURL(slides_common.SlidesCase):
