@@ -28,6 +28,7 @@ class TestPyLint(TransactionCase):
         'undefined-variable',
         'eval-used',
         'unreachable',
+        'function-redefined',
 
         'mixed-indentation',
         'deprecated-method',
