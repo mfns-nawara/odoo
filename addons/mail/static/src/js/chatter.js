@@ -63,6 +63,7 @@ var Chatter = Widget.extend({
         this._disableAttachmentBox = !!options.disable_attachment_box;
         this._dp = new concurrency.DropPrevious();
         this._isAttachmentBoxOpen = false;
+        this._isComposerOpen = false;
         // mention: get the prefetched partners and use them as mention suggestions
         // if there is a follower widget, the followers will be added to the
         // suggestions as well once fetched
@@ -111,6 +112,16 @@ var Chatter = Widget.extend({
     // Public
     //--------------------------------------------------------------------------
 
+    /**
+     * resets _suggestedPartnersProm and call _openComposer
+     * if composer is already open, to update suggested recipients
+     */
+    resetSuggestedPartners() {
+        this._resetSuggestedPartners();
+        if (this._isComposerOpen && !this._composer.options.isLog) {
+            this._openComposerMessage();
+        }
+    },
     /**
      * @param {Object} record
      * @param {integer} [record.res_id=undefined]
@@ -183,6 +194,7 @@ var Chatter = Widget.extend({
             this.$('.o_chatter_button_new_message, .o_chatter_button_log_note').removeClass('o_active');
             this._composer.do_hide();
             this._composer.clearComposer();
+            this._isComposerOpen = false;
         }
     },
     /**
@@ -330,10 +342,52 @@ var Chatter = Widget.extend({
             self._composer.on('need_refresh', self, self.trigger_up.bind(self, 'reload'));
             self._composer.on('close_composer', null, self._closeComposer.bind(self, true));
 
+            self._isComposerOpen = true;
             self.$el.addClass('o_chatter_composer_active');
             self.$('.o_chatter_button_new_message, .o_chatter_button_log_note').removeClass('o_active');
             self.$('.o_chatter_button_new_message').toggleClass('o_active', !self._composer.options.isLog);
             self.$('.o_chatter_button_log_note').toggleClass('o_active', self._composer.options.isLog);
+        });
+    },
+    /**
+     * @private
+     *
+     * opens composer for message, check if suggested receipient is already
+     * loaded then simply open composer for message elese first loads
+     * receipient and then open composer for message
+     */
+    _openComposerMessage() {
+        if (!this._suggestedPartnersProm) {
+            this._suggestedPartnersProm = new Promise((resolve, reject) => {
+                this._rpc({
+                    route: '/mail/get_suggested_recipients',
+                    params: {
+                        model: this.record.model,
+                        res_ids: [this.context.default_res_id],
+                    },
+                }).then((result) => {
+                    if (!this._suggestedPartnersProm) {
+                        return; // widget has been reset (e.g. we just switched to another record)
+                    }
+                    const suggestedPartners = [];
+                    const threadRecipients = result[this.context.default_res_id];
+                    _.each(threadRecipients, function (recipient) {
+                        const parsedEmail = recipient[1] && mailUtils.parseEmail(recipient[1]);
+                        suggestedPartners.push({
+                            checked: true,
+                            partner_id: recipient[0],
+                            full_name: recipient[1],
+                            name: parsedEmail[0],
+                            email_address: parsedEmail[1],
+                            reason: recipient[2],
+                        });
+                    });
+                    resolve(suggestedPartners);
+                });
+            });
+        }
+        return this._suggestedPartnersProm.then((suggested_partners) => {
+            this._openComposer({ isLog: false, suggested_partners: suggested_partners });
         });
     },
     /**
@@ -554,39 +608,7 @@ var Chatter = Widget.extend({
         this._discardChanges().then(ev.data.proceed);
     },
     _onOpenComposerMessage: function () {
-        var self = this;
-        if (!this._suggestedPartnersProm) {
-            this._suggestedPartnersProm = new Promise(function (resolve, reject) {
-                self._rpc({
-                    route: '/mail/get_suggested_recipients',
-                    params: {
-                        model: self.record.model,
-                        res_ids: [self.context.default_res_id],
-                    },
-                }).then(function (result) {
-                    if (!self._suggestedPartnersProm) {
-                        return; // widget has been reset (e.g. we just switched to another record)
-                    }
-                    var suggested_partners = [];
-                    var thread_recipients = result[self.context.default_res_id];
-                    _.each(thread_recipients, function (recipient) {
-                        var parsed_email = recipient[1] && mailUtils.parseEmail(recipient[1]);
-                        suggested_partners.push({
-                            checked: true,
-                            partner_id: recipient[0],
-                            full_name: recipient[1],
-                            name: parsed_email[0],
-                            email_address: parsed_email[1],
-                            reason: recipient[2],
-                        });
-                    });
-                    resolve(suggested_partners);
-                });
-            });
-        }
-        this._suggestedPartnersProm.then(function (suggested_partners) {
-            self._openComposer({ isLog: false, suggested_partners: suggested_partners });
-        });
+        this._openComposerMessage();
     },
     /**
      * @private
