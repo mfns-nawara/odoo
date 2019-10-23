@@ -30,6 +30,7 @@
                 <script type="text/javascript" src="/website_slides/static/src/js/slides_course_quiz.js"/>
                 <script type="text/javascript" src="/website_slides/static/src/js/slides_course_quiz_question_form.js"/>
                 <script type="text/javascript" src="/website_slides/static/src/js/slides_course_unsubscribe.js"/>
+                <script type="text/javascript" src="/website_slides/static/src/js/slides_course_content_manager.js"/>
             </xpath>
         </template>
 
