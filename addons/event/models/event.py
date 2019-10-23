@@ -95,6 +95,10 @@ class EventEvent(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _order = 'date_begin'
 
+    def _get_default_stage_id(self):
+        event_stages = self.env['event.stage'].search([])
+        return event_stages[0] if event_stages else False
+
     name = fields.Char(
         string='Event', translate=True, required=True,
         readonly=False, states={'done': [('readonly', True)]})
@@ -118,7 +122,15 @@ class EventEvent(models.Model):
         readonly=False, states={'done': [('readonly', True)]})
     color = fields.Integer('Kanban Color Index')
     event_mail_ids = fields.One2many('event.mail', 'event_id', string='Mail Schedule', copy=True)
-
+    # Kanban fields
+    kanban_state = fields.Selection([('normal', 'In Progress'), ('done', 'Done'), ('blocked', 'Blocked')])
+    kanban_state_label = fields.Char(compute='_compute_kanban_state_label', string='Kanban State Label', tracking=True, store=True)
+    stage_id = fields.Many2one(
+        'event.stage', ondelete='restrict', default=_get_default_stage_id,
+        group_expand='_read_group_stage_ids', tracking=True)
+    legend_blocked = fields.Char(related='stage_id.legend_blocked', string='Kanban Blocked Explanation', readonly=True, related_sudo=False)
+    legend_done = fields.Char(related='stage_id.legend_done', string='Kanban Valid Explanation', readonly=True, related_sudo=False)
+    legend_normal = fields.Char(related='stage_id.legend_normal', string='Kanban Ongoing Explanation', readonly=True, related_sudo=False)
     # Seats and computation
     seats_max = fields.Integer(
         string='Maximum Attendees Number',
@@ -145,7 +157,6 @@ class EventEvent(models.Model):
     seats_expected = fields.Integer(
         string='Number of Expected Attendees',
         compute_sudo=True, readonly=True, compute='_compute_seats')
-
     # Registration fields
     registration_ids = fields.One2many(
         'event.registration', 'event_id', string='Attendees',
@@ -161,7 +172,6 @@ class EventEvent(models.Model):
     date_begin_located = fields.Char(string='Start Date Located', compute='_compute_date_begin_tz')
     date_end_located = fields.Char(string='End Date Located', compute='_compute_date_end_tz')
     is_one_day = fields.Boolean(compute='_compute_field_is_one_day')
-
     state = fields.Selection([
         ('draft', 'Unconfirmed'), ('cancel', 'Cancelled'),
         ('confirm', 'Confirmed'), ('done', 'Done')],
@@ -215,6 +225,16 @@ class EventEvent(models.Model):
             if event.seats_max > 0:
                 event.seats_available = event.seats_max - (event.seats_reserved + event.seats_used)
             event.seats_expected = event.seats_unconfirmed + event.seats_reserved + event.seats_used
+
+    @api.depends('stage_id', 'kanban_state')
+    def _compute_kanban_state_label(self):
+        for event in self:
+            if event.kanban_state == 'normal':
+                event.kanban_state_label = event.stage_id.legend_normal
+            elif event.kanban_state == 'blocked':
+                event.kanban_state_label = event.stage_id.legend_blocked
+            else:
+                event.kanban_state_label = event.stage_id.legend_done
 
     @api.model
     def _tz_get(self):
@@ -308,6 +328,10 @@ class EventEvent(models.Model):
         return result
 
     @api.model
+    def _read_group_stage_ids(self, stages, domain, order):
+        return self.env['event.stage'].search([])
+
+    @api.model
     def create(self, vals):
         res = super(EventEvent, self).create(vals)
         if res.organizer_id:
@@ -327,6 +351,21 @@ class EventEvent(models.Model):
         self.ensure_one()
         default = dict(default or {}, name=_("%s (copy)") % (self.name))
         return super(EventEvent, self).copy(default)
+
+    def action_set_done(self):
+        """
+        Action which will move the events
+        into the first next (by sequence) stage defined as "Ended"
+        (if they are not already in an ended stage)
+        """
+        first_ended_stage = self.env['event.stage'].search([('pipe_end', '=', True)], order='sequence')
+        if first_ended_stage:
+            self.write({'stage_id': first_ended_stage[0].id})
+
+    def action_set_cancel(self):
+        first_cancel_stage = self.env['event.stage'].search([('pipe_cancel', '=', True)], order='sequence')
+        if first_cancel_stage:
+            self.stage_id = first_cancel_stage[0]
 
     def button_draft(self):
         self.write({'state': 'draft'})

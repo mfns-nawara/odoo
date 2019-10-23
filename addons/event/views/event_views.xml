@@ -205,7 +205,11 @@
                                 <field name="seats_expected" widget="statinfo" string="Attendees"/>
                             </button>
                         </div>
-                        <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
+                        <field name="legend_blocked" invisible="1"/>
+                        <field name="legend_normal" invisible="1"/>
+                        <field name="legend_done" invisible="1"/>
+                        <widget name="web_ribbon" text="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
+                        <field name="kanban_state" widget="state_selection" class="ml-auto"/>
                         <div class="oe_title">
                             <label for="name" class="oe_edit_only"/>
                             <h1><field name="name" placeholder="Event Name"/></h1>
@@ -303,8 +307,9 @@
             <field name="name">event.event.kanban</field>
             <field name="model">event.event</field>
             <field name="arch" type="xml">
-                <kanban class="o_event_kanban_view">
+                <kanban class="o_event_kanban_view" default_group_by="stage_id">
                     <field name="user_id"/>
+                    <field name="stage_id" options='{"group_by_tooltip": {"description": "Description"}}'/>
                     <field name="country_id"/>
                     <field name="date_begin"/>
                     <field name="date_end"/>
@@ -313,6 +318,9 @@
                     <field name="seats_used"/>
                     <field name="seats_expected"/>
                     <field name="color"/>
+                    <field name="legend_blocked"/>
+                    <field name="legend_normal"/>
+                    <field name="legend_done"/>
                     <templates>
                         <t t-name="kanban-box">
                             <div t-attf-class="{{!selection_mode ? 'oe_kanban_color_' + kanban_getcolor(record.color.raw_value) : ''}} oe_kanban_card oe_kanban_global_click">
@@ -354,6 +362,10 @@
                                         </t>
                                     </h4>
                                 </div>
+                                <div class="o_event_bottom_right">
+                                    <field name="kanban_state" widget="state_selection" groups="base.group_user"/>
+                                    <img t-att-src="kanban_image('res.users', 'image_128', record.user_id.raw_value)" t-att-title="record.user_id.value" t-att-alt="record.user_id.value"/>
+                                </div>
                             </div>
                         </t>
                     </templates>
@@ -385,6 +397,7 @@
                     <field name="name" string="Event"/>
                     <field name="event_type_id"/>
                     <field name="user_id"/>
+                    <field name="stage_id"/>
                     <filter string="My Events" name="myevents" help="My Events" domain="[('user_id', '=', uid)]"/>
                     <filter string="Unread Messages" name="message_needaction" domain="[('message_needaction', '=', True)]"/>
                     <separator/>
