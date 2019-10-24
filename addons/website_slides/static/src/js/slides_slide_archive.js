@@ -30,7 +30,13 @@ var SlideArchiveDialog = Dialog.extend({
         this.slideId = this.$slideTarget.data('slideId');
         this._super(parent, options);
     },
-
+    _displayCategoryEmptyFlag: function (categoryID){
+        var categorySlides = $('.o_wslides_slides_list_slide[data-category-id=' + categoryID + ']');
+        if (categorySlides.length === 0){
+            $('.category-empty[data-category-id='+ categoryID +']').removeClass('d-none');
+        }
+    },
+    //---------
     //--------------------------------------------------------------------------
     // Handlers
     //--------------------------------------------------------------------------
@@ -46,8 +52,11 @@ var SlideArchiveDialog = Dialog.extend({
             params: {
                 slide_id: this.slideId
             },
-        }).then(function () {
-            self.$slideTarget.closest('.o_wslides_slides_list_slide').remove();
+        }).then(function (data) {
+            if (!data.error){
+                self.$slideTarget.closest('.o_wslides_slides_list_slide').remove();
+                self._displayCategoryEmptyFlag(data.category_id);
+            }
             self.close();
         });
     }
