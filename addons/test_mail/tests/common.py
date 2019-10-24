@@ -49,7 +49,6 @@ class BaseFunctionalTest(common.SavepointCase):
             'subject': 'About ${object.name}',
             'body_html': '<p>Hello ${object.name}</p>',
             'model_id': cls.env['ir.model']._get(model).id,
-            'user_signature': False,
         }
         if template_values:
             create_values.update(template_values)
