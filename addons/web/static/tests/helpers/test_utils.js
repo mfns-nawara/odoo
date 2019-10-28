@@ -122,7 +122,9 @@ return Promise.all([
             intercept: testUtilsMock.intercept,
             patch: testUtilsMock.patch,
             patchDate: testUtilsMock.patchDate,
+            patchRequestAnimationFrame: testUtilsMock.patchRequestAnimationFrame,
             unpatch: testUtilsMock.unpatch,
+            unpatchRequestAnimationFrame: testUtilsMock.unpatchRequestAnimationFrame,
             fieldsViewGet: testUtilsMock.fieldsViewGet,
             patchSetTimeout: testUtilsMock.patchSetTimeout,
         },
@@ -184,6 +186,7 @@ return Promise.all([
             dropFiles: testUtilsFile.dropFiles,
         },
 
+        cleanTarget: testUtilsCreate.cleanTarget,
         createActionManager: testUtilsCreate.createActionManager,
         createDebugManager: testUtilsCreate.createDebugManager,
         createAsyncView: testUtilsCreate.createView,
@@ -196,6 +199,7 @@ return Promise.all([
         makeTestPromiseWithAssert: makeTestPromiseWithAssert,
         nextMicrotaskTick: nextMicrotaskTick,
         nextTick: nextTick,
+        prepareTarget: testUtilsCreate.prepareTarget,
 
         // backward-compatibility
         addMockEnvironment: deprecated(testUtilsMock.addMockEnvironment, 'mock'),

@@ -10,14 +10,21 @@ odoo.define('web.test_utils_create', function (require) {
  * testUtils file.
  */
 
-var ActionManager = require('web.ActionManager');
-var config = require('web.config');
-var ControlPanelView = require('web.ControlPanelView');
-var concurrency = require('web.concurrency');
-var DebugManager = require('web.DebugManager.Backend');
-var dom = require('web.dom');
-var testUtilsMock = require('web.test_utils_mock');
-var Widget = require('web.Widget');
+const ActionManager = require('web.ActionManager');
+const config = require('web.config');
+const ControlPanelView = require('web.ControlPanelView');
+const concurrency = require('web.concurrency');
+const DebugManager = require('web.DebugManager.Backend');
+const dom = require('web.dom');
+const testUtilsMock = require('web.test_utils_mock');
+const Widget = require('web.Widget');
+
+// Variables used to get the current target and intercepts events
+const currentTarget = {
+    el: null,
+    events: null,
+    classes: null,
+};
 
 /**
  * create and return an instance of ActionManager with all rpcs going through a
@@ -27,17 +34,12 @@ var Widget = require('web.Widget');
  * @param {Object} [params.actions] the actions given to the mock server
  * @param {Object} [params.archs] this archs given to the mock server
  * @param {Object} [params.data] the business data given to the mock server
- * @param {boolean} [params.debug]
  * @param {function} [params.mockRPC]
  * @returns {ActionManager}
  */
-var createActionManager = async function (params) {
+async function createActionManager(params) {
     params = params || {};
-    var $target = $('#qunit-fixture');
-    if (params.debug) {
-        $target = $('body');
-        $target.addClass('debug');
-    }
+    const target = prepareTarget(params);
 
     var widget = new Widget();
     // when 'document' addon is installed, the sidebar does a 'search_read' on
@@ -57,7 +59,7 @@ var createActionManager = async function (params) {
         },
     });
     testUtilsMock.addMockEnvironment(widget, _.defaults(params, { debounce: false }));
-    await widget.prependTo($target);
+    await widget.prependTo(target);
     widget.$el.addClass('o_web_client');
     if (config.device.isMobile) {
         widget.$el.addClass('o_touch_device');
@@ -79,7 +81,7 @@ var createActionManager = async function (params) {
         });
         return actionManager;
     });
-};
+}
 
 /**
  * create a view from various parameters.  Here, a view means a javascript
@@ -94,8 +96,6 @@ var createActionManager = async function (params) {
  * @param {string} params.arch the xml (arch) of the view to be instantiated
  * @param {any[]} [params.domain] the initial domain for the view
  * @param {Object} [params.context] the initial context for the view
- * @param {Object} [params.debug=false] if true, the widget will be appended in
- *   the DOM. Also, RPCs and uncaught OdooEvent will be logged
  * @param {string[]} [params.groupBy] the initial groupBy for the view
  * @param {integer} [params.fieldDebounce=0] the debounce value to use for the
  *   duration of the test.
@@ -109,14 +109,10 @@ var createActionManager = async function (params) {
  * @returns {Promise<AbstractController>} resolves with the instance of the view
  */
 async function createView(params) {
-    var $target = $('#qunit-fixture');
+    const target = prepareTarget(params);
     var widget = new Widget();
-    if (params.debug) {
-        $target = $('body');
-        $target.addClass('debug');
-    }
     // reproduce the DOM environment of views
-    var $webClient = $('<div>').addClass('o_web_client').prependTo($target);
+    var $webClient = $('<div>').addClass('o_web_client').prependTo(target);
     var $actionManager = $('<div>').addClass('o_action_manager').appendTo($webClient);
 
 
@@ -236,8 +232,6 @@ async function createCalendarView(params, options) {
  * @param {Object} [params={}]
  * @param {Object} [params.action={}]
  * @param {Object} [params.context={}]
- * @param {Object} [params.debug=false] if true, the widget will be appended in
- *   the DOM. Also, RPCs and uncaught OdooEvent will be logged
  * @param {string} [params.domain=[]]
  * @param {integer} [params.fieldDebounce=0] the debounce value to use for the
  *   duration of the test.
@@ -264,13 +258,9 @@ async function createCalendarView(params, options) {
  */
 function createControlPanel(params) {
     params = params || {};
-    var $target = $('#qunit-fixture');
-    if (params.debug) {
-        $target = $('body');
-        $target.addClass('debug');
-    }
+    const target = prepareTarget(params);
     // reproduce the DOM environment of a view control panel
-    var $webClient = $('<div>').addClass('o_web_client').prependTo($target);
+    var $webClient = $('<div>').addClass('o_web_client').prependTo(target);
     var $actionManager = $('<div>').addClass('o_action_manager').appendTo($webClient);
     var $action = $('<div>').addClass('o_action').appendTo($actionManager);
 
@@ -395,7 +385,56 @@ function createParent(params) {
     return widget;
 }
 
+/**
+ * Gets the target (fixture or body) of the document and adds event listeners
+ * to intercept custom or DOM events.
+ *
+ * @param {Object} [options={}]
+ * @param {string[]} [options.classes=[]] additionnal classes to add to the target
+ * @param {boolean} [options.debug=false] if true, the widget will be appended in
+ *      the DOM. Also, RPCs and uncaught OdooEvent will be logged
+ * @param {Object} [options.events={}] events intercepted by the target.
+ *      key: (event name), value: (callback)
+ * @returns {HTMLElement}
+ */
+function prepareTarget(options={}) {
+    const { classes, debug, events } = options;
+    // Determines the target node
+    currentTarget.el = debug ? document.body : document.querySelector("#qunit-fixture");
+    currentTarget.classes = classes || [];
+    if (debug && !currentTarget.classes.includes('debug')) {
+        currentTarget.classes.push('debug');
+    }
+    // Adds classes if needed
+    currentTarget.classes.forEach(className => currentTarget.el.classList.add(className));
+    // Listens to events to intercept
+    currentTarget.events = events || {};
+    for (let eventName in currentTarget.events) {
+        currentTarget.el.addEventListener(eventName, currentTarget.events[eventName]);
+    }
+    return currentTarget.el;
+}
+
+/**
+ * Clears the current target of its added classes and event listeners. Note that
+ * you can call this function event if `prepareTarget` has not been called previously
+ */
+function cleanTarget() {
+    const { classes, events, el } = currentTarget;
+    if (el) {
+        classes.forEach(className => el.classList.remove(className));
+        for (let eventName in events) {
+            el.removeEventListener(eventName, events[eventName]);
+        }
+        // Resets the target state
+        for (let key in currentTarget) {
+            currentTarget[key] = null;
+        }
+    }
+}
+
 return {
+    cleanTarget: cleanTarget,
     createActionManager: createActionManager,
     createCalendarView: createCalendarView,
     createControlPanel: createControlPanel,
@@ -403,6 +442,7 @@ return {
     createModel: createModel,
     createParent: createParent,
     createView: createView,
+    prepareTarget: prepareTarget,
 };
 
 });
