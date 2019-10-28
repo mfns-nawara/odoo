@@ -9,6 +9,34 @@ class AccountInvoice(models.Model):
 
     def _get_ddt_values(self):
         res = {}
+        line_count = 0
+        for line in self.invoice_line_ids.filtered(lambda l: not l.display_type): #TODO: should be done?
+            done_moves_related = line.sale_line_ids.mapped('move_ids').filtered(lambda m: m.state == 'done')
+            if len(done_moves_related) <= 1:
+                pass
+            else:
+                total_qty = 0
+                total_invoices = done_moves_related.mapped('sale_line_ids.invoice_line_ids').sorted(lambda m: m.invoice_date)
+                total_invs = [(m.product_qty, m) for m in total_invoices] #TODO: convert UoM
+                inv = total_invs.pop(0)
+                invoice_pickings = {}
+                for move in done_moves_related.sorted(lambda m: m.date):
+                    move_qty = move.product_qty
+                    total_qty += move.product_qty
+                    while (move_qty > 0):
+                        if inv[0] > move_qty:
+                            inv = (inv[0] - move_qty, inv[1])
+                            if inv[1] == invoice:
+
+
+
+
+
+            line_count += 1
+            # Now find the quantities corresponding to which move lines
+
+
+
         for line in self.invoice_line_ids.filtered(lambda l: not l.display_type):
             sale_order = line.sale_line_ids.mapped('order_id')
             invoice = sale_order.invoice_ids.filtered(lambda x: x.invoice_date)
