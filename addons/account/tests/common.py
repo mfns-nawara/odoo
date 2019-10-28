@@ -464,6 +464,7 @@ class AccountTestInvoicingCommon(SavepointCase):
             'login': 'accountman',
             'groups_id': [(6, 0, cls.env.user.groups_id.ids), (4, cls.env.ref('account.group_account_user').id)],
         })
+        print(cls.env.user.groups_id.mapped('name'))
         user.partner_id.email = 'accountman@test.com'
 
         # Shadow the current environment/cursor with one having the report user.
