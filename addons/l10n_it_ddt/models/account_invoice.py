@@ -12,14 +12,15 @@ class AccountInvoice(models.Model):
         line_count = 0
         invoice_line_pickings = {}
         for line in self.invoice_line_ids.filtered(lambda l: not l.display_type): #TODO: should be done?
+            line_count += 1
             done_moves_related = line.sale_line_ids.mapped('move_ids').filtered(lambda m: m.state == 'done')
-            invoice_line_pickings[line.id] = self.env['stock.picking']
+            invoice_line_pickings[line.id] = []
             if len(done_moves_related) <= 1:
                 if done_moves_related:
                     invoice_line_pickings[done_moves_related.picking_id] = line
             else:
                 total_qty = 0
-                total_invoices = done_moves_related.mapped('sale_line_ids.invoice_line_ids').sorted(lambda m: m.invoice_date)
+                total_invoices = done_moves_related.mapped('sale_line_ids.invoice_line_ids').sorted(lambda m: m.state == 'posted' and m.invoice_date)
                 total_invs = [(m.product_qty, m) for m in total_invoices] #TODO: convert UoM
                 inv = total_invs.pop(0)
 
@@ -38,11 +39,11 @@ class AccountInvoice(models.Model):
                                 inv = total_invs.pop(0)
                             else:
                                 move_qty = 0 #abort when not enough matched invoices
-                        if invoice_line == line:
-                            invoice_line_pickings[move.picking_id] |= line
+                        if invoice_line == line and line_count not in invoice_line[move.picking_id]:
+                            invoice_line_pickings[move.picking_id].append(line_count)
         return invoice_line_pickings
 
-        # 
+        #
         #
         #     line_count += 1
         #     # Now find the quantities corresponding to which move lines
