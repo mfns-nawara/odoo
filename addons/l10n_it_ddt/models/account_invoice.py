@@ -14,19 +14,17 @@ class AccountInvoice(models.Model):
         for line in self.invoice_line_ids.filtered(lambda l: not l.display_type): #TODO: should be done?
             line_count += 1
             done_moves_related = line.sale_line_ids.mapped('move_ids').filtered(lambda m: m.state == 'done')
-            invoice_line_pickings[line.id] = []
             if len(done_moves_related) <= 1:
-                if done_moves_related:
-                    invoice_line_pickings[done_moves_related.picking_id] = line
+                if done_moves_related and line_count not in invoice_line_pickings.get(done_moves_related.picking_id, []):
+                    invoice_line_pickings.setdefault(done_moves_related.picking_id, []).append(line_count)
             else:
-                total_qty = 0
-                total_invoices = done_moves_related.mapped('sale_line_ids.invoice_line_ids').sorted(lambda m: m.state == 'posted' and m.invoice_date)
-                total_invs = [(m.product_qty, m) for m in total_invoices] #TODO: convert UoM
+                # TODO: invoice_date is not DateTime probably
+                total_invoices = done_moves_related.mapped('sale_line_id.invoice_lines').sorted(lambda m: m.move_id.state == 'posted' and m.move_id.invoice_date)
+                total_invs = [(m.quantity, m) for m in total_invoices] #TODO: convert UoM (product_uom_id)
                 inv = total_invs.pop(0)
 
                 for move in done_moves_related.sorted(lambda m: m.date):
                     move_qty = move.product_qty
-                    total_qty += move.product_qty
                     while (move_qty > 0):
                         if inv[0] > move_qty:
                             inv = (inv[0] - move_qty, inv[1])
@@ -39,8 +37,8 @@ class AccountInvoice(models.Model):
                                 inv = total_invs.pop(0)
                             else:
                                 move_qty = 0 #abort when not enough matched invoices
-                        if invoice_line == line and line_count not in invoice_line[move.picking_id]:
-                            invoice_line_pickings[move.picking_id].append(line_count)
+                        if invoice_line == line and line_count not in invoice_line_pickings.get(move.picking_id, []):
+                            invoice_line_pickings.setdefault(move.picking_id, []).append(line_count)
         return invoice_line_pickings
 
         #
