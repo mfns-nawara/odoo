@@ -5,12 +5,16 @@
         <field name="model">stock.picking</field>
         <field name="inherit_id" ref="stock.view_picking_form"/>
         <field name="arch" type="xml">
+            <xpath expr="button[name='do_print_picking']" position="after">
+                <button name="%(l10n_it_ddt.action_report_ddt)d" type="action" string="Print DDT"
+                        attrs="{'invisible': ['|', '|', '|', ('picking_type_code', '!=', 'outgoing'), ('l10n_it_country_code', '!=', 'IT'), ('state', '!=', 'done'), ('is_locked', '=', False)]}"
+                        groups="base.group_user"/>
+            </xpath>
+
             <xpath expr="//field[@name='carrier_id']" position="after">
-                <field name="l10n_it_transport_reason_id" string="Transport Reason"/>
-                <field name="l10n_it_transport_method_id" string="Transport Method"/>
-                <field name="l10n_it_volume" string="Volume"/>
-                <field name="l10n_it_parcels" string="Parcels"/>
-                <field name="l10n_it_size" string="Size"/>
+                <field name="l10n_it_transport_reason_id" string="Transport Reason" attrs="{'invisible': [('l10n_it_country_code', '!=', 'IT')]}"/>
+                <field name="l10n_it_transport_method_id" string="Transport Method" attrs="{'invisible': [('l10n_it_country_code', '!=', 'IT')]}"/>
+                <field name="l10n_it_parcels" string="Parcels" attrs="{'invisible': [('l10n_it_country_code', '!=', 'IT')]}"/>
             </xpath>
         </field>
     </record>

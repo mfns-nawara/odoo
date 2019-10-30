@@ -22,10 +22,7 @@
                         </div>
                         <div class="mt16"/>
                         <div class="mt16"/>
-                        <div>
-                            <t t-foreach="o.invoice_ids.mapped('l10n_it_ddt_id')" t-as="ddt_id">
-                                <h1 t-esc="ddt_id.name"/>
-                            </t>
+                        <div><span>DDT number: <h1 t-esc="o.name"/></span>
                         </div>
                         <div class="clearfix"/>
                         <div class="mb32"/>
@@ -82,7 +79,7 @@
                                         <span t-field="o.date"/><div class="mt16"/>
                                     </td>
                                     <td>
-                                        <span t-field="o.l10n_it_size"/><div class="mt16"/>
+                                        <span t-field="o.volume"/><div class="mt16"/>
                                     </td>
                                 </tr>
                             </tbody>
@@ -108,6 +105,8 @@
                                 </tr>
                             </tbody>
                         </table>
+                        <div t-if="o.note"><b>Note:</b> <span t-field="o.note"/>
+                        </div>
                         <div class="mt64"/>
                         <div class="mt64"/>
                         <table class="table table-sm" name="document_details">
