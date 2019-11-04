@@ -156,6 +156,7 @@
             <script type="text/javascript" src="/web/static/src/js/public/public_widget.js"/>
             <script type="text/javascript" src="/web/static/src/js/services/ajax_service.js"></script>
             <script type="text/javascript" src="/web/static/src/js/services/local_storage_service.js"></script>
+            <script type="text/javascript" src="/web/static/src/js/public/lazyloader.js"/>
             <!-- Bus, Mail, Livechat -->
                 <!-- thread windows -->
                 <script type="text/javascript" src="/mail/static/src/js/thread_windows/abstract_thread_window.js"></script>
