@@ -377,11 +377,9 @@ class MrpWorkorder(models.Model):
                     line_values = workorder._generate_lines_values(move, qty_to_consume - qty_already_consumed)
                     self.env['mrp.workorder.line'].create(line_values)
 
-    def _defaults_from_finished_workorder_line(self, reference_lot_lines):
+    def _defaults_from_finished_workorder_line(self, reference_lot_lines, produced_qty, producing_qty):
         for r_line in reference_lot_lines:
             # see which lot we could suggest and its related qty_producing
-            if not r_line.lot_id:
-                continue
             candidates = self.finished_workorder_line_ids.filtered(lambda line: line.lot_id == r_line.lot_id)
             rounding = self.product_uom_id.rounding
             if not candidates:
@@ -394,6 +392,17 @@ class MrpWorkorder(models.Model):
                 self.write({
                     'finished_lot_id': r_line.lot_id.id,
                     'qty_producing': r_line.qty_done - candidates.qty_done,
+                })
+                return True
+            elif not r_line.lot_id and self.product_tracking == 'lot':
+                qty_done_pre_wo = sum(reference_lot_lines.filtered(lambda x: not x.lot_id).mapped('qty_done'))
+                qty_done_next_wo = sum(self.finished_workorder_line_ids.filtered(lambda x: not x.lot_id).mapped('qty_done'))
+                suggested_qty = qty_done_pre_wo - qty_done_next_wo
+                # if some qty are done without LN\SN
+                if suggested_qty + self.qty_produced > produced_qty:
+                    suggested_qty = producing_qty
+                self.write({
+                    'qty_producing': 0.0 if suggested_qty < 0 else suggested_qty
                 })
                 return True
         return False
@@ -421,15 +430,30 @@ class MrpWorkorder(models.Model):
         # Update workorder quantity produced
         self.qty_produced += self.qty_producing
 
+        previous_wo = self.env['mrp.workorder'].search([
+            ('next_work_order_id', '=', self.id)])
         # Suggest a finished lot on the next workorder
-        if self.next_work_order_id and self.product_tracking != 'none' and (not self.next_work_order_id.finished_lot_id or self.next_work_order_id.finished_lot_id == self.finished_lot_id):
-            self.next_work_order_id._defaults_from_finished_workorder_line(self.finished_workorder_line_ids)
+        if self.next_work_order_id and self.product_tracking != 'none' and (not self.next_work_order_id.finished_lot_id or self.next_work_order_id.finished_lot_id == self.finished_lot_id) and self.next_work_order_id.state != 'done':
+            self.next_work_order_id._defaults_from_finished_workorder_line(self.finished_workorder_line_ids, self.qty_produced, self.qty_producing)
             # As we may have changed the quantity to produce on the next workorder,
             # make sure to update its wokorder lines
             self.next_work_order_id._apply_update_workorder_lines()
 
         # One a piece is produced, you can launch the next work order
         self._start_nextworkorder()
+
+        # To suggest the qty_producing in current and next WO
+        if self.product_tracking != 'serial':
+            # To update the qty_producing of next WO
+            if self.next_work_order_id and self.next_work_order_id.state != 'done' and self.product_tracking == 'none':
+                self.next_work_order_id.qty_producing = self.qty_produced - self.next_work_order_id.qty_produced
+                self.next_work_order_id._apply_update_workorder_lines()
+            # To update the qty_producing of current WO (Used in partial production)
+            # To make the qty_producing = 0 if product tracking is LOT and previously produced qty is already processed in current WO.
+            suggested_qty = self.qty_remaining
+            if previous_wo:
+                suggested_qty = previous_wo.qty_produced - self.qty_produced
+            self.qty_producing = 0.0 if suggested_qty < 0 else suggested_qty
 
         # Test if the production is done
         rounding = self.production_id.product_uom_id.rounding
@@ -441,10 +465,9 @@ class MrpWorkorder(models.Model):
                 ])
             candidate_found_in_previous_wo = False
             if previous_wo:
-                candidate_found_in_previous_wo = self._defaults_from_finished_workorder_line(previous_wo.finished_workorder_line_ids)
+                candidate_found_in_previous_wo = self._defaults_from_finished_workorder_line(previous_wo.finished_workorder_line_ids, previous_wo.qty_produced, previous_wo.qty_producing)
             if not candidate_found_in_previous_wo:
                 # self is the first workorder
-                self.qty_producing = self.qty_remaining
                 self.finished_lot_id = False
                 if self.product_tracking == 'serial':
                     self.qty_producing = 1
