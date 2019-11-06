@@ -5,6 +5,71 @@
 
 <div t-name="Loading" class="o_loading"/>
 
+<t t-name="OwlDialog" owl="1">
+    <div role="dialog" class="modal"
+        tabindex="-1"
+        t-att-class="{o_technical_modal: props.technical, o_modal_full: props.fullscreen}"
+        t-att-data-backdrop="props.backdrop"
+        t-on-close_dialog.stop="_onCloseDialog"
+        >
+        <div class="modal-dialog" t-att-class="sizeClass">
+            <div class="modal-content">
+                <header t-if="props.renderHeader" class="modal-header">
+                    <h4 class="modal-title">
+                        <t t-raw="props.title"/>
+                        <span class="o_subtitle text-muted small"><t t-esc="props.subtitle"/></span>
+                    </h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" tabindex="-1">×</button>
+                </header>
+                <main class="modal-body" t-att-class="props.dialogClass">
+                    <t t-if="props.subComponent"
+                        t-component="props.subComponent.component"
+                        t-props="props.subComponent.props"
+                    />
+                    <t t-elif="props.textContent" t-esc="props.textContent"/>
+                </main>
+                <footer t-if="props.renderFooter" class="modal-footer" t-ref="modal-footer">
+                    <button t-foreach="buttons" t-as="button"
+                        t-att="button.attrs"
+                        t-on-click.stop="_onButtonClick(button_index)"
+                        t-on-keydown="_onFooterButtonKeyDown">
+                        <t t-if="button.icon">
+                            <i t-if="button.icon.startsWith('fa-')" class="fa fa-fw o_button_icon" t-att-class="button.icon"/>
+                            <img t-else="" t-att-src="button.icon"/>
+                        </t>
+                        <span t-if="button.text" t-esc="button.text"/>
+                    </button>
+                </footer>
+            </div>
+        </div>
+    </div>
+</t>
+
+<t t-name="OwlHiddenInputFile" owl="1">
+    <div t-attf-class="o_hidden_input_file #{fileupload_class or ''}"
+        t-att-style="fileupload_style"
+        aria-atomic="true"
+        >
+        <form class="o_form_binary_form"
+            t-att-target="fileupload_id"
+            method="post"
+            enctype="multipart/form-data"
+            t-att-action="fileupload_action || '/web/binary/upload'"
+            t-ref="input-form"
+            >
+            <input type="hidden" name="csrf_token" t-att-value="csrf_token"/>
+            <input type="hidden" name="callback" t-att-value="fileupload_id"/>
+            <input type="file"
+                class="o_input_file"
+                name="ufile"
+                t-att="{'multiple': multi_upload ? 'multiple' : null, 'accept': accepted_file_extensions || '*'}"
+            />
+            <t t-raw="0"/>
+        </form>
+        <iframe t-att-id="fileupload_id" t-att-name="fileupload_id" style="display: none"/>
+    </div>
+</t>
+
 <t t-name="WidgetLabel.tooltip">
     <div class="oe_tooltip_string" t-if="widget.string" role="tooltip">
         <t t-esc="widget.string"/> <t t-if="debug and widget.nolabel">(nolabel)</t>
