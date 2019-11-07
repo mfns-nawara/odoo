@@ -40,7 +40,7 @@ class MockSMS(sms_common.MockSMS):
             'failure_type': optional: sms_number_missing / sms_number_format / sms_credit / sms_server
             }, { ... }]
         """
-        traces = self.env['mailing.trace'].search([
+        traces = self.env['mail.notification'].search([
             ('mass_mailing_id', 'in', mailing.ids),
             ('res_id', 'in', records.ids)
         ])
@@ -57,7 +57,7 @@ class MockSMS(sms_common.MockSMS):
             if number is None and partner:
                 number = phone_validation.phone_get_sanitized_record_number(partner)
 
-            notif = traces.filtered(lambda s: s.sms_number == number and s.state == state)
+            notif = traces.filtered(lambda s: s.sms_number == number and s.notification_status == state)
             self.assertTrue(notif, 'SMS: not found notification for number %s, (state: %s)' % (number, state))
 
             if check_sms:

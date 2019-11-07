@@ -123,7 +123,7 @@ class TestMassSMS(test_mail_full_common.TestSMSCommon):
             with self.mockSMSGateway():
                 self.mailing.action_send_sms(res_ids=self.records[:5].ids)
 
-        traces = self.env['mailing.trace'].search([('mass_mailing_id', 'in', self.mailing.ids)])
+        traces = self.env['mail.notification'].search([('mass_mailing_id', 'in', self.mailing.ids)])
         self.assertEqual(len(traces), 5)
         # new traces generated
         self.assertSMSStatistics(
