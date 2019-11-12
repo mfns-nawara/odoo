@@ -1,8 +1,8 @@
-odoo.define("web.test_env", async function(require) {
+odoo.define("web.test_env", async function (require) {
     "use strict";
 
-    const config = require("web.config");
     const core = require("web.core");
+    const config = require("web.config");
     const session = require("web.session");
     const rpc = require("web.rpc");
     const OdooQWeb = require("web.OdooQWeb");
@@ -11,70 +11,103 @@ odoo.define("web.test_env", async function(require) {
 
     let templates = null;
 
-    async function makeTestEnvironment(env = {}) {
+    /**
+     * Creates a test environment with the given environment object.
+     * Some methods will throw an error if called while not being explicitly implemented.
+     * This behaviour can be override by providing the name of one of the env
+     * properties in the 'using' arguments.
+     *
+     * @param {Object} [env={}]
+     * @param  {...string} [using] keywords to use a specific service's default methods.
+     *      e.g. 'useSession' will use the default 'web.services' methods.
+     *      Available default properties:
+     *      - bus (useBus)
+     *      - config (useConfig)
+     *      - session (useSession)
+     */
+    async function makeTestEnvironment(env = {}, ...using) {
+        /**
+         * Helper allowing to prevent the use of some functions if they are not implemented
+         * first in the `env` object.
+         *
+         * @param {string} fnPath dot-separated path to parent object, that will be called from
+         *      the env object (e.g. services = 'env.services')
+         * @param {Function} [callback] custom callback to be called as a wrapper: it
+         *      will take the implemented function as the first argument and will
+         *      transmit the remaining arguments.
+         */
+        function _mandatory(fnPath) {
+            return function () {
+                const properties = fnPath.split('.');
+                throw new Error(`Method "${properties.pop()}" not implemented in object "${['env', ...properties].join('.')}"`);
+            };
+        }
 
-        function getCookie() {
-            throw new Error("getCookie method not provided");
-        }
-        function navigate(url, params) {
-            throw new Error("navigate method not provided");
-        }
-        function performRPC(params, options) {
-            if (env.rpc) {
+        // Bus
+        // const testBus = 'useBus' in using ? bus :
+        //     Object.assign({}, bus, {
+        //         // mandatory bus functions
+        //         // ...
+        //     });
+
+        // Config
+        const testConfig = 'useConfig' in using ? config :
+            Object.assign({}, config, {
+                isDebug: _mandatory('config.isDebug'),
+                // ...
+            }, env.config);
+
+        // RPC
+        const testRPC = 'rpc' in env ?
+            function (params, options) {
                 const query = rpc.buildQuery(params);
                 return env.rpc(query.route, query.params, options);
-            }
-            throw new Error("rpc method not provided");
-        }
-        function setCookie() {
-            throw new Error("setCookie method not provided");
-        }
-        function test_env__t() {
-            if (env._t) {
-                return env._t(...arguments);
-            }
-            throw new Error("_t method not provided");
-        }
-        function blockUI(params) {
-            throw new Error("blockUI method not provided");
-        }
-        function unblockUI() {
-            throw new Error("unblockUI method not provided");
-        }
+            } :
+            _mandatory('rpc');
 
-        const services = Object.assign({
-            setCookie,
-            getCookie,
-            navigate,
-            blockUI,
-            unblockUI,
+        // Services
+        const testServices = Object.assign({
+            blockUI: _mandatory('services.blockUI'),
+            getCookie: _mandatory('services.getCookie'),
+            navigate: _mandatory('services.navigate'),
+            reloadPage: _mandatory('services.reloadPage'),
+            setCookie: _mandatory('services.setCookie'),
+            unblockUI: _mandatory('services.unblockUI'),
+            // ...
         }, env.services);
-        const fakeSession = Object.assign({}, env.session);
-        // TODO: allow to use mockReadGroup,... ?
+
+        // Session
+        const testSession = 'useSession' in using ? session :
+            Object.assign({}, session, {
+                // mandatory session functions
+                // ...
+            }, env.session);
+
+        // Translation
+        const testTranslate = '_t' in env ? env._t : _mandatory('_t');
 
         if (!templates) {
             await session.is_bound;
-            templates = session.templatesString
-                .split('t-transition')
-                .join('transition');
+            templates = session.templatesString.replace(/t-transition/g, 'transition');
         }
-        const qweb = new OdooQWeb({ translateFn: _t });
-        qweb.addTemplates(templates);
+        const testQweb = new OdooQWeb({ translateFn: str => str });
+        testQweb.addTemplates(templates);
 
+        // TODO: we should not always add bus
+        // --> general problem: how to extend correctly the env
+        // use option like useBus, useConfig,... ?
+        // TODO: allow to use mockReadGroup,... ?
         owl.config.env = {
-            qweb,
-            _t: test_env__t,
-            // TODO: we should not always add bus
-            // --> general problem: how to extend correctly the env
-            // use option like useBus, useConfig,... ?
             bus: core.bus,
-            // TODO: we should not always add config, services,...
-            config: config,
-            rpc: performRPC,
-            services: services,
-            session: fakeSession
+            config: testConfig,
+            qweb: testQweb,
+            rpc: testRPC,
+            services: testServices,
+            session: testSession,
+            _t: testTranslate,
         };
     }
 
     return makeTestEnvironment;
+
 });
