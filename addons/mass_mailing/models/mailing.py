@@ -27,7 +27,8 @@ MASS_MAILING_BUSINESS_MODELS = [
     'event.track',
     'sale.order',
     'mailing.list',
-    'mailing.contact'
+    'mailing.contact',
+    'website.visitor',
 ]
 
 # Syntax of the data URL Scheme: https://tools.ietf.org/html/rfc2397#section-3
@@ -128,7 +129,7 @@ class MassMailing(models.Model):
     replied_ratio = fields.Integer(compute="_compute_statistics", string='Replied Ratio')
     bounced_ratio = fields.Integer(compute="_compute_statistics", string='Bounced Ratio')
     next_departure = fields.Datetime(compute="_compute_next_departure", string='Scheduled date')
-     
+
     def _compute_total(self):
         for mass_mailing in self:
             mass_mailing.total = len(mass_mailing.sudo()._get_recipients())
