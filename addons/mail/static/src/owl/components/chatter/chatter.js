@@ -3,6 +3,7 @@ odoo.define('mail.component.Chatter', function (require) {
 
 const AttachmentBox = require('mail.component.AttachmentBox');
 const ChatterTopbar = require('mail.component.ChatterTopbar');
+const Composer = require('mail.component.Composer');
 const Thread = require('mail.component.Thread');
 
 const { Component, useState } = owl;
@@ -14,7 +15,11 @@ class Chatter extends Component {
      */
     constructor(...args) {
         super(...args);
-        this.state = useState({ isAttachmentBoxVisible: false });
+        this.state = useState({
+            composerIsLog: null,
+            isAttachmentBoxVisible: false,
+            isComposerVisible: false,
+        });
         this.storeDispatch = useDispatch();
         this.storeGetters = useGetters();
         this.storeProps = useStore((state, props) => {
@@ -23,6 +28,7 @@ class Chatter extends Component {
                 id: props.id,
             });
             return {
+                composerLocalId: thread ? thread.composerLocalId : undefined,
                 threadLocalId: thread ? thread.localId : undefined,
             };
         });
@@ -43,6 +49,19 @@ class Chatter extends Component {
     }
 
     //--------------------------------------------------------------------------
+    // Private
+    //--------------------------------------------------------------------------
+
+    /**
+     * @private
+     */
+    _showComposer() {
+        if (!this.state.isComposerVisible) {
+            this.state.isComposerVisible = true;
+        }
+    }
+
+    //--------------------------------------------------------------------------
     // Handlers
     //--------------------------------------------------------------------------
 
@@ -53,9 +72,27 @@ class Chatter extends Component {
     _onTopbarSelectAttachment(ev) {
         this.state.isAttachmentBoxVisible = !this.state.isAttachmentBoxVisible;
     }
+
+    /**
+     * @private
+     * @param {Event} ev
+     */
+    _onTopbarLogNote(ev) {
+        this.state.composerIsLog = true;
+        this._showComposer();
+    }
+
+    /**
+     * @private
+     * @param {Event} ev
+     */
+    _onTopbarSendMessage(ev) {
+        this.state.composerIsLog = false;
+        this._showComposer();
+    }
 }
 
-Chatter.components = { AttachmentBox, ChatterTopbar, Thread };
+Chatter.components = { AttachmentBox, ChatterTopbar, Composer, Thread };
 
 Chatter.props = {
     id: Number,
