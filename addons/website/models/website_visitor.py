@@ -26,6 +26,7 @@ class WebsiteTrack(models.Model):
 
 class WebsiteVisitor(models.Model):
     _name = 'website.visitor'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
     _description = 'Website Visitor'
     _order = 'last_connection_datetime DESC'
 
@@ -62,6 +63,12 @@ class WebsiteVisitor(models.Model):
         ('access_token_unique', 'unique(access_token)', 'Access token should be unique.'),
         ('partner_uniq', 'unique(partner_id)', 'A partner is linked to only one visitor.'),
     ]
+
+    def write(self, vals):
+        if 'partner_id' in vals:
+            self.sudo().message_subscribe([vals.get('partner_id')])
+
+        return super().write(vals)
 
     @api.depends('name')
     def name_get(self):
@@ -128,8 +135,8 @@ class WebsiteVisitor(models.Model):
     def _prepare_visitor_send_mail_values(self):
         if self.partner_id.email:
             return {
-                'res_model': 'res.partner',
-                'res_id': self.partner_id.id,
+                'res_model': 'website.visitor',
+                'res_id': self.id,
                 'partner_ids': [self.partner_id.id],
             }
         return {}
@@ -140,6 +147,7 @@ class WebsiteVisitor(models.Model):
         if not visitor_mail_values:
             raise UserError(_("There is no email linked this visitor."))
         compose_form = self.env.ref('mail.email_compose_message_wizard_form', False)
+
         ctx = dict(
             default_model=visitor_mail_values.get('res_model'),
             default_res_id=visitor_mail_values.get('res_id'),
