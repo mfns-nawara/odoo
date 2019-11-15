@@ -108,6 +108,15 @@
             </div>
         </t>
     </t>
+    <!-- Save Snippet Name option dialog -->
+    <div t-name="website.dialog.saveSnippet">
+        <div class="form-group row">
+            <label class="col-form-label col-md-3" for="snippetName">Choose a snippet name</label>
+            <div class="col-md-9">
+                <input type="text" class="form-control o_input_snippet_name" id="snippetName" t-attf-value="#{currentSnippet}" placeholder="Snippet name"/>
+            </div>
+        </div>
+    </div>
     <!-- Anchor Name option dialog -->
     <div t-name="website.dialog.anchorName">
         <div class="form-group row">

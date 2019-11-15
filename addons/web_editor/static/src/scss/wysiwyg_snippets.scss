@@ -172,6 +172,36 @@ body.editor_enable.editor_has_snippets {
                 }
             }
         }
+        #snippet_custom .oe_snippet .oe_snippet_thumbnail{
+            .o_delete_btn {
+                position: absolute;
+                right: 0;
+                z-index: 1;
+                width: 25px;
+                height: 25px;
+                background-color: rgba(255, 0, 0, 0.75);
+                display: none;
+                justify-content: center;
+                align-items: center;
+
+                &:hover {
+                    cursor: pointer;
+                }
+            }
+            &:hover {
+                .o_delete_btn {
+                    display: flex;
+                }
+            }
+            .o_image_ribbon {
+                position: absolute;
+                z-index: 1;
+                width: 0px;
+                height: 0px;
+                border-right: 20px solid transparent;
+                border-top: 20px solid $o-enterprise-color;
+            }
+        }
     }
 
     > .o_we_customize_panel {

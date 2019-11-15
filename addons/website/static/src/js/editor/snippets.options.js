@@ -1602,6 +1602,60 @@ options.registry.topMenuColor = options.Class.extend({
 });
 
 /**
+ * Handle the save of a snippet as a template that can be reused later
+ */
+options.registry.saveTemplate = options.Class.extend({
+    xmlDependencies: ['/website/static/src/xml/website.editor.xml'],
+
+    /**
+     * @override
+     */
+    isTopOption: function () {
+        return true;
+    },
+    /**
+     *
+     */
+    saveTemplate() {
+        const self = this;
+        // parent is null to prevent the dialog from being destroyed when reloading the snippets.
+        new Dialog(null, {
+            title: _t("Create new Snippet Template"),
+            $content: $(qweb.render('website.dialog.saveSnippet', {
+                currentSnippet: self.$target[0].dataset.name + ' Custom',
+            })),
+            buttons: [{
+                text: _t("Save"),
+                classes: 'btn-primary',
+                click: function () {
+                    var snippetName = this.el.querySelector('.o_input_snippet_name').value;
+                    self._rpc({
+                        route: '/snippet/save',
+                        params: {
+                            name: snippetName,
+                            arch: self.$target.prop('outerHTML'),
+                            original: Array.from(self.$target[0].classList).filter(x => {
+                                return /\bs_./g.test(x);
+                            })[0],
+                        }
+                    }).then(() => {
+                        self.trigger_up('reload_snippet_template', {
+                            $snippet: self.$target,
+                            onSuccess: () => {
+                                this.close();
+                            },
+                        });
+                    });
+                },
+            }, {
+                text: _t("Discard"),
+                close: true,
+            }],
+        }).open();
+    },
+});
+
+/**
  * Handles the edition of snippet's anchor name.
  */
 options.registry.anchor = options.Class.extend({

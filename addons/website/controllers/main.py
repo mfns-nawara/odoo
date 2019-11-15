@@ -7,10 +7,12 @@ import os
 import logging
 import pytz
 import requests
+import uuid
 import werkzeug.utils
 import werkzeug.wrappers
 
 from itertools import islice
+from lxml import etree, html
 from xml.etree import ElementTree as ET
 
 import odoo
@@ -344,6 +346,58 @@ class Website(Home):
                 raise werkzeug.exceptions.NotFound()
 
         return request.make_response("google-site-verification: %s" % request.website.google_search_console)
+
+    # ------------------------------------------------------
+    # Snippets
+    # ------------------------------------------------------
+    custom_section_xml_id = 'website.custom_snippets'
+
+    @http.route(['/snippet/save'], type='json', auth="public", website=True)
+    def snippet_save(self, name, arch, original=None):
+        View = request.env['ir.ui.view']
+        original_id = 's_custom_snippet'
+        for path in odoo.addons.website.__path__:
+            if original and os.path.isfile(path + '/static/src/img/snippets_thumbs/%s.png' % (original,)):
+                original_id = original
+                break
+        thumbnail_url = '/website/static/src/img/snippets_thumbs/%s.png' % (original_id,)
+        key = '%s_custom_%s' % (original_id, uuid.uuid4().hex)
+        snippet_key = 'website.%s' % (key,)
+
+        # html to xml to add / at the end of self closing tags like br, input, img, ...
+        xml_arch = etree.tostring(html.fromstring(arch))
+        View.create({
+            'name': name,
+            'key': snippet_key,
+            'type': 'qweb',
+            'arch': xml_arch,
+        })
+        custom_section = View.search([('key', '=', self.custom_section_xml_id)])
+        View.create({
+            'name': name + ' Block',
+            'key': '%s_%s' % (self.custom_section_xml_id, key),
+            'inherit_id': custom_section.id,
+            'type': 'qweb',
+            'arch': """
+                <data inherit_id="%s">
+                    <xpath expr="//div[@id='snippet_custom']" position="attributes">
+                        <attribute name="class" remove="d-none" separator=" "/>
+                    </xpath>
+                    <xpath expr="//div[@id='snippet_custom_body']" position="inside">
+                        <t t-snippet="%s" t-thumbnail="%s"/>
+                    </xpath>
+                </data>
+            """ % (self.custom_section_xml_id, snippet_key, thumbnail_url),
+        })
+
+    @http.route(['/snippet/delete'], type='json', auth="public", website=True)
+    def snippet_delete(self, view_id):
+        View = request.env['ir.ui.view']
+        snippet = View.browse(view_id)
+        # See snippet_save where we create the key for the related view
+        custom_key = '%s_%s' % (self.custom_section_xml_id, snippet.key.replace('website.', ''))
+        View.search([('key', '=', custom_key)]).unlink()
+        snippet.unlink()
 
     # ------------------------------------------------------
     # Themes
