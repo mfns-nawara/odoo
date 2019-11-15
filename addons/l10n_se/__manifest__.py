@@ -1,0 +1,18 @@
+# -*- coding: utf-8 -*-
+{
+    "name": "Swedish - Accounting",
+    "version": "1.0",
+    "author": "odoo",
+    "category": "Localization",
+    "depends": ["account"],
+    "data": [
+        "data/account_chart_template.xml",
+        "data/account_fiscal_position_template.xml",
+        "data/account.account.template.csv",
+        "data/account_chart_template_data.xml",
+        "data/account_chart_template_configuration.xml",
+        "data/account_tax_template.xml",
+        "data/account_fiscal_position_tax_template.xml",
+        "views/res_partner.xml",
+    ],
+ }
