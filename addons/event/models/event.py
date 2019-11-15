@@ -101,17 +101,17 @@ class EventEvent(models.Model):
 
     name = fields.Char(
         string='Event', translate=True, required=True,
-        readonly=False, states={'done': [('readonly', True)]})
+        readonly=False)
     active = fields.Boolean(default=True)
     user_id = fields.Many2one(
         'res.users', string='Responsible',
         default=lambda self: self.env.user,
         tracking=True,
-        readonly=False, states={'done': [('readonly', True)]})
+        readonly=False)
     company_id = fields.Many2one(
         'res.company', string='Company', change_default=True,
         default=lambda self: self.env.company,
-        required=False, readonly=False, states={'done': [('readonly', True)]})
+        required=False, readonly=False)
     organizer_id = fields.Many2one(
         'res.partner', string='Organizer',
         tracking=True,
@@ -119,7 +119,7 @@ class EventEvent(models.Model):
         domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]")
     event_type_id = fields.Many2one(
         'event.type', string='Category',
-        readonly=False, states={'done': [('readonly', True)]})
+        readonly=False)
     color = fields.Integer('Kanban Color Index')
     event_mail_ids = fields.One2many('event.mail', 'event_id', string='Mail Schedule', copy=True)
     # Kanban fields
@@ -134,7 +134,7 @@ class EventEvent(models.Model):
     # Seats and computation
     seats_max = fields.Integer(
         string='Maximum Attendees Number',
-        readonly=True, states={'draft': [('readonly', False)], 'confirm': [('readonly', False)]},
+        readonly=True,
         help="For each event you can define a maximum registration of seats(number of attendees), above this numbers the registrations are not accepted.")
     seats_availability = fields.Selection(
         [('limited', 'Limited'), ('unlimited', 'Unlimited')],
@@ -160,36 +160,31 @@ class EventEvent(models.Model):
     # Registration fields
     registration_ids = fields.One2many(
         'event.registration', 'event_id', string='Attendees',
-        readonly=False, states={'done': [('readonly', True)]})
+        readonly=False)
     # Date fields
     date_tz = fields.Selection('_tz_get', string='Timezone', required=True, default=lambda self: self.env.user.tz or 'UTC')
     date_begin = fields.Datetime(
         string='Start Date', required=True,
-        tracking=True, states={'done': [('readonly', True)]})
+        tracking=True)
     date_end = fields.Datetime(
         string='End Date', required=True,
-        tracking=True, states={'done': [('readonly', True)]})
+        tracking=True)
     date_begin_located = fields.Char(string='Start Date Located', compute='_compute_date_begin_tz')
     date_end_located = fields.Char(string='End Date Located', compute='_compute_date_end_tz')
     is_one_day = fields.Boolean(compute='_compute_field_is_one_day')
-    state = fields.Selection([
-        ('draft', 'Unconfirmed'), ('cancel', 'Cancelled'),
-        ('confirm', 'Confirmed'), ('done', 'Done')],
-        string='Status', default='draft', readonly=True, required=True, copy=False,
-        help="If event is created, the status is 'Draft'. If event is confirmed for the particular dates the status is set to 'Confirmed'. If the event is over, the status is set to 'Done'. If event is cancelled the status is set to 'Cancelled'.")
     auto_confirm = fields.Boolean(string='Autoconfirm Registrations')
     is_online = fields.Boolean('Online Event')
     address_id = fields.Many2one(
         'res.partner', string='Location',
         default=lambda self: self.env.company.partner_id,
-        readonly=False, states={'done': [('readonly', True)]},
+        readonly=False,
         domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]",
         tracking=True)
     country_id = fields.Many2one('res.country', 'Country',  related='address_id.country_id', store=True, readonly=False)
     twitter_hashtag = fields.Char('Twitter Hashtag')
     description = fields.Html(
         string='Description', translate=html_translate, sanitize_attributes=False,
-        readonly=False, states={'done': [('readonly', True)]})
+        readonly=False)
     # badge fields
     badge_front = fields.Html(string='Badge Front')
     badge_back = fields.Html(string='Badge Back')
@@ -336,14 +331,16 @@ class EventEvent(models.Model):
         res = super(EventEvent, self).create(vals)
         if res.organizer_id:
             res.message_subscribe([res.organizer_id.id])
-        if res.auto_confirm:
-            res.button_confirm()
         return res
 
     def write(self, vals):
         res = super(EventEvent, self).write(vals)
         if vals.get('organizer_id'):
             self.message_subscribe([vals['organizer_id']])
+
+        if 'stage_id' in vals and self.stage_id.pipe_cancel:
+            self._action_set_cancel()
+
         return res
 
     @api.returns('self', lambda value: value.id)
@@ -367,20 +364,9 @@ class EventEvent(models.Model):
         if first_cancel_stage:
             self.stage_id = first_cancel_stage[0]
 
-    def button_draft(self):
-        self.write({'state': 'draft'})
-
-    def button_cancel(self):
-        if any('done' in event.mapped('registration_ids.state') for event in self):
-            raise UserError(_("There are already attendees who attended this event. Please reset it to draft if you want to cancel this event."))
+    def _action_set_cancel(self):
+        # cancel all registrations
         self.registration_ids.write({'state': 'cancel'})
-        self.state = 'cancel'
-
-    def button_done(self):
-        self.write({'state': 'done'})
-
-    def button_confirm(self):
-        self.write({'state': 'confirm'})
 
     def mail_attendees(self, template_id, force_send=False, filter_func=lambda self: self.state != 'cancel'):
         for event in self:
@@ -456,8 +442,7 @@ class EventRegistration(models.Model):
     def _check_auto_confirmation(self):
         if self._context.get('registration_force_draft'):
             return False
-        if any(registration.event_id.state != 'confirm' or
-               not registration.event_id.auto_confirm or
+        if any(not registration.event_id.auto_confirm or
                (not registration.event_id.seats_available and registration.event_id.seats_availability == 'limited') for registration in self):
             return False
         return True
@@ -502,13 +487,7 @@ class EventRegistration(models.Model):
     def button_reg_close(self):
         """ Close Registration """
         for registration in self:
-            today = fields.Datetime.now()
-            if registration.event_id.date_begin <= today and registration.event_id.state == 'confirm':
-                registration.write({'state': 'done', 'date_closed': today})
-            elif registration.event_id.state == 'draft':
-                raise UserError(_("You must wait the event confirmation before doing this action."))
-            else:
-                raise UserError(_("You must wait the event starting day before doing this action."))
+            registration.write({'state': 'done', 'date_closed': fields.Datetime.now()})
 
     def button_reg_cancel(self):
         self.write({'state': 'cancel'})

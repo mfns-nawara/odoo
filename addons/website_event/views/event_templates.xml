@@ -523,8 +523,10 @@
 <!-- Event - Registration -->
 <template id="registration_template">
     <t t-set="tickets_available" t-value="event.seats_available or event.seats_availability == 'unlimited'"/>
-    <t t-set="buy" t-value="tickets_available and event.state == 'confirm'"/>
-    <form t-if="buy" id="registration_form" t-attf-action="/event/#{slug(event)}/registration/new" method="post" itemscope="itemscope" itemprop="offers" itemtype="http://schema.org/AggregateOffer" class="mb-5">
+    <form t-if="tickets_available
+         and event.start_sale_date and event.end_sale_date
+         and event.start_sale_date.date() &lt; datetime.date.today() &lt; event.end_sale_date.date()"
+        id="registration_form" t-attf-action="/event/#{slug(event)}/registration/new" method="post" itemscope="itemscope" itemprop="offers" itemtype="http://schema.org/AggregateOffer" class="mb-5">
         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
         <div id="o_wevent_tickets" class="bg-white rounded shadow-sm">
             <t t-id="tickets" t-call="website_event.ticket">
@@ -547,17 +549,16 @@
             </t>
         </div>
     </form>
-    <div t-if="not buy" class="alert alert-info mb-5" role="status">
-        <span t-if="event.state == 'draft'" itemprop="availability" content="http://schema.org/OutOfStock">
-            <b>Event registration not yet started.</b>
-        </span>
-        <span t-if="event.state != 'draft'" itemprop="availability" content="http://schema.org/Discontinued">
-            <b>Event registration is closed.</b>
-        </span>
-        <a t-if="request.env.user.has_group('event.group_event_manager')" t-attf-href="/web#id=#{event.id}&amp;view_type=form&amp;model=event.event" class="float-right">
-            <i class="fa fa-pencil mr-2" role="img" aria-label="Create" title="Create"/><em>Configure Event Registration</em>
-        </a>
-    </div>
+    <t t-else="">
+        <div class="alert alert-info mb-5" role="status">
+            <span t-if="not (event.start_sale_date and event.end_sale_date and event.start_sale_date.date() &lt; datetime.date.today() &lt; event.end_sale_date.date())" itemprop="availability" content="http://schema.org/OutOfStock">
+                <b>Event registration not yet started.</b>
+            </span>
+            <a t-if="request.env.user.has_group('event.group_event_manager')" t-attf-href="/web#id=#{event.id}&amp;view_type=form&amp;model=event.event" class="float-right">
+                <i class="fa fa-pencil mr-2" role="img" aria-label="Create" title="Create"/><em>Configure Event Registration</em>
+            </a>
+        </div>
+    </t>
 </template>
 
 <template id="ticket" name="Ticket offer template">
