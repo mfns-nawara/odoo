@@ -1,28 +1,29 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo import models
+from odoo import models, api, fields
 
 
 class AccountInvoice(models.Model):
     _inherit = 'account.move'
 
+    l10n_it_ddt_ids = fields.Many2many('stock.picking', compute="_compute_ddt_ids")
+
     def _get_ddt_values(self):
-        res = {}
         line_count = 0
         invoice_line_pickings = {}
-        for line in self.invoice_line_ids.filtered(lambda l: not l.display_type): #TODO: should be done?
+        for line in self.invoice_line_ids.filtered(lambda l: not l.display_type and l.move_id.state == 'posted'):
             line_count += 1
             done_moves_related = line.sale_line_ids.mapped('move_ids').filtered(lambda m: m.state == 'done')
             if len(done_moves_related) <= 1:
                 if done_moves_related and line_count not in invoice_line_pickings.get(done_moves_related.picking_id, []):
                     invoice_line_pickings.setdefault(done_moves_related.picking_id, []).append(line_count)
             else:
-                # TODO: invoice_date is not DateTime probably
-                total_invoices = done_moves_related.mapped('sale_line_id.invoice_lines').sorted(lambda m: m.move_id.state == 'posted' and m.move_id.invoice_date)
-                total_invs = [(m.quantity, m) for m in total_invoices] #TODO: convert UoM (product_uom_id)
-                inv = total_invs.pop(0)
+                total_invoices = done_moves_related.mapped('sale_line_id.invoice_lines').filtered(lambda m: m.move_id.state == 'posted').sorted(lambda m: m.move_id.invoice_date)
+                total_invs = [(i.product_uom_id._compute_quantity(i.quantity, i.product_id.uom_id), i) for i in total_invoices]
 
+                inv = total_invs.pop(0)
+                # Match all moves and related invoice lines FIFO looking for when the matched invoice_line matches line
                 for move in done_moves_related.sorted(lambda m: m.date):
                     move_qty = move.product_qty
                     while (move_qty > 0):
@@ -37,40 +38,19 @@ class AccountInvoice(models.Model):
                                 inv = total_invs.pop(0)
                             else:
                                 move_qty = 0 #abort when not enough matched invoices
+                        # If in our FIFO iteration we stumble upon the line we were checking
                         if invoice_line == line and line_count not in invoice_line_pickings.get(move.picking_id, []):
                             invoice_line_pickings.setdefault(move.picking_id, []).append(line_count)
         return invoice_line_pickings
 
-        #
-        #
-        #     line_count += 1
-        #     # Now find the quantities corresponding to which move lines
-        #
-        #
-        #
-        # for line in self.invoice_line_ids.filtered(lambda l: not l.display_type):
-        #     sale_order = line.sale_line_ids.mapped('order_id')
-        #     invoice = sale_order.invoice_ids.filtered(lambda x: x.invoice_date)
-        #     all_inv_qty = {}
-        #     for invoice_line in invoice.mapped('invoice_line_ids').filtered(lambda x: x.product_id == line.product_id):
-        #         all_inv_qty.setdefault(invoice_line, 0)
-        #         all_inv_qty[invoice_line] += invoice_line.quantity
-        #     picking_moves = sale_order.order_line.mapped('move_ids').filtered(lambda x: x.picking_id.date_done and line.product_id in x.mapped('product_id'))
-        #     invoice_line_related_pickings = {}
-        #     for picking_move in picking_moves.sorted(key=lambda x: x.picking_id.date_done, reverse=True):
-        #         qty = picking_move.quantity_done
-        #         for invoice_line, invoice_qty in all_inv_qty.items():
-        #             qty -= invoice_qty
-        #             if qty < 0 and not invoice_line_related_pickings:
-        #                 break
-        #             else:
-        #                 invoice_line_related_pickings.setdefault(invoice_line, {})
-        #                 invoice_line_related_pickings[invoice_line].update({picking_move.picking_id: []})
-        #                 picking_move.picking_id.invoice_ids += line.move_id
-        #         if qty <= 0:
-        #             break
-        #     res.update(invoice_line_related_pickings.get(line, {}))
-        # return res
+    @api.depends('invoice_line_ids', 'invoice_line_ids.sale_line_ids')
+    def _compute_ddt_ids(self):
+        for invoice in self:
+            invoice_line_pickings = invoice._get_ddt_values()
+            pickings = self.env['stock.picking']
+            for picking in invoice_line_pickings:
+                pickings |= picking
+            invoice.picking_ids = pickings
 
     def _export_as_xml(self, template_values):
         template_values['ddt_dict'] = self._get_ddt_values()
