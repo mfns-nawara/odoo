@@ -24,12 +24,14 @@ class StockRule(models.Model):
         })
         return message_dict
 
-    @api.onchange('action')
-    def _onchange_action_operation(self):
-        domain = {'picking_type_id': []}
-        if self.action == 'manufacture':
-            domain = {'picking_type_id': [('code', '=', 'mrp_operation')]}
-        return {'domain': domain}
+    @api.depends('action')
+    def _compute_picking_type_code_domain(self):
+        treated = self.browse()
+        for rule in self:
+            if rule.action == 'manufacture':
+                rule.picking_type_code_domain = 'mrp_operation'
+                treated |= rule
+        super(StockRule, self - treated)._compute_picking_type_code_domain()
 
     @api.model
     def _run_manufacture(self, procurements):

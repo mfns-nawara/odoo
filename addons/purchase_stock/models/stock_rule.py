@@ -24,11 +24,17 @@ class StockRule(models.Model):
 
     @api.onchange('action')
     def _onchange_action(self):
-        domain = {'picking_type_id': []}
         if self.action == 'buy':
             self.location_src_id = False
-            domain = {'picking_type_id': [('code', '=', 'incoming')]}
-        return {'domain': domain}
+
+    @api.depends('action')
+    def _compute_picking_type_code_domain(self):
+        treated = self.browse()
+        for rule in self:
+            if rule.action == 'buy':
+                rule.picking_type_code_domain = 'incoming'
+                treated |= rule
+        super(StockRule, self - treated)._compute_picking_type_code_domain()
 
     @api.model
     def _run_buy(self, procurements):
