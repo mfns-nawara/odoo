@@ -44,7 +44,7 @@ class MrpUnbuild(models.Model):
         required=True, states={'done': [('readonly', True)]}, check_company=True)
     mo_id = fields.Many2one(
         'mrp.production', 'Manufacturing Order',
-        domain="[('state', 'in', ['done', 'cancel']), ('company_id', '=', company_id)]",
+        domain="[('state', '=', 'done'), ('product_id', '=', product_id), ('company_id', '=', company_id)]",
         states={'done': [('readonly', True)]}, check_company=True)
     lot_id = fields.Many2one(
         'stock.production.lot', 'Lot/Serial Number',
@@ -92,8 +92,6 @@ class MrpUnbuild(models.Model):
         if self.product_id:
             self.bom_id = self.env['mrp.bom']._bom_find(product=self.product_id, company_id=self.company_id.id)
             self.product_uom_id = self.product_id.uom_id.id
-            if self.company_id:
-                return {'domain': {'mo_id': [('state', '=', 'done'), ('product_id', '=', self.product_id.id), ('company_id', '=', self.company_id.id)]}}
 
     @api.constrains('product_qty')
     def _check_qty(self):
