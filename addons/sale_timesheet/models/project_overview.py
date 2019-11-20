@@ -102,7 +102,7 @@ class Project(models.Model):
         aal_employee_ids = self.env['account.analytic.line'].read_group([('project_id', 'in', self.ids), ('employee_id', '!=', False)], ['employee_id'], ['employee_id'])
         employee_ids.extend(list(map(lambda x: x['employee_id'][0], aal_employee_ids)))
 
-        employees = self.env['hr.employee'].sudo().browse(employee_ids)
+        employees = self.env['hr.employee'].sudo().browse(employee_ids).filtered(lambda e: e.company_id in self.env.companies)
         repartition_domain = [('project_id', 'in', self.ids), ('employee_id', '!=', False), ('timesheet_invoice_type', '!=', False)]  # force billable type
         # repartition data, without timesheet on cancelled so
         repartition_data = self.env['account.analytic.line'].read_group(repartition_domain + ['|', ('so_line', '=', False), ('so_line.state', '!=', 'cancel')], ['employee_id', 'timesheet_invoice_type', 'unit_amount'], ['employee_id', 'timesheet_invoice_type'], lazy=False)
