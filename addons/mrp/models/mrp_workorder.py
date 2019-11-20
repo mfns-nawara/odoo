@@ -168,13 +168,23 @@ class MrpWorkorder(models.Model):
     def _onchange_finished_lot_id(self):
         """When the user changes the lot being currently produced, suggest
         a quantity to produce consistent with the previous workorders. """
-        previous_wo = self.env['mrp.workorder'].search([
-            ('next_work_order_id', '=', self.id)
-        ])
-        if previous_wo:
-            line = previous_wo.finished_workorder_line_ids.filtered(lambda line: line.product_id == self.product_id and line.lot_id == self.finished_lot_id)
-            if line:
-                self.qty_producing = line.qty_done
+        if self.product_tracking == 'lot':
+            suggested_qty = 0
+            previous_wo = self.env['mrp.workorder'].search([
+                ('next_work_order_id', '=', self.ids[0])
+            ])
+            if previous_wo:
+                previous_wo_line = previous_wo.finished_workorder_line_ids.filtered(lambda line: line.product_id == self.product_id and line.lot_id == self.finished_lot_id)
+                # If selected lot is produced in previous WO.
+                if previous_wo_line:
+                    suggested_qty = previous_wo_line.qty_done
+                    # if selected lot is already produced partially.
+                    finished_line = self.finished_workorder_line_ids.filtered(lambda line: line.product_id == self.product_id and line.lot_id == self.finished_lot_id)
+                    if finished_line:
+                        suggested_qty = previous_wo_line.qty_done - finished_line.qty_done
+
+                    suggested_qty = min(suggested_qty, self.qty_remaining)
+                self.qty_producing = 0.0 if suggested_qty < 0 else suggested_qty
 
     @api.onchange('date_planned_finished')
     def _onchange_date_planned_finished(self):
