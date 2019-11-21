@@ -20,7 +20,7 @@ class SaleOrder(models.Model):
     visible_project = fields.Boolean('Display project', compute='_compute_visible_project', readonly=True)
     project_id = fields.Many2one(
         'project.project', 'Project',
-        domain="[('billable_type', 'in', ('no', 'task_rate')), ('analytic_account_id', '!=', False), ('company_id', '=', company_id)]",
+        domain="[('is_template', '=', False), ('billable_type', 'in', ('no', 'task_rate')), ('analytic_account_id', '!=', False), ('company_id', '=', company_id)]",
         readonly=True, states={'draft': [('readonly', False)], 'sent': [('readonly', False)]},
         help='Select a non billable project on which tasks can be created.')
     project_ids = fields.Many2many('project.project', compute="_compute_project_ids", string='Projects', copy=False, groups="project.group_project_user", help="Projects used in this sales order.")
@@ -259,7 +259,9 @@ class SaleOrderLine(models.Model):
         }
         if self.product_id.project_template_id:
             values['name'] = "%s - %s" % (values['name'], self.product_id.project_template_id.name)
-            project = self.product_id.project_template_id.copy(values)
+            values['partner_id'] = self.order_id.partner_id.id
+            values['project_template_id'] = self.product_id.project_template_id.id
+            project = self.product_id.project_template_id.create(values)
             project.tasks.write({
                 'sale_line_id': self.id,
                 'partner_id': self.order_id.partner_id.id,

@@ -57,6 +57,11 @@ class Project(models.Model):
         result = super(Project, self).write(values)
         return result
 
+    @api.onchange('project_template_id')
+    def copy_template(self):
+        super(Project, self).copy_template()
+        setattr(self, 'allow_timesheets', getattr(self.project_template_id, 'allow_timesheets'))
+
     # ---------------------------------------------------
     #  Business Methods
     # ---------------------------------------------------
