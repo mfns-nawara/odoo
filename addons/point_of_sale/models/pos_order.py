@@ -685,14 +685,13 @@ class PosOrder(models.Model):
             'res_id': self.invoice_id.id,
         }
 
-    @api.multi
+
     def action_pos_order_paid(self):
         if not self.test_paid():
             raise UserError(_("Order is not paid."))
         self.write({'state': 'paid'})
         return self.create_picking()
 
-    @api.multi
     def action_pos_order_invoice(self):
         Invoice = self.env['account.invoice']
 
