@@ -1559,5 +1559,14 @@
             data-no-preview="true"/>
         <we-input class="o_we_inline" string="Border Width" data-select-data-attribute="2px" data-attribute-name="borderWidth" data-unit="px"/>
     </div>
+
+    <!-- Cookies bar -->
+    <div data-js="CookiesBar" data-selector="#website_cookies_bar">
+        <we-select string="Position" data-no-preview="true">
+            <we-button data-select-class="fixed-top">Fixed Top</we-button>
+            <we-button data-select-class="fixed-bottom">Fixed Bottom</we-button>
+            <we-button data-select-class="popup">Popup</we-button>
+        </we-select>
+    </div>
 </template>
 </odoo>

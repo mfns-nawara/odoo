@@ -141,6 +141,18 @@
                                     <field name="website_logo" widget="image" class="w-25 mt-2"/>
                                 </div>
                             </div>
+                            <div class="col-12 col-lg-6 o_setting_box" id="website_cookies_bar_setting">
+                                <div class="o_setting_left_pane">
+                                    <field name="website_cookies_bar"/>
+                                </div>
+                                <div class="o_setting_right_pane">
+                                    <label for="website_cookies_bar"/>
+                                    <span class="fa fa-lg fa-globe-americas" title="Values set here are website-specific." groups="website.group_multi_website"/>
+                                    <div class="text-muted">
+                                        Display a customizable cookies bar on your website.
+                                    </div>
+                                </div>
+                            </div>
                             <div class="col-12 col-lg-offset-6 col-lg-6 o_setting_box" id="google_analytics_setting">
                                 <div class="o_setting_left_pane">
                                     <field name="has_google_analytics"/>
@@ -173,7 +185,7 @@
                                 </div>
                                 <div class="o_setting_right_pane">
                                     <label for="has_google_search_console"/>
-                                    <span class="fa fa-lg fa-globe" title="Values set here are website-specific." groups="website.group_multi_website"/>
+                                    <span class="fa fa-lg fa-globe-americas" title="Values set here are website-specific." groups="website.group_multi_website"/>
                                     <div class="text-muted">
                                         Monitor Google Search results data
                                     </div>

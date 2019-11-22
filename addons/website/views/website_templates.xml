@@ -76,6 +76,7 @@
         <script type="text/javascript" src="/website/static/src/js/content/website_root.js"/>
         <script type="text/javascript" src="/website/static/src/js/content/compatibility.js"/>
         <script type="text/javascript" src="/website/static/src/js/content/lazy_template_call.js"/>
+        <script type="text/javascript" src="/website/static/src/js/content/cookies_bar.js"/>
         <script type="text/javascript" src="/website/static/src/js/content/menu.js"/>
         <script type="text/javascript" src="/website/static/src/js/content/snippets.animation.js"/>
 
@@ -289,6 +290,17 @@
     <xpath expr="//t[@t-call='web.brand_promotion']/.." position="attributes">
         <attribute name="class" add="o_not_editable" separator=" "/>
         <attribute name="t-if">not editable</attribute>
+    </xpath>
+
+    <xpath expr="//div[@id='wrapwrap']" position="inside">
+        <section id="website_cookies_bar" t-if="website.cookies_bar" class="bg-400 fixed-bottom d-none" style="z-index: 1040;">
+            <div class="container py-1">
+                <p class="mb0">
+                    We use cookies to provide you a better user experience.
+                    <a href="#" role="button" class="js_agree_cookies btn btn-primary btn-sm pull-right">I agree</a>
+                </p>
+            </div>
+        </section>
     </xpath>
 
     <xpath expr="//div[@id='wrapwrap']" position="after">
