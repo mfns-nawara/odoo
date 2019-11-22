@@ -160,7 +160,6 @@ class Composer extends Component {
      * @private
      */
     async _postMessage() {
-        // FIXME {xdu} should not send on enter
         // TODO: take suggested recipients into account
         this.storeDispatch('postMessage', this.props.composerLocalId, {
             htmlContent: this._textInputRef.comp.getHtmlContent(),
@@ -356,6 +355,7 @@ Composer.defaultProps = {
     isExpandable: false,
     isFocusOnMount: false,
     isLog: false,
+    sendOnEnter: true,
 };
 
 Composer.props = {
@@ -422,6 +422,11 @@ Composer.props = {
     isLog: {
         type: Boolean,
     },
+    sendOnEnter: {
+        type: Boolean,
+        optional: true,
+    },
+
 };
 
 Composer.template = 'mail.component.Composer';

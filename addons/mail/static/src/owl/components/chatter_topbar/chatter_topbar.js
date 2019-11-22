@@ -2,7 +2,7 @@ odoo.define('mail.component.ChatterTopbar', function (require) {
 'use strict';
 
 const { Component } = owl;
-const { useStore } = owl.hooks;
+const { useState, useStore } = owl.hooks;
 
 class ChatterTopbar extends Component {
     /**
@@ -11,6 +11,9 @@ class ChatterTopbar extends Component {
      */
     constructor(...args) {
         super(...args);
+        this.state = useState({
+            composerIsLog: null,
+        });
         this.storeProps = useStore((state, props) => {
             const thread = state.threads[props.threadLocalId];
             return {
@@ -56,6 +59,7 @@ class ChatterTopbar extends Component {
      * @param {Event} ev
      */
     _onClickLogNote(ev) {
+        this.state.composerIsLog = true;
         this.trigger('o-chatter-topbar-log-note');
     }
 
@@ -72,6 +76,7 @@ class ChatterTopbar extends Component {
      * @param {Event} ev
      */
     _onClickSendMessage(ev) {
+        this.state.composerIsLog = false;
         this.trigger('o-chatter-topbar-send-message');
     }
 }
