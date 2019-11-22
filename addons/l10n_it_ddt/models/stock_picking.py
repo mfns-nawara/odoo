@@ -11,20 +11,3 @@ class StockPicking(models.Model):
     l10n_it_transport_method_id = fields.Selection([('sender', 'Sender'), ('recipient', 'Recipient'), ('courier', 'Courier service')], string='Transport Method')
     l10n_it_parcels = fields.Integer(string="Parcels")
     l10n_it_country_code = fields.Char(related="company_id.country_id.code")
-    invoice_ids = fields.Many2many('account.move', string="Invoices")
-
-    def report_name(self):
-        for picking in self:
-            a = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-            n = picking.id
-            progressive_number = ""
-            while n:
-                (n, m) = divmod(n, len(a))
-                progressive_number = a[m] + progressive_number
-
-            report_name = '%(country_code)s%(codice)s_%(progressive_number)s.xml' % {
-                'country_code': picking.company_id.country_id.code,
-                'codice': picking.company_id.l10n_it_codice_fiscale,
-                'progressive_number': progressive_number.zfill(5),
-                }
-        return report_name

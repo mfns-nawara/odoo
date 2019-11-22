@@ -14,12 +14,13 @@ class AccountInvoice(models.Model):
         invoice_line_pickings = {}
         for line in self.invoice_line_ids.filtered(lambda l: not l.display_type and l.move_id.state == 'posted'):
             line_count += 1
-            done_moves_related = line.sale_line_ids.mapped('move_ids').filtered(lambda m: m.state == 'done')
+            done_moves_related = line.sale_line_ids.mapped('move_ids').filtered(lambda m: m.state == 'done' and m.location_dest_id.usage == 'customer')
             if len(done_moves_related) <= 1:
                 if done_moves_related and line_count not in invoice_line_pickings.get(done_moves_related.picking_id, []):
                     invoice_line_pickings.setdefault(done_moves_related.picking_id, []).append(line_count)
             else:
-                total_invoices = done_moves_related.mapped('sale_line_id.invoice_lines').filtered(lambda m: m.move_id.state == 'posted').sorted(lambda m: m.move_id.invoice_date)
+                total_invoices = done_moves_related.mapped('sale_line_id.invoice_lines').filtered(
+                    lambda m: m.move_id.state == 'posted' and m.move_id.type == 'out_invoice').sorted(lambda m: m.move_id.invoice_date)
                 total_invs = [(i.product_uom_id._compute_quantity(i.quantity, i.product_id.uom_id), i) for i in total_invoices]
 
                 inv = total_invs.pop(0)
@@ -45,12 +46,15 @@ class AccountInvoice(models.Model):
 
     @api.depends('invoice_line_ids', 'invoice_line_ids.sale_line_ids')
     def _compute_ddt_ids(self):
-        for invoice in self:
+        it_out_invoices = self.filtered(lambda i: i.type == 'out_invoice' and i.company_id.country_id == 'IT')
+        for invoice in it_out_invoices:
             invoice_line_pickings = invoice._get_ddt_values()
             pickings = self.env['stock.picking']
             for picking in invoice_line_pickings:
                 pickings |= picking
             invoice.picking_ids = pickings
+        for invoice in self - it_out_invoices:
+            invoice.picking_ids = self.env['stock.picking']
 
     def _export_as_xml(self, template_values):
         template_values['ddt_dict'] = self._get_ddt_values()
