@@ -23,49 +23,53 @@
     </xpath>
 </template>
 
+<template name="Course Buy Button Template" id="course_buy_button">
+    <t t-if="channel.product_id.website_published">
+        <div t-attf-class="text-center d-flex align-items-center text-center pb-1 #{'justify-content-between' if product_info['has_discounted_price'] else 'justify-content-around'}">
+            <div class="css_editable_mode_hidden">
+                <!-- real price -->
+                <div class="oe_price font-weight-bold text-nowrap h2 my-2"
+                     t-esc="product_info['price']"
+                     t-options="{'widget': 'monetary', 'display_currency': product_info['currency_id']}"/>
+                <span itemprop="price" style="display:none;" t-esc="product_info['price']"/>
+                <span itemprop="priceCurrency" style="display:none;" t-esc="product_info['currency_id'].name"/>
+                <!-- original discounted price, if any -->
+                <del t-att-class="'text-600 text-nowrap oe_default_price %s' % ('' if product_info['has_discounted_price'] else 'd-none')"
+                     t-esc="product_info['list_price']"
+                     t-options="{'widget': 'monetary', 'display_currency': product_info['currency_id']}"/>
+            </div>
+            <div class="css_non_editable_mode_hidden decimal_precision oe_price font-weight-bold text-nowrap h2 my-2"
+                 t-att-data-precision="str(product_info['currency_id'].decimal_places)">
+                <span t-field="channel.product_id.list_price" t-options="{'widget': 'monetary', 'display_currency': product_info['currency_id']}"/>
+            </div>
+        </div>
+        <div class="oe_website_sale">
+            <div class="add_to_cart_button">
+                <form action="/shop/cart/update" method="POST">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                    <input type="hidden" class="product_id" name="product_id" t-att-value="channel.product_id.id"/>
+                    <input type="hidden" class="product_template_id" name="product_template_id" t-att-value="channel.product_id.id"/>
+                    <a id="add_to_cart" role="button" class="btn btn-primary btn-block js_check_product o_js_add_to_cart a-submit" href="#">
+                        <i class="fa fa-shopping-cart"></i> Add to Cart
+                    </a>
+                    <div id="product_option_block"/>
+                </form>
+            </div>
+            <div class="buy_now_button"/>
+        </div>
+    </t>
+    <t t-else="">
+        <div class="alert my-0 bg-200 text-center">
+            Course Not Buyable
+        </div>
+    </t>
+</template>
+
 <template name="Join Channel: Product Button" id='course_sidebar' inherit_id="website_slides.course_sidebar">
     <!-- Channel main template: override button to join channel -->
     <xpath expr="//div[hasclass('o_wslides_js_course_join')]" position="inside">
         <t t-if="(not channel.is_member or channel.can_publish) and channel.enroll == 'payment'">
-            <t t-if="channel.product_id.website_published">
-                <div t-attf-class="text-center d-flex align-items-center text-center pb-1 #{'justify-content-between' if product_info['has_discounted_price'] else 'justify-content-around'}">
-                    <div class="css_editable_mode_hidden">
-                        <!-- real price -->
-                        <div class="oe_price font-weight-bold text-nowrap h2 my-2"
-                             t-esc="product_info['price']"
-                             t-options="{'widget': 'monetary', 'display_currency': product_info['currency_id']}"/>
-                        <span itemprop="price" style="display:none;" t-esc="product_info['price']"/>
-                        <span itemprop="priceCurrency" style="display:none;" t-esc="product_info['currency_id'].name"/>
-                        <!-- original discounted price, if any -->
-                        <del t-att-class="'text-600 text-nowrap oe_default_price %s' % ('' if product_info['has_discounted_price'] else 'd-none')"
-                             t-esc="product_info['list_price']"
-                             t-options="{'widget': 'monetary', 'display_currency': product_info['currency_id']}"/>
-                    </div>
-                    <div class="css_non_editable_mode_hidden decimal_precision oe_price font-weight-bold text-nowrap h2 my-2"
-                         t-att-data-precision="str(product_info['currency_id'].decimal_places)">
-                        <span t-field="channel.product_id.list_price" t-options="{'widget': 'monetary', 'display_currency': product_info['currency_id']}"/>
-                    </div>
-                </div>
-                <div class="oe_website_sale">
-                    <div class="add_to_cart_button">
-                        <form action="/shop/cart/update" method="POST">
-                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
-                            <input type="hidden" class="product_id" name="product_id" t-att-value="channel.product_id.id"/>
-                            <input type="hidden" class="product_template_id" name="product_template_id" t-att-value="channel.product_id.id"/>
-                            <a id="add_to_cart" role="button" class="btn btn-primary btn-block js_check_product o_js_add_to_cart a-submit" href="#">
-                                <i class="fa fa-shopping-cart"></i> Add to Cart
-                            </a>
-                            <div id="product_option_block"/>
-                        </form>
-                    </div>
-                    <div class="buy_now_button"/>
-                </div>
-            </t>
-            <t t-else="">
-                <div class="alert my-0 bg-200 text-center">
-                    Course Not Buyable
-                </div>
-            </t>
+            <t t-call="website_sale_slides.course_buy_button" />
         </t>
     </xpath>
 </template>
@@ -77,6 +81,130 @@
                 <i class="fa fa-bolt"></i> Buy Now
             </a>
         </div>
+    </xpath>
+</template>
+
+<template name="Documentation Buy Button" id="documentation_course_sidebar_buy_button" inherit_id="website_slides.course_slides_cards">
+    <xpath expr="//div[hasclass('o_wslides_lesson_nav')]" position="before">
+        <div class="container" t-if="((not channel.is_member or channel.can_upload) and channel.enroll == 'payment')">
+            <div class="row">
+                <div class="col-12 col-md-4 col-lg-3 mt-3 mt-md-0 mb-3">
+                    <div class="o_wslides_course_sidebar bg-white px-3 py-2">
+                        <div class="o_wslides_sidebar_top d-flex justify-content-between">
+                            <div class="o_wslides_js_course_join flex-grow-1">
+                                <t t-call="website_sale_slides.course_buy_button" />
+                            </div>
+                            <button t-attf-class="btn d-md-none bg-white ml-1 border #{'align-self-end' if channel.is_member else 'align-self-start alert'}" type="button" data-toggle="collapse" data-target="#o_wslides_sidebar_collapse" aria-expanded="false" aria-controls="o_wslides_sidebar_collapse">More info</button>
+                        </div>
+                        <div id="o_wslides_sidebar_collapse" class="collapse d-md-block">
+                            <table class="table table-sm mt-3">
+                                <tbody>
+                                    <tr>
+                                        <th class="border-top-0">Last Update</th>
+                                        <td class="border-top-0"><t t-esc="channel.slide_last_update" t-options="{'widget': 'date'}"/></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-8 col-lg-9">
+                    <div class="container border-bottom pb-2 mb-3">
+                        <nav class="navbar navbar-expand-lg navbar-light px-0">
+
+                            <a class="navbar-brand d-lg-none" href="#">Filter &amp; order</a>
+
+                            <div class="form-inline ml-auto d-lg-none" t-if="search_slide_type or search">
+                                <a t-att-href="'/slides/%s' % (slug(channel))" class="btn btn-info mr-3">
+                                    <i class="fa fa-eraser mr-1"/>Clear filters
+                                </a>
+                            </div>
+
+                            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                                <span class="navbar-toggler-icon"></span>
+                            </button>
+
+                            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                                <div class="container">
+                                    <div class="row mx-0 align-items-center">
+                                        <ul class="col-lg navbar-nav align-items-lg-center">
+
+                                            <t t-set="slide_type_keys" t-value="slide_types.keys()"/>
+                                            <t t-foreach="slide_type_keys" t-as="slide_type_key">
+                                                <t t-if="search_category">
+                                                    <li t-if="search_category['nbr_%s' % slide_type_key] > 0" class="nav-item">
+                                                        <a t-att-href="'/slides/%s/category/%s?%s' % (slug(channel), slug(search_category), keep_query(slide_type=slide_type_key))"
+                                                           t-att-class="'nav-link d-flex align-items-center justify-content-between pl-0 mr-1 %s' % ('active' if search_slide_type == slide_type_key else '')">
+                                                           <t t-esc="slide_types[slide_type_key]"/>
+                                                           <span t-attf-class="badge badge-pill ml-1 #{'badge-info' if search_slide_type == slide_type_key else 'bg-400'}" t-esc="search_category['nbr_%s' % slide_type_key]"/>
+                                                        </a>
+                                                    </li>
+                                                </t>
+                                                <t t-else="">
+                                                    <li t-if="channel['nbr_%s' % slide_type_key] > 0" class="nav-item">
+                                                        <a t-att-href="'/slides/%s?%s' % (slug(channel), keep_query(slide_type=slide_type_key))"
+                                                           t-att-class="'nav-link d-flex align-items-center justify-content-between pl-0 mr-1 %s' % ('active' if search_slide_type == slide_type_key else '')">
+                                                           <t t-esc="slide_types[slide_type_key]"/>
+                                                           <span t-attf-class="badge badge-pill ml-1 #{'badge-info' if search_slide_type == slide_type_key else 'bg-400'}" t-esc="channel['nbr_%s' % slide_type_key]"/>
+                                                        </a>
+                                                    </li>
+                                                </t>
+                                            </t>
+                                        </ul>
+
+                                        <ul t-attf-class="col-lg navbar-nav pr-0 #{'mr-auto' if search_slide_type or search else ''}">
+                                            <li class="nav-item dropdown ml-lg-auto">
+                                                <a class="nav-link dropdown-toggle dropdown-toggle align-items-center d-flex" type="button" id="slidesChannelDropdownSort"
+                                                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" href="#">
+                                                    <b>Order by</b>
+                                                    <span class="d-none d-xl-inline">:
+                                                        <t t-if="sorting == 'most_voted'">Most Voted</t>
+                                                        <t t-elif="sorting == 'most_viewed'">Most Viewed</t>
+                                                        <t t-else="">Newest</t>
+                                                    </span>
+                                                </a>
+                                                <div class="dropdown-menu" aria-labelledby="slidesChannelDropdownSort" role="menu">
+                                                    <h6 class="dropdown-header">Sort by</h6>
+                                                    <a role="menuitem" t-att-href="'/slides/%s?%s' % (slug(channel), keep_query('slide_type', sorting='latest'))"
+                                                       t-att-class="'dropdown-item %s' % ('active' if sorting and sorting == 'latest' else '')">Newest</a>
+                                                    <a role="menuitem" t-att-href="'/slides/%s?%s' % (slug(channel), keep_query('slide_type', sorting='most_voted'))"
+                                                       t-att-class="'dropdown-item %s' % ('active' if sorting and sorting == 'most_voted' else '')">Most Voted</a>
+                                                    <a role="menuitem" t-att-href="'/slides/%s?%s' % (slug(channel), keep_query('slide_type', sorting='most_viewed'))"
+                                                       t-att-class="'dropdown-item %s' % ('active' if sorting and sorting == 'most_viewed' else '')">Most Viewed</a>
+                                                </div>
+                                            </li>
+                                        </ul>
+
+                                        <div class="form-inline d-none d-lg-inline-block" t-if="search_slide_type or search">
+                                            <a t-att-href="'/slides/%s' % (slug(channel))" class="btn btn-sm btn-info ml-1">
+                                                <i class="fa fa-eraser mr-1"/>Clear filters
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <form t-attf-action="/slides/#{slug(channel)}" role="search" method="get" class="form-inline my-2 my-lg-0">
+                                        <div class="input-group position-relative w-100">
+                                            <input type="text" class="form-control border" name="search" placeholder="Search in content" t-att-value="search"/>
+                                            <div class="input-group-append">
+                                                <button class="btn border" type="submit" aria-label="Search" title="Search">
+                                                    <i class="fa fa-search"/>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </xpath>
+</template>
+
+<template id="documentation_course_nav" inherit_id="website_slides.course_slides_cards">
+    <xpath expr="//div[hasclass('o_wslides_lesson_nav')]" position="attributes">
+        <attribute name="t-else">""</attribute>
     </xpath>
 </template>
 </data></odoo>
