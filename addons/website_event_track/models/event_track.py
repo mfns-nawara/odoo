@@ -207,7 +207,8 @@ class SponsorType(models.Model):
 class Sponsor(models.Model):
     _name = "event.sponsor"
     _description = 'Event Sponsor'
-    _order = "sequence"
+    _order = "show_sponsors desc, sequence"
+    _inherit = ['mail.thread', 'mail.activity.mixin']
 
     event_id = fields.Many2one('event.event', 'Event', required=True)
     sponsor_type_id = fields.Many2one('event.sponsor.type', 'Sponsoring Type', required=True)
@@ -215,3 +216,10 @@ class Sponsor(models.Model):
     url = fields.Char('Sponsor Website')
     sequence = fields.Integer('Sequence', store=True, related='sponsor_type_id.sequence', readonly=False)
     image_128 = fields.Image(string="Logo", related='partner_id.image_128', store=True, readonly=False)
+    show_sponsors = fields.Boolean('Show sponsors', default=False)
+
+    # partner related fields
+    name = fields.Char('Name', related='partner_id.name')
+    email = fields.Char('Mail', related='partner_id.email')
+    phone = fields.Char('Phone', related='partner_id.phone')
+    mobile = fields.Char('Mobile', related='partner_id.mobile')

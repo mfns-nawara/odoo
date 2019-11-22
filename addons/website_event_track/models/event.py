@@ -35,6 +35,8 @@ class Event(models.Model):
 
     sponsor_ids = fields.One2many('event.sponsor', 'event_id', 'Sponsors')
     sponsor_count = fields.Integer('Sponsor Count', compute='_compute_sponsor_count')
+    show_sponsors = fields.Boolean('Show sponsors', help='Show the sponsors of this event in the footer of the event on website',
+        compute='_compute_show_sponsors')
 
     website_track = fields.Boolean('Tracks on Website')
     website_track_proposal = fields.Boolean('Proposals on Website')
@@ -101,6 +103,11 @@ class Event(models.Model):
     def _compute_tracks_tag_ids(self):
         for event in self:
             event.tracks_tag_ids = event.track_ids.mapped('tag_ids').filtered(lambda tag: tag.color != 0).ids
+
+    @api.depends('sponsor_ids')
+    def _compute_show_sponsors(self):
+        for event in self:
+            event.show_sponsors = any(sponsor.show_sponsors for sponsor in event.sponsor_ids)
 
     @api.onchange('event_type_id')
     def _onchange_type(self):
