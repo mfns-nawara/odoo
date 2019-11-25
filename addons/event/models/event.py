@@ -384,11 +384,13 @@ class EventRegistration(models.Model):
     event_id = fields.Many2one(
         'event.event', string='Event', required=True,
         readonly=True, states={'draft': [('readonly', False)]})
+    event_type_id = fields.Many2one('event.type', string='Event Category', related='event_id.event_type_id', store=True)
     # attendee
     partner_id = fields.Many2one(
         'res.partner', string='Contact',
         states={'done': [('readonly', True)]})
     name = fields.Char(string='Attendee Name', index=True)
+    full_name = fields.Char('Full name', compute='_compute_full_name')
     email = fields.Char(string='Email')
     phone = fields.Char(string='Phone')
     mobile = fields.Char(string='Mobile')
@@ -404,6 +406,15 @@ class EventRegistration(models.Model):
         ('draft', 'Unconfirmed'), ('cancel', 'Cancelled'),
         ('open', 'Confirmed'), ('done', 'Attended')],
         string='Status', default='draft', readonly=True, copy=False, tracking=True)
+
+    is_paid = fields.Boolean(string='Is paid')
+
+    # reflected selection version of ``is_paid``, used for the search panel
+    # as we cannot use boolean in search panel
+    is_paid_selection = fields.Selection([
+        ('paid', 'Paid'),
+        ('not_paid', 'Not paid')
+    ], compute='_compute_is_paid_selection', string='Paid', store=True)
 
     @api.constrains('event_id', 'state')
     def _check_seats_limit(self):
@@ -457,7 +468,7 @@ class EventRegistration(models.Model):
             lambda s: s.interval_type == 'after_sub')
         onsubscribe_schedulers.execute()
 
-    def button_reg_close(self):
+    def action_reg_close(self):
         """ Close Registration """
         for registration in self:
             today = fields.Datetime.now()
@@ -468,8 +479,11 @@ class EventRegistration(models.Model):
             else:
                 raise UserError(_("You must wait the event starting day before doing this action."))
 
-    def button_reg_cancel(self):
+    def action_reg_cancel(self):
         self.write({'state': 'cancel'})
+
+    def action_reg_confirm(self):
+        self.write({'state': 'done'})
 
     @api.onchange('partner_id')
     def _onchange_partner(self):
@@ -569,3 +583,18 @@ class EventRegistration(models.Model):
     def summary(self):
         self.ensure_one()
         return {'information': []}
+
+    @api.depends('name', 'partner_id.name')
+    def _compute_full_name(self):
+        for registration in self:
+            if not registration.partner_id or not registration.partner_id.name:
+                registration.full_name = registration.name
+            elif not registration.name or registration.name == registration.partner_id.name:
+                registration.full_name = registration.partner_id.name
+            else:
+                registration.full_name = registration.partner_id.name + ', ' + registration.name
+
+    @api.depends('is_paid')
+    def _compute_is_paid_selection(self):
+        for registration in self:
+            registration.is_paid_selection = 'paid' if registration.is_paid else 'not_paid'
