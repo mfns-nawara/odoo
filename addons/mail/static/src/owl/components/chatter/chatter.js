@@ -16,7 +16,7 @@ class Chatter extends Component {
     constructor(...args) {
         super(...args);
         this.state = useState({
-            composerIsLog: null,
+            isComposerLog: false,
             isAttachmentBoxVisible: false,
             isComposerVisible: false,
         });
@@ -50,19 +50,6 @@ class Chatter extends Component {
     }
 
     //--------------------------------------------------------------------------
-    // Private
-    //--------------------------------------------------------------------------
-
-    /**
-     * @private
-     */
-    _showComposer() {
-        if (!this.state.isComposerVisible) {
-            this.state.isComposerVisible = true;
-        }
-    }
-
-    //--------------------------------------------------------------------------
     // Handlers
     //--------------------------------------------------------------------------
 
@@ -83,8 +70,8 @@ class Chatter extends Component {
      * @param {Event} ev
      */
     _onTopbarLogNote(ev) {
-        this.state.composerIsLog = true;
-        this._showComposer();
+        this.state.isComposerLog = true;
+        this.state.isComposerVisible = true;
     }
 
     /**
@@ -92,8 +79,8 @@ class Chatter extends Component {
      * @param {Event} ev
      */
     _onTopbarSendMessage(ev) {
-        this.state.composerIsLog = false;
-        this._showComposer();
+        this.state.isComposerLog = false;
+        this.state.isComposerVisible = true;
     }
 }
 

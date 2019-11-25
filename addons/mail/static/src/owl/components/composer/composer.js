@@ -349,13 +349,13 @@ Composer.defaultProps = {
     hasDiscardButton: false,
     hasFollowers: false,
     hasSendButton: true,
+    hasTextInputSendOnEnterEnabled: true,
     hasThreadName: false,
     isCompact: true,
     isDiscardOnClickAway: false,
     isExpandable: false,
     isFocusOnMount: false,
     isLog: false,
-    sendOnEnter: true,
 };
 
 Composer.props = {
@@ -385,6 +385,10 @@ Composer.props = {
     },
     hasSendButton: {
         type: Boolean,
+    },
+    hasTextInputSendOnEnterEnabled: {
+        type: Boolean,
+        optional: true,
     },
     hasThreadName: {
         type: Boolean,
@@ -422,11 +426,6 @@ Composer.props = {
     isLog: {
         type: Boolean,
     },
-    sendOnEnter: {
-        type: Boolean,
-        optional: true,
-    },
-
 };
 
 Composer.template = 'mail.component.Composer';

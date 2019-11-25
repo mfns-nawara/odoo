@@ -2,7 +2,7 @@ odoo.define('mail.component.ChatterTopbar', function (require) {
 'use strict';
 
 const { Component } = owl;
-const { useState, useStore } = owl.hooks;
+const { useStore } = owl.hooks;
 
 class ChatterTopbar extends Component {
     /**
@@ -11,9 +11,6 @@ class ChatterTopbar extends Component {
      */
     constructor(...args) {
         super(...args);
-        this.state = useState({
-            composerIsLog: null,
-        });
         this.storeProps = useStore((state, props) => {
             const thread = state.threads[props.threadLocalId];
             return {
@@ -32,7 +29,7 @@ class ChatterTopbar extends Component {
 
     /**
      * @private
-     * @param {Event} ev
+     * @param {MouseEvent} ev
      */
     _onClickAttachments(ev) {
         this.trigger('o-chatter-topbar-select-attachment');
@@ -40,7 +37,7 @@ class ChatterTopbar extends Component {
 
     /**
      * @private
-     * @param {Event} ev
+     * @param {MouseEvent} ev
      */
     _onClickFollow(ev) {
         this.trigger('o-chatter-topbar-follow');
@@ -48,7 +45,7 @@ class ChatterTopbar extends Component {
 
     /**
      * @private
-     * @param {Event} ev
+     * @param {MouseEvent} ev
      */
     _onClickFollowers(ev) {
         this.trigger('o-chatter-topbar-show-followers');
@@ -56,16 +53,15 @@ class ChatterTopbar extends Component {
 
     /**
      * @private
-     * @param {Event} ev
+     * @param {MouseEvent} ev
      */
     _onClickLogNote(ev) {
-        this.state.composerIsLog = true;
         this.trigger('o-chatter-topbar-log-note');
     }
 
     /**
      * @private
-     * @param {Event} ev
+     * @param {MouseEvent} ev
      */
     _onClickScheduleActivity(ev) {
         this.trigger('o-chatter-topbar-schedule-activity');
@@ -73,16 +69,17 @@ class ChatterTopbar extends Component {
 
     /**
      * @private
-     * @param {Event} ev
+     * @param {MouseEvent} ev
      */
     _onClickSendMessage(ev) {
-        this.state.composerIsLog = false;
         this.trigger('o-chatter-topbar-send-message');
     }
 }
 
 ChatterTopbar.props = {
     threadLocalId: String,
+    isComposerLog: Boolean,
+    isComposerVisible: Boolean,
 };
 
 ChatterTopbar.template = 'mail.component.ChatterTopbar';
