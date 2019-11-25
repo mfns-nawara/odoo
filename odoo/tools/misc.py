@@ -1419,3 +1419,27 @@ class DotDict(dict):
     def __getattr__(self, attrib):
         val = self.get(attrib)
         return DotDict(val) if type(val) is dict else val
+
+
+def humanize_number(n):
+    """
+    Convert large numbers into a human-readable format
+
+    e.g.:
+        1.256.154 -> "1M"
+        2.456 -> 2K
+    """
+    conversion = [
+        (10 ** 21, 'Z'),
+        (10 ** 18, 'E'),
+        (10 ** 15, 'P'),
+        (10 ** 12, 'T'),
+        (10 ** 9, 'G'),
+        (10 ** 6, 'M'),
+        (10 ** 3, 'K'),
+    ]
+    n = int(n)
+    for scale, letter in conversion:
+        if n > scale:
+            return str(n // scale) + letter
+    return str(n)
