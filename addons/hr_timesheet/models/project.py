@@ -110,6 +110,16 @@ class Task(models.Model):
         for task in self:
             task.subtask_effective_hours = sum(child_task.effective_hours + child_task.subtask_effective_hours for child_task in task.child_ids)
 
+    def action_view_subtask_timesheet(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Timesheets'),
+            'res_model': 'account.analytic.line',
+            'view_mode': 'list,form',
+            'domain': [('project_id', '!=', False), ('task_id', 'in', self.child_ids.ids)],
+        }
+
     # ---------------------------------------------------------
     # ORM
     # ---------------------------------------------------------
