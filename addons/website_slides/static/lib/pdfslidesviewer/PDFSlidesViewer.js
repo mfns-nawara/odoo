@@ -5,11 +5,11 @@
     DOC : http://mozilla.github.io/pdf.js/api/draft/api.js.html
 */
 
-// !!!!!!!!! use window.PDFJS and not PDFJS
+// !!!!!!!!! use window.pdfjsLib and not pdfjsLib
 
-var PDFSlidesViewer = (function(){
+var PDFSlidesViewer = (function () {
 
-    function PDFSlidesViewer(pdf_url, $canvas, disableWorker){
+    function PDFSlidesViewer(pdf_url, $canvas, disableWorker) {
         // pdf variables
         this.pdf = null;
         this.pdf_url = pdf_url || false;
@@ -34,7 +34,7 @@ var PDFSlidesViewer = (function(){
          * @see http://en.wikipedia.org/wiki/Cross-origin_resource_sharing.
          * this is equivalent to the use_cors option in openerpframework.js
          */
-        window.PDFJS.disableWorker = disableWorker || false;
+        window.pdfjsLib.disableWorker = disableWorker || false; // TODO: MSH: worker disable is not supported by pdfjs
     };
 
     /**
@@ -44,7 +44,7 @@ var PDFSlidesViewer = (function(){
     PDFSlidesViewer.prototype.loadDocument = function(url) {
         var self = this;
         var pdf_url = url || this.pdf_url;
-        return window.PDFJS.getDocument(pdf_url).then(function (file_content) {
+        return window.pdfjsLib.getDocument(pdf_url).then(function (file_content) {
             self.pdf = file_content;
             self.pdf_page_total = file_content.numPages;
             return file_content;
@@ -110,7 +110,7 @@ var PDFSlidesViewer = (function(){
     /**
      * Displays next page.
      */
-    PDFSlidesViewer.prototype.nextPage = function() {
+    PDFSlidesViewer.prototype.nextPage = function () {
         if (this.pdf_page_current >= this.pdf_page_total) {
             return Promise.resolve(false);
         }
@@ -121,8 +121,8 @@ var PDFSlidesViewer = (function(){
     /**
      * Displays the given page.
      */
-    PDFSlidesViewer.prototype.changePage = function(num){
-        if(1 <= num <= this.pdf_page_total){
+    PDFSlidesViewer.prototype.changePage = function (num) {
+        if (1 <= num <= this.pdf_page_total) {
             this.pdf_page_current = num;
             return this.queueRenderPage(num);
         }
@@ -132,7 +132,7 @@ var PDFSlidesViewer = (function(){
     /**
      * Displays first page.
      */
-    PDFSlidesViewer.prototype.firstPage = function(){
+    PDFSlidesViewer.prototype.firstPage = function () {
         this.pdf_page_current = 1;
         return this.queueRenderPage(1);
     }
@@ -140,25 +140,25 @@ var PDFSlidesViewer = (function(){
     /**
      * Displays last page.
      */
-    PDFSlidesViewer.prototype.lastPage = function(){
+    PDFSlidesViewer.prototype.lastPage = function () {
         this.pdf_page_current = this.pdf_page_total;
         return this.queueRenderPage(this.pdf_page_total);
     }
 
-    PDFSlidesViewer.prototype.toggleFullScreenFooter = function(){
-        if(document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.msFullscreenElement) {
+    PDFSlidesViewer.prototype.toggleFullScreenFooter = function () {
+        if (document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.msFullscreenElement) {
             var $navBarFooter = $('div#PDFViewer div.oe_slides_panel_footer').parent();
             $navBarFooter.toggleClass('oe_show_footer');
             $navBarFooter.toggle();
         }
     }
 
-    PDFSlidesViewer.prototype.toggleFullScreen = function(){
+    PDFSlidesViewer.prototype.toggleFullScreen = function () {
         // The canvas and the navigation bar needs to be fullscreened
         var el = this.canvas.parentNode.parentNode;
 
         var isFullscreenAvailable = document.fullscreenEnabled || document.mozFullScreenEnabled || document.webkitFullscreenEnabled || document.msFullscreenEnabled || false;
-        if(isFullscreenAvailable){ // Full screen supported
+        if (isFullscreenAvailable) { // Full screen supported
             // get the actual element in FullScreen mode (Null if no element)
             var fullscreenElement = document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.msFullscreenElement;
 
@@ -179,7 +179,7 @@ var PDFSlidesViewer = (function(){
                     // IE 11+
                     document.msExitFullscreen();
                 }
-            }else { // Request to put the 'el' element in FullScreen mode
+            } else { // Request to put the 'el' element in FullScreen mode
                 if (el.requestFullscreen) {
                     // W3C standard
                     el.requestFullscreen();
@@ -207,7 +207,7 @@ var PDFSlidesViewer = (function(){
                     }
                 }
             }
-        }else{
+        } else {
             // Full screen not supported by the browser
             console.error("ERROR : full screen not supported by web browser");
         }
