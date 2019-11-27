@@ -1443,3 +1443,18 @@ def humanize_number(n):
         if n > scale:
             return str(n // scale) + letter
     return str(n)
+
+
+def get_field_value_string(model, field, value):
+    """
+    Convert the raw value of a field to a printable value
+
+    e.g.:
+        "crm.lead", "tag_ids", 1
+        tag(id=1) -> 'Information'
+    """
+    if field in model._fields and hasattr(model._fields[field], 'selection'):
+        return dict(model._fields[field].selection)[value]
+    elif field in model._fields and hasattr(model._fields[field], 'comodel_name'):
+        return model.env[model._fields[field].comodel_name].browse(value).name
+    return value
