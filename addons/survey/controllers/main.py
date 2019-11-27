@@ -472,6 +472,32 @@ class Survey(http.Controller):
     def survey_report(self, survey, answer_token=None, **post):
         """ Display survey Results & Statistics for given survey.
 
+        New structure: {
+            'search': {},
+            'statistics': [{  # page list
+                'page_id': survey.question br (may be void),
+                'questions': [{  # page question list
+                    'question_id': survey.question br (required),
+                    'line_ids': survey.user_input.line that are answers to that specific question with filter applied,
+                    'comment_line_ids': survey.user_input.line that are comments not counting as answers,
+                    'statistics': { # question type dependent
+                        'answered_count': 0, # all
+                        'skipped_count': 0, # all
+                        'average': 0,  # numeric
+                        'min': 0,  # numeric
+                        'max': 0,  # numeric
+                        'sum': 0,  # numeric
+                    },
+                    'graph_data': {
+                    },
+                }, {...}
+                ],
+            }, {...}
+            ]
+        }
+        Graph data: template will call _get_graph_data_<type>(line_ids)
+        Table data: template will call _get_table_data_<type>(line_ids)
+
         Quick retroengineering of what is injected into the template for now:
         (TODO: flatten and simplify this)
 

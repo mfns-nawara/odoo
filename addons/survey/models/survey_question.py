@@ -278,6 +278,76 @@ class SurveyQuestion(models.Model):
 
         return self.suggested_answer_ids.filtered(lambda label: label.is_correct)
 
+    # STATISTICS
+
+    # @api.multi
+    # def _prepare_results(self, user_input_domain=None):
+    #     """ Compute statistical data for questions by counting number of vote per choice on basis of filter """
+    #     user_input_domain = user_input_domain if user_input_domain else []
+
+    #     current_filters = current_filters if current_filters else []
+    #     result_summary = {}
+    #     input_lines = question.user_input_line_ids.filtered(lambda line: not line.user_input_id.test_entry)
+
+
+    #     for question in self:
+    #         answers = OrderedDict(
+    #             (label.id, {'text': label.value, 'count': 0, 'answer_id': label.id, 'answer_score': label.answer_score})
+    #             for label in question.suggested_answer_ids
+    #         )
+
+
+    #     # Calculate and return statistics for choice
+    #     if question.question_type in ['simple_choice', 'multiple_choice']:
+    #         comments = []
+    #         answers = OrderedDict((label.id, {'text': label.value, 'count': 0, 'answer_id': label.id, 'answer_score': label.answer_score}) for label in question.suggested_answer_ids)
+    #         for input_line in input_lines:
+    #             if input_line.answer_type == 'suggestion' and answers.get(input_line.value_suggested.id) and (not(current_filters) or input_line.user_input_id.id in current_filters):
+    #                 answers[input_line.value_suggested.id]['count'] += 1
+    #             if input_line.answer_type == 'text' and (not(current_filters) or input_line.user_input_id.id in current_filters):
+    #                 comments.append(input_line)
+    #         result_summary = {'answers': list(answers.values()), 'comments': comments}
+
+    #     # Calculate and return statistics for matrix
+    #     if question.question_type == 'matrix':
+    #         rows = OrderedDict()
+    #         answers = OrderedDict()
+    #         res = dict()
+    #         comments = []
+    #         [rows.update({label.id: label.value}) for label in question.matrix_row_ids]
+    #         [answers.update({label.id: label.value}) for label in question.suggested_answer_ids]
+    #         for cell in product(rows, answers):
+    #             res[cell] = 0
+    #         for input_line in input_lines:
+    #             if input_line.answer_type == 'suggestion' and (not(current_filters) or input_line.user_input_id.id in current_filters) and input_line.value_suggested_row:
+    #                 res[(input_line.value_suggested_row.id, input_line.value_suggested.id)] += 1
+    #             if input_line.answer_type == 'text' and (not(current_filters) or input_line.user_input_id.id in current_filters):
+    #                 comments.append(input_line)
+    #         result_summary = {'answers': answers, 'rows': rows, 'result': res, 'comments': comments}
+
+    #     # Calculate and return statistics for free_text, textbox, date
+    #     if question.question_type in ['free_text', 'textbox', 'date', 'datetime']:
+    #         result_summary = []
+    #         for input_line in input_lines:
+    #             if not(current_filters) or input_line.user_input_id.id in current_filters:
+    #                 result_summary.append(input_line)
+
+    #     # Calculate and return statistics for numerical_box
+    #     if question.question_type == 'numerical_box':
+    #         result_summary = {'input_lines': []}
+    #         all_inputs = []
+    #         for input_line in input_lines:
+    #             if not(current_filters) or input_line.user_input_id.id in current_filters:
+    #                 all_inputs.append(input_line.value_number)
+    #                 result_summary['input_lines'].append(input_line)
+    #         if all_inputs:
+    #             result_summary.update({'average': round(sum(all_inputs) / len(all_inputs), 2),
+    #                                    'max': round(max(all_inputs), 2),
+    #                                    'min': round(min(all_inputs), 2),
+    #                                    'sum': sum(all_inputs),
+    #                                    'most_common': Counter(all_inputs).most_common(5)})
+    #     return result_summary
+
 
 class SurveyQuestionAnswer(models.Model):
     """ A preconfigured answer for a question. This model stores values used
