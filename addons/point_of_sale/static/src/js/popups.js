@@ -278,8 +278,10 @@ var PackLotLinePopupWidget = PopupWidget.extend({
                 }
             });
             if (_.isEmpty(self.lot_errors) ) {
+                self.options.order.set('has_lot_error', false);
                 self.process_lots();
             } else {
+                self.options.order.set('has_lot_error', true);
                 self.renderElement();
                 self.focus();
             }

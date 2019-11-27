@@ -2284,7 +2284,7 @@ exports.Order = Backbone.Model.extend({
         this.finalized      = false; // if true, cannot be modified.
         this.set_pricelist(this.pos.default_pricelist);
 
-        this.set({ client: null });
+        this.set({ client: null, has_lot_error: false });
 
         if (options.json) {
             this.init_from_JSON(options.json);
@@ -2424,6 +2424,7 @@ exports.Order = Backbone.Model.extend({
             fiscal_position_id: this.fiscal_position ? this.fiscal_position.id : false,
             server_id: this.server_id ? this.server_id : false,
             to_invoice: this.to_invoice ? this.to_invoice : false,
+            has_lot_error: this.get('has_lot_error'),
         };
         if (!this.is_paid && this.user_id) {
             json.user_id = this.user_id;

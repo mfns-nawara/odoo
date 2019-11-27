@@ -490,6 +490,7 @@ var ActionpadWidget = PosBaseWidget.extend({
                 return line.has_valid_product_lot();
             });
             if(!has_valid_product_lot){
+                order.set('has_lot_error', true);
                 self.gui.show_popup('confirm',{
                     'title': _t('Empty Lot/Serial Number'),
                     'body':  _t('One or more product(s) required Lot/Serial number.'),
@@ -498,6 +499,7 @@ var ActionpadWidget = PosBaseWidget.extend({
                     },
                 });
             }else{
+                order.set('has_lot_error', false);
                 self.gui.show_screen('payment');
             }
         });

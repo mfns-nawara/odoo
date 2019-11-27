@@ -137,7 +137,7 @@ class PosOrder(models.Model):
             except Exception as e:
                 _logger.error('Could not fully process the POS Order: %s', tools.ustr(e))
 
-        pos_order._create_order_picking()
+        pos_order._create_order_picking(force_done=not order.get('has_lot_error'))
         if pos_order.to_invoice and pos_order.state == 'paid':
             pos_order.action_pos_order_invoice()
 
@@ -449,7 +449,7 @@ class PosOrder(models.Model):
 
         return self.env['pos.order'].search_read(domain = [('id', 'in', order_ids)], fields = ['id', 'pos_reference'])
 
-    def _create_order_picking(self):
+    def _create_order_picking(self, force_done=True):
         self.ensure_one()
         if not self.session_id.update_stock_at_closing or (self.company_id.anglo_saxon_accounting and self.to_invoice):
             picking_type = self.config_id.picking_type_id
@@ -460,7 +460,7 @@ class PosOrder(models.Model):
             else:
                 destination_id = picking_type.default_location_dest_id.id
 
-            pickings = self.env['stock.picking']._create_picking_from_pos_order_lines(destination_id, self.lines, picking_type, self.partner_id)
+            pickings = self.env['stock.picking']._create_picking_from_pos_order_lines(destination_id, self.lines, picking_type, self.partner_id, force_done=force_done)
             pickings.write({'pos_session_id': self.session_id.id, 'pos_order_id': self.id, 'origin': self.name})
 
     def add_payment(self, data):
