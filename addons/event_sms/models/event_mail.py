@@ -13,6 +13,17 @@ class EventTypeMail(models.Model):
         domain=[('model', '=', 'event.registration')], ondelete='restrict',
         help='This field contains the template of the SMS that will be automatically sent')
 
+    def _get_event_mail_values(self):
+        """
+        When changing the ``event.type``, we will automatically create ``event.mail``
+        This function returns the value for the ``event.mail`` that will be created
+        """
+        self.ensure_one()
+        values = super()._get_event_mail_values()
+        if self.sms_template_id:
+            values.update({'sms_template_id': self.sms_template_id})
+        return values
+
 
 class EventMailScheduler(models.Model):
     _inherit = 'event.mail'

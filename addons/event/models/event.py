@@ -270,11 +270,8 @@ class EventEvent(models.Model):
             self.is_online = self.event_type_id.is_online
 
             if self.event_type_id.event_type_mail_ids:
-                self.event_mail_ids = [(5, 0, 0)] + [(0, 0, {
-                    'template_id': line.template_id,
-                    'interval_nbr': line.interval_nbr,
-                    'interval_unit': line.interval_unit,
-                    'interval_type': line.interval_type})
+                self.event_mail_ids = [(5, 0, 0)] + [
+                    (0, 0, line._get_event_mail_values())
                     for line in self.event_type_id.event_type_mail_ids]
 
     @api.constrains('seats_min', 'seats_max', 'seats_availability')

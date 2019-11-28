@@ -52,6 +52,20 @@ class EventTypeMail(models.Model):
             if event_type_mail.notification_type != 'mail':
                 event_type_mail.template_id = False
 
+    def _get_event_mail_values(self):
+        """
+        When changing the ``event.type``, we will automatically create ``event.mail``
+        This function returns the value for the ``event.mail`` that will be created
+        """
+        self.ensure_one()
+        return {
+            'notification_type': self.notification_type,
+            'template_id': self.template_id,
+            'interval_nbr': self.interval_nbr,
+            'interval_unit': self.interval_unit,
+            'interval_type': self.interval_type
+        }
+
 
 class EventMailScheduler(models.Model):
     """ Event automated mailing. This model replaces all existing fields and

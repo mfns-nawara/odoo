@@ -59,7 +59,7 @@
                                     <label for="use_mail_schedule"/>
                                     <div class="row mt16" attrs="{'invisible': [('use_mail_schedule', '=', False)]}">
                                         <div class="col-lg-9">
-                                            <field name="event_type_mail_ids">
+                                            <field name="event_type_mail_ids" class="w-100">
                                                 <tree string="Communication" editable="bottom">
                                                     <field name="notification_type" invisible="1"/>
                                                     <field name="template_id" attrs="{'required': [('notification_type', '=', 'mail')]}"/>
@@ -255,7 +255,7 @@
                         </group>
                         <notebook>
                             <page string="Communication" name="event_communication">
-                                <field name="event_mail_ids">
+                                <field name="event_mail_ids" context="{'default_event_id': id}">
                                     <tree string="Communication" editable="bottom">
                                         <field name="sequence" widget="handle"/>
                                         <field name="notification_type" invisible="1"/>
