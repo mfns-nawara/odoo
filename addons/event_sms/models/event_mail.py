@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo import fields, models
+from odoo import fields, models, api
 
 
 class EventTypeMail(models.Model):
@@ -36,6 +36,13 @@ class EventMailScheduler(models.Model):
                     )
                     mail.write({'mail_sent': True})
         return super(EventMailScheduler, self).execute()
+
+    @api.constrains('notification_type')
+    def _check_notification_type(self):
+        super()._check_notification_type()
+        for event_type_mail in self:
+            if event_type_mail.notification_type != 'sms':
+                event_type_mail.sms_template_id = False
 
 
 class EventMailRegistration(models.Model):

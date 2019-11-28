@@ -46,6 +46,12 @@ class EventTypeMail(models.Model):
         domain=[('model', '=', 'event.registration')], ondelete='restrict',
         help='This field contains the template of the mail that will be automatically sent')
 
+    @api.constrains('notification_type')
+    def _check_notification_type(self):
+        for event_type_mail in self:
+            if event_type_mail.notification_type != 'mail':
+                event_type_mail.template_id = False
+
 
 class EventMailScheduler(models.Model):
     """ Event automated mailing. This model replaces all existing fields and
@@ -77,6 +83,12 @@ class EventMailScheduler(models.Model):
     mail_registration_ids = fields.One2many('event.mail.registration', 'scheduler_id')
     mail_sent = fields.Boolean('Mail Sent on Event', copy=False)
     done = fields.Boolean('Sent', compute='_compute_done', store=True)
+
+    @api.constrains('notification_type')
+    def _check_notification_type(self):
+        for event_type_mail in self:
+            if event_type_mail.notification_type != 'mail':
+                event_type_mail.template_id = False
 
     @api.depends('mail_sent', 'interval_type', 'event_id.registration_ids', 'mail_registration_ids')
     def _compute_done(self):
