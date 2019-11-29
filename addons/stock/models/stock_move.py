@@ -1506,6 +1506,8 @@ class StockMove(models.Model):
 
     def _recompute_state(self):
         for move in self:
+            if move.state == 'draft':
+                continue
             if move.reserved_availability == move.product_uom_qty:
                 move.state = 'assigned'
             elif move.reserved_availability and move.reserved_availability <= move.product_uom_qty:
