@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data noupdate="1">
-        <!-- Domestic VAT sweden 25% 12% and 6% -->
         <record id="sale_tax_25_goods" model="account.tax.template">
             <field name="chart_template_id" ref="l10nse_chart_template" />
             <field name="name">Utgående moms 25%</field>
@@ -461,7 +460,6 @@
                 }),
             ]"/>
         </record>
-
         <record id="purchase_goods_tax_25_EC" model="account.tax.template">
             <field name="chart_template_id" ref="l10nse_chart_template" />
             <field name="name">Inköp av varor EU moms 25%</field>
@@ -506,7 +504,6 @@
 
             ]"/>
         </record>
-
         <record id="purchase_goods_tax_12_EC" model="account.tax.template">
             <field name="chart_template_id" ref="l10nse_chart_template" />
             <field name="name">Inköp av varor EU moms 12%</field>
@@ -550,7 +547,6 @@
                 }),
             ]"/>
         </record>
-
         <record id="purchase_goods_tax_6_EC" model="account.tax.template">
             <field name="chart_template_id" ref="l10nse_chart_template" />
             <field name="name">Inköp av varor EU moms 6%</field>
@@ -595,7 +591,6 @@
             ]"/>
         </record>
         <!-- Tax template VAT in EC services -->
-
         <record id="purchase_services_tax_25_EC" model="account.tax.template">
             <field name="chart_template_id" ref="l10nse_chart_template" />
             <field name="name">Inköp av tjänst EU moms 25%</field>
@@ -639,7 +634,6 @@
                 }),
             ]"/>
         </record>
-
         <record id="purchase_services_tax_12_EC" model="account.tax.template">
             <field name="chart_template_id" ref="l10nse_chart_template" />
             <field name="name">Inköp av tjänst EU moms 12%</field>
@@ -682,7 +676,6 @@
                 }),
             ]"/>
         </record>
-
         <record id="purchase_services_tax_6_EC" model="account.tax.template">
             <field name="chart_template_id" ref="l10nse_chart_template" />
             <field name="name">Inköp av tjänst EU moms 6%</field>
@@ -788,7 +781,6 @@
                 }),
             ]"/>
         </record>
-
         <record id="purchase_goods_tax_25_NEC" model="account.tax.template">
             <field name="chart_template_id" ref="l10nse_chart_template" />
             <field name="name">Beskattningsunderlag vid import 25%</field>
@@ -832,7 +824,6 @@
                 }),
             ]"/>
         </record>
-
         <record id="purchase_goods_tax_12_NEC" model="account.tax.template">
             <field name="chart_template_id" ref="l10nse_chart_template" />
             <field name="name">Beskattningsunderlag vid import 12%</field>
@@ -875,7 +866,6 @@
                 }),
             ]"/>
         </record>
-
         <record id="purchase_goods_tax_6_NEC" model="account.tax.template">
             <field name="chart_template_id" ref="l10nse_chart_template" />
             <field name="name">Beskattningsunderlag vid import 6%</field>
@@ -918,7 +908,6 @@
                 }),
             ]"/>
         </record>
-
         <record id="purchase_services_tax_25_NEC" model="account.tax.template">
             <field name="chart_template_id" ref="l10nse_chart_template" />
             <field name="name">Inköp av tjänster utanför EU 25%</field>
@@ -962,7 +951,6 @@
                 }),
             ]"/>
         </record>
-
         <record id="purchase_services_tax_12_NEC" model="account.tax.template">
             <field name="chart_template_id" ref="l10nse_chart_template" />
             <field name="name">Inköp av tjänster utanför EU 12%</field>
@@ -1006,7 +994,6 @@
                 }),
             ]"/>
         </record>
-
         <record id="purchase_services_tax_6_NEC" model="account.tax.template">
             <field name="chart_template_id" ref="l10nse_chart_template" />
             <field name="name">Inköp av tjänster utanför EU 6%</field>

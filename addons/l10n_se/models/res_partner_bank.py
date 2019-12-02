@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-import re
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
 
+import re
 from odoo import api, models,  _
 from odoo.exceptions import ValidationError
 from .res_partner import mod10r_se
@@ -14,7 +15,6 @@ class ResPartnerBank(models.Model):
         rslt = super(ResPartnerBank, self)._get_supported_account_types()
         rslt.append(('plusgiro', _('Plusgiro')))
         rslt.append(('bankgiro', _('Bankgiro')))
-
         return rslt
 
     @api.model

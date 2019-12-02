@@ -22,7 +22,6 @@ class ResPartner(models.Model):
 
 
 def mod10r_se(number):
-    n = len(number)
-    digits = [int(d) for d in re.sub(r'\D', '', number)][-n:]
+    digits = [int(d) for d in re.sub(r'\D', '', number)][-len(number):]
     even_digitsum = sum(x if x < 5 else x - 9 for x in digits[::2])
     return 0 == sum(digits, even_digitsum) % 10
