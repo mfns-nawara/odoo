@@ -8,9 +8,6 @@
             <field name="cash_account_code_prefix">191</field>
             <field name="transfer_account_code_prefix">194</field>
             <field name="code_digits">4</field>
-            <field name="visible" eval="True"/>
-            <field name="use_anglo_saxon" eval="True"/>
-            <field name="complete_tax_set" eval="True"/>
         </record>
     </data>
 </odoo>

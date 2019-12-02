@@ -2,7 +2,7 @@
 {
     "name": "Swedish - Accounting",
     "version": "1.0",
-    "author": "odoo",
+    "author": "XCLUDE",
     "category": "Localization",
     "depends": ["account"],
     "data": [
@@ -11,8 +11,11 @@
         "data/account.account.template.csv",
         "data/account_chart_template_data.xml",
         "data/account_chart_template_configuration.xml",
+        "data/account_tax_group.xml",
         "data/account_tax_template.xml",
         "data/account_fiscal_position_tax_template.xml",
+        "data/account_fiscal_position_account_template.xml",
+        "data/res.bank.csv",
         "views/res_partner.xml",
     ],
  }

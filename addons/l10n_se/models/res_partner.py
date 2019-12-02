@@ -9,18 +9,20 @@ from odoo.exceptions import ValidationError
 class ResPartner(models.Model):
     _inherit = "res.partner"
 
-    orgnumber = fields.Char('Organisational Number')
+    orgnumber = fields.Char('Organisational Number', compute="compute_orgnumber")
 
-    @api.onchange('orgnumber')
-    def onchnage_orgnumber(self):
-        def _check_orgnumber(orgnumber):
-            digits = [int(d) for d in re.sub(r'\D', '', orgnumber)][-10:]
-            if len(digits) != 10:
-                return False
-            even_digitsum = sum(x if x < 5 else x - 9 for x in digits[::2])
-            return 0 == sum(digits, even_digitsum) % 10
-        if self.orgnumber:
-            if _check_orgnumber(self.orgnumber):
-                self.vat = 'SE' + self.orgnumber + '01'
+    @api.model
+    def compute_orgnumber(self):
+        if self.vat:
+            if len(re.sub(r'\D', '', self.vat[2:-2])) == 10 and mod10r_se(self.vat[2:-2]):
+                self.orgnumber = self.vat[2:-2]
             else:
-                raise ValidationError('Organisational number is invalid.')
+                self.orgnumber = ""
+                raise ValidationError('Vat number is invalid.')
+
+
+def mod10r_se(number):
+    n = len(number)
+    digits = [int(d) for d in re.sub(r'\D', '', number)][-n:]
+    even_digitsum = sum(x if x < 5 else x - 9 for x in digits[::2])
+    return 0 == sum(digits, even_digitsum) % 10

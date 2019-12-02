@@ -8,6 +8,7 @@
             <field name="description">ST25</field>
             <field name="amount">25</field>
             <field name="type_tax_use">sale</field>
+            <field name="tax_group_id" ref="tax_group_25"/>
             <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
@@ -40,6 +41,7 @@
             <field name="description">ST25</field>
             <field name="amount">25</field>
             <field name="type_tax_use">sale</field>
+            <field name="tax_group_id" ref="tax_group_25"/>
             <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
@@ -72,6 +74,7 @@
             <field name="description">PT25</field>
             <field name="amount">25</field>
             <field name="type_tax_use">purchase</field>
+            <field name="tax_group_id" ref="tax_group_25"/>
             <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
@@ -104,6 +107,7 @@
             <field name="description">PT25</field>
             <field name="amount">25</field>
             <field name="type_tax_use">purchase</field>
+            <field name="tax_group_id" ref="tax_group_25"/>
             <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
@@ -136,6 +140,7 @@
             <field name="description">ST12</field>
             <field name="amount">12</field>
             <field name="type_tax_use">sale</field>
+            <field name="tax_group_id" ref="tax_group_12"/>
             <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
@@ -168,6 +173,7 @@
             <field name="description">ST12</field>
             <field name="amount">12</field>
             <field name="type_tax_use">sale</field>
+            <field name="tax_group_id" ref="tax_group_12"/>
             <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
@@ -200,6 +206,7 @@
             <field name="description">PT12</field>
             <field name="amount">12</field>
             <field name="type_tax_use">purchase</field>
+            <field name="tax_group_id" ref="tax_group_12"/>
             <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
@@ -232,6 +239,7 @@
             <field name="description">PT12</field>
             <field name="amount">12</field>
             <field name="type_tax_use">purchase</field>
+            <field name="tax_group_id" ref="tax_group_12"/>
             <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
@@ -264,6 +272,7 @@
             <field name="description">ST6</field>
             <field name="amount">6</field>
             <field name="type_tax_use">sale</field>
+            <field name="tax_group_id" ref="tax_group_6"/>
             <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
@@ -296,6 +305,7 @@
             <field name="description">ST6</field>
             <field name="amount">6</field>
             <field name="type_tax_use">sale</field>
+            <field name="tax_group_id" ref="tax_group_6"/>
             <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
@@ -328,6 +338,7 @@
             <field name="description">PT6</field>
             <field name="amount">6</field>
             <field name="type_tax_use">purchase</field>
+            <field name="tax_group_id" ref="tax_group_6"/>
             <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
@@ -360,6 +371,7 @@
             <field name="description">PT6</field>
             <field name="amount">6</field>
             <field name="type_tax_use">purchase</field>
+            <field name="tax_group_id" ref="tax_group_6"/>
             <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
@@ -393,6 +405,7 @@
             <field name="description">SE0</field>
             <field name="amount" eval="0" />
             <field name="type_tax_use">sale</field>
+            <field name="tax_group_id" ref="tax_group_0"/>
             <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
@@ -423,6 +436,7 @@
             <field name="description">SE0</field>
             <field name="amount" eval="0" />
             <field name="type_tax_use">sale</field>
+            <field name="tax_group_id" ref="tax_group_0"/>
             <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
@@ -454,6 +468,7 @@
             <field name="description">PE25</field>
             <field name="amount">25</field>
             <field name="type_tax_use">purchase</field>
+            <field name="tax_group_id" ref="tax_group_25"/>
             <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
@@ -498,6 +513,7 @@
             <field name="description">PE12</field>
             <field name="amount">12</field>
             <field name="type_tax_use">purchase</field>
+            <field name="tax_group_id" ref="tax_group_12"/>
             <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
@@ -541,6 +557,7 @@
             <field name="description">PE6</field>
             <field name="amount">6</field>
             <field name="type_tax_use">purchase</field>
+            <field name="tax_group_id" ref="tax_group_6"/>
             <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
@@ -585,6 +602,7 @@
             <field name="description">PE25</field>
             <field name="amount">25</field>
             <field name="type_tax_use">purchase</field>
+            <field name="tax_group_id" ref="tax_group_25"/>
             <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
@@ -628,6 +646,7 @@
             <field name="description">PE12</field>
             <field name="amount">12</field>
             <field name="type_tax_use">purchase</field>
+            <field name="tax_group_id" ref="tax_group_12"/>
             <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
@@ -670,6 +689,7 @@
             <field name="description">PE6</field>
             <field name="amount">6</field>
             <field name="type_tax_use">purchase</field>
+            <field name="tax_group_id" ref="tax_group_6"/>
             <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
@@ -712,6 +732,7 @@
             <field name="description">SE0</field>
             <field name="amount" eval="0" />
             <field name="type_tax_use">sale</field>
+            <field name="tax_group_id" ref="tax_group_0"/>
             <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
@@ -742,6 +763,7 @@
             <field name="description">SE0</field>
             <field name="amount" eval="0" />
             <field name="type_tax_use">sale</field>
+            <field name="tax_group_id" ref="tax_group_0"/>
             <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
@@ -773,6 +795,7 @@
             <field name="description">PN25</field>
             <field name="amount">25</field>
             <field name="type_tax_use">purchase</field>
+            <field name="tax_group_id" ref="tax_group_25"/>
             <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
@@ -816,6 +839,7 @@
             <field name="description">PN12</field>
             <field name="amount">12</field>
             <field name="type_tax_use">purchase</field>
+            <field name="tax_group_id" ref="tax_group_12"/>
             <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
@@ -858,6 +882,7 @@
             <field name="description">PN6</field>
             <field name="amount">6</field>
             <field name="type_tax_use">purchase</field>
+            <field name="tax_group_id" ref="tax_group_6"/>
             <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
@@ -900,6 +925,7 @@
             <field name="description">PN25</field>
             <field name="amount">25</field>
             <field name="type_tax_use">purchase</field>
+            <field name="tax_group_id" ref="tax_group_25"/>
             <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
@@ -943,6 +969,7 @@
             <field name="description">PN12</field>
             <field name="amount">12</field>
             <field name="type_tax_use">purchase</field>
+            <field name="tax_group_id" ref="tax_group_12"/>
             <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
@@ -986,6 +1013,7 @@
             <field name="description">PN6</field>
             <field name="amount">6</field>
             <field name="type_tax_use">purchase</field>
+            <field name="tax_group_id" ref="tax_group_6"/>
             <field name="invoice_repartition_line_ids" eval="[(5, 0, 0),
                 (0,0, {
                     'factor_percent': 100,
