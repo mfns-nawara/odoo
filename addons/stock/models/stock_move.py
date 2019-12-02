@@ -605,17 +605,16 @@ class StockMove(models.Model):
 
     def _do_unreserve(self):
         moves_to_unreserve = self.env['stock.move']
+        moves_not_to_recompute = self.env['stock.move']
         for move in self:
-            if move.state == 'cancel':
+            if move.state == 'cancel' or (move.state == 'done' and move.scrapped):
                 # We may have cancelled move in an open picking in a "propagate_cancel" scenario.
+                # We may have done move in an open picking in a scrap scenario.
                 continue
-            if move.state == 'done':
-                if move.scrapped:
-                    # We may have done move in an open picking in a scrap scenario.
-                    continue
-                else:
-                    raise UserError(_('You cannot unreserve a stock move that has been set to \'Done\'.'))
+            elif move.state == 'done' and not move.scrapped:
+                raise UserError(_('You cannot unreserve a stock move that has been set to \'Done\'.'))
             moves_to_unreserve |= move
+
         ml_to_update = self.env['stock.move.line']
         ml_to_unlink = self.env['stock.move.line']
         for ml in moves_to_unreserve.move_line_ids:
@@ -623,12 +622,13 @@ class StockMove(models.Model):
                 ml_to_update |= ml
             else:
                 ml_to_unlink |= ml
-        if ml_to_update:
-            ml_to_update.write({'product_uom_qty': 0})
+                moves_not_to_recompute |= ml.move_id
+
+        ml_to_update.write({'product_uom_qty': 0})
         ml_to_unlink.unlink()
         # unlink call _recompute_state but it's possible to have a move with all its
         # move lines so its state won't be updated
-        moves_to_unreserve._recompute_state()
+        (moves_to_unreserve - moves_not_to_recompute)._recompute_state()
         return True
 
     def _generate_serial_numbers(self, next_serial_count=False):
