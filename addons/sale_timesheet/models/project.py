@@ -135,6 +135,19 @@ class ProjectTask(models.Model):
     ], string="Billable Type", compute='_compute_billable_type', compute_sudo=True, store=True)
     is_project_map_empty = fields.Boolean("Is Project map empty", compute='_compute_is_project_map_empty')
 
+    @api.onchange('sale_line_id')
+    def _onchange_sale_line_id(self):
+        if self.timesheet_ids:
+            if self.sale_line_id:
+                message = _("All timesheet hours that are not yet invoiced will be assigned to the selected Sales Order Item on save. Discard to avoid the change.")
+            else:
+                message = _("All timesheet hours that are not yet invoiced will be removed from the selected Sales Order Item on save. Discard to avoid the change.")
+
+            return {'warning': {
+                'title': _("Warning"),
+                'message': message
+            }}
+
     @api.depends('sale_line_id', 'project_id', 'billable_type')
     def _compute_sale_order_id(self):
         for task in self:
@@ -198,11 +211,17 @@ class ProjectTask(models.Model):
                     raise ValidationError(_('You cannot link the order item %s - %s to this task because it is a re-invoiced expense.' % (task.sale_line_id.order_id.id, task.sale_line_id.product_id.name)))
 
     def write(self, values):
+        old_sale_line_id = dict([(t.id, t.sale_line_id.id) for t in self])
         if values.get('project_id'):
             project_dest = self.env['project.project'].browse(values['project_id'])
             if project_dest.billable_type == 'employee_rate':
                 values['sale_line_id'] = False
-        return super(ProjectTask, self).write(values)
+        res = super(ProjectTask, self).write(values)
+        if 'sale_line_id' in values and self.sudo().timesheet_ids:
+            self.timesheet_ids.filtered(lambda t: not t.timesheet_invoice_id and t.so_line.id == old_sale_line_id[t.task_id.id]).write({
+                'so_line': values['sale_line_id']
+            })
+        return res
 
     def unlink(self):
         if any(task.sale_line_id for task in self):
@@ -215,13 +234,20 @@ class ProjectTask(models.Model):
 
     def action_view_so(self):
         self.ensure_one()
-        return {
+        so = list(set((self.sale_order_id + self.timesheet_ids.so_line.order_id).ids))
+        action_window = {
             "type": "ir.actions.act_window",
             "res_model": "sale.order",
-            "views": [[False, "form"]],
-            "res_id": self.sale_order_id.id,
+            "name": "Sales Order",
+            "views": [[False, "tree"], [False, "form"]],
             "context": {"create": False, "show_sale": True},
+            "domain": [["id", "in", so]],
         }
+        if len(so) == 1:
+            action_window["views"] = [[False, "form"]]
+            action_window["res_id"] = so[0]
+
+        return action_window
 
     def rating_get_partner_id(self):
         partner = self.partner_id or self.sale_line_id.order_id.partner_id
