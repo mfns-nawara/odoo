@@ -35,7 +35,6 @@
             <field name="internal" eval="True"/>
             <field name="sequence" eval="90"/>
         </record>
-
     </data>
     <data>
         <template id="message_notification_email">

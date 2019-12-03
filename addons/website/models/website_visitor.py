@@ -36,6 +36,7 @@ class WebsiteVisitor(models.Model):
     website_id = fields.Many2one('website', "Website", readonly=True)
     partner_id = fields.Many2one('res.partner', string="Linked Partner", help="Partner of the last logged in user.")
     partner_image = fields.Binary(related='partner_id.image_1920')
+    company_id = fields.Many2one('res.company', readonly=True, related='partner_id.company_id')
 
     # localisation and info
     country_id = fields.Many2one('res.country', 'Country', readonly=True)
@@ -151,10 +152,11 @@ class WebsiteVisitor(models.Model):
         ctx = dict(
             default_model=visitor_mail_values.get('res_model'),
             default_res_id=visitor_mail_values.get('res_id'),
-            default_use_template=False,
+            default_use_template=True,
             default_partner_ids=[(6, 0, visitor_mail_values.get('partner_ids'))],
             default_composition_mode='comment',
             default_reply_to=self.env.user.partner_id.email,
+            default_template_id=self.env.ref('website_mail.website_visitor_mail_template').id,
         )
         return {
             'name': _('Compose Email'),
