@@ -1383,10 +1383,12 @@ class Binary(http.Controller):
                        filename=None, filename_field='name', unique=None, mimetype=None,
                        download=None, data=None, token=None, access_token=None, **kw):
 
+        print ('11111111111111111',model,id,filename,access_token,kw)
         status, headers, content = request.env['ir.http'].binary_content(
             xmlid=xmlid, model=model, id=id, field=field, unique=unique, filename=filename,
             filename_field=filename_field, download=download, mimetype=mimetype, access_token=access_token)
 
+        print ('222222222222222222',status, headers)
         if status != 200:
             return request.env['ir.http']._response_by_status(status, headers, content)
         else:
