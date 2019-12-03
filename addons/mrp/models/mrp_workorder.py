@@ -395,13 +395,13 @@ class MrpWorkorder(models.Model):
             if not candidates:
                 self.write({
                     'finished_lot_id': r_line.lot_id.id,
-                    'qty_producing': r_line.qty_done,
+                    'qty_producing': min(r_line.qty_done, self.qty_remaining),
                 })
                 return True
             elif float_compare(candidates.qty_done, r_line.qty_done, precision_rounding=rounding) < 0:
                 self.write({
                     'finished_lot_id': r_line.lot_id.id,
-                    'qty_producing': r_line.qty_done - candidates.qty_done,
+                    'qty_producing': min(r_line.qty_done - candidates.qty_done, self.qty_remaining),
                 })
                 return True
             elif not r_line.lot_id and self.product_tracking == 'lot':
