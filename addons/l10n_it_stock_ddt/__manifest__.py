@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "l10n_it_ddt",
+    'name': "l10n_it_stock_ddt",
     'website': 'https://www.odoo.com',
     'category': 'Localization',
     'version': '0.1',
