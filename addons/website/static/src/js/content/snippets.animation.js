@@ -1080,6 +1080,10 @@ registry.facebookPage = publicWidget.Widget.extend({
      */
     start: function () {
         var def = this._super.apply(this, arguments);
+        if (this.$target.children('iframe').length) {
+            // There already is an <iframe/>, do nothing
+            return def;
+        }
 
         var params = _.pick(this.$el.data(), 'href', 'height', 'tabs', 'small_header', 'hide_cover', 'show_facepile');
         if (!params.href) {
@@ -1088,21 +1092,20 @@ registry.facebookPage = publicWidget.Widget.extend({
         params.width = utils.confine(Math.floor(this.$el.width()), 180, 500);
 
         var src = $.param.querystring('https://www.facebook.com/plugins/page.php', params);
-        if (!this.$target.children('iframe').length) {
-            this.$iframe = $('<iframe/>', {
-                src: src,
-                width: params.width,
-                height: params.height,
-                css: {
-                    border: 'none',
-                    overflow: 'hidden',
-                },
-                scrolling: 'no',
-                frameborder: '0',
-                allowTransparency: 'true',
-            });
-                this.$el.append(this.$iframe);
-        }
+        this.$iframe = $('<iframe/>', {
+            src: src,
+            width: params.width,
+            height: params.height,
+            css: {
+                border: 'none',
+                overflow: 'hidden',
+            },
+            scrolling: 'no',
+            frameborder: '0',
+            allowTransparency: 'true',
+        });
+        this.$el.append(this.$iframe);
+
         return def;
     },
     /**
