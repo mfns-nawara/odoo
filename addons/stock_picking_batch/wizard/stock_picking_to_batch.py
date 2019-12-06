@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo import api, fields, models, _
+from odoo import fields, models, _
 from odoo.exceptions import UserError
 
 
@@ -23,6 +23,7 @@ class StockPickingToBatch(models.TransientModel):
             batch = self.env['stock.picking.batch'].create({
                 'user_id': self.user_id.id,
                 'company_id': company.id,
+                'picking_type_id': pickings[0].picking_type_id.id,
             })
         else:
             batch = self.batch_id
