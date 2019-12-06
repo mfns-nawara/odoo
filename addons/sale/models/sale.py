@@ -117,7 +117,7 @@ class SaleOrder(models.Model):
         return 'form'
 
     def _search_invoice_ids(self, operator, value):
-        return ['&', '&', ('order_line.invoice_lines.move_id.type', 'in', ('out_invoice', 'out_refund')), ('id', 'in', self.ids), ('order_line.invoice_lines.move_id', operator, value)]
+        return ['&', ('order_line.invoice_lines.move_id.type', 'in', ('out_invoice', 'out_refund')), ('order_line.invoice_lines.move_id', operator, value)]
 
     name = fields.Char(string='Order Reference', required=True, copy=False, readonly=True, states={'draft': [('readonly', False)]}, index=True, default=lambda self: _('New'))
     origin = fields.Char(string='Source Document', help="Reference of the document that generated this sales order request.")
