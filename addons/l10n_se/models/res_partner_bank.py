@@ -29,9 +29,7 @@ class ResPartnerBank(models.Model):
     @api.constrains('acc_number')
     def acc_number_constrains(self):
         for record in self:
-            if record.acc_type == 'plusgiro':
+            if record.acc_type in ['plusgiro', 'bankgiro']:
                 if not mod10r_se(record.acc_number):
-                    raise ValidationError(_('The Plusgiro account is not correct.'))
-            elif record.acc_type == 'bankgiro':
-                if not mod10r_se(record.acc_number):
-                    raise ValidationError(_('The Bankgiro account is not correct.'))
+                    acc_type_values = {elem[0]: elem[1] for elem in self._fields['acc_type']._description_selection(self.env)}
+                    raise ValidationError(_('The %s account is not correct.') % (acc_type_values.get(record.acc_type)))
