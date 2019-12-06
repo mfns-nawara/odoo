@@ -5,7 +5,7 @@
     "version": "1.0",
     "author": "XCLUDE",
     "category": "Localization",
-    "depends": ["account"],
+    "depends": ["account", "base_vat"],
     "data": [
         "data/account_chart_template.xml",
         "data/account_fiscal_position_template.xml",

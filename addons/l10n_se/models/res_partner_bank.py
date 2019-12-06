@@ -2,9 +2,8 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 import re
-from odoo import api, models,  _
+from odoo import api, models, _
 from odoo.exceptions import ValidationError
-from .res_partner import mod10r_se
 
 
 class ResPartnerBank(models.Model):
@@ -33,3 +32,9 @@ class ResPartnerBank(models.Model):
                 if not mod10r_se(record.acc_number):
                     acc_type_values = {elem[0]: elem[1] for elem in self._fields['acc_type']._description_selection(self.env)}
                     raise ValidationError(_('The %s account is not correct.') % (acc_type_values.get(record.acc_type)))
+
+
+def mod10r_se(number):
+    digits = [int(d) for d in re.sub(r'\D', '', number)]
+    even_digitsum = sum(x if x < 5 else x - 9 for x in digits[::2])
+    return 0 == sum(digits, even_digitsum) % 10
