@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+        <!-- Merge UTM Campaigns  -->
+        <record id="merge_utm_campaign_form" model="ir.ui.view">
+            <field name="name">utm.merge.utm.campaign.form</field>
+            <field name="model">utm.merge.utm.campaign</field>
+            <field name="arch" type="xml">
+                <form string="Merge UTM Campaign">
+                    <header>
+                        <field name="stage_id" widget="statusbar" options="{'clickable': '1'}"/>
+                    </header>
+                    <sheet>
+                        <div class="alert alert-warning text-center"  role="alert">
+                            <span class="o_form_label">Marketing Campaigns will be updated if corresponding UTM Campaigns merged.</span>
+                        </div>
+                        <group id="top-group" string="Optinal New Info">
+                            <field name="name"/>
+                            <field name="user_id"/>
+                            <field name="tag_ids" widget="many2many_tags"/>
+                        </group>
+                        <group string="Select UTM Campaigns">
+                            <field name="utm_campaign_ids" nolabel="1">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="user_id"/>
+                                    <field name="stage_id"/>
+                                </tree>
+                            </field>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button name="action_merge" type="object" string="Merge" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <act_window
+            id="action_merge_utm_campaign"
+            name="Merge"
+            res_model="utm.merge.utm.campaign"
+            binding_model="utm.campaign"
+            binding_views="list"
+            view_mode="form"
+            target="new"/>
+
+</odoo>

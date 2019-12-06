@@ -17,6 +17,7 @@ class UtmMixin(models.AbstractModel):
     medium_id = fields.Many2one('utm.medium', 'Medium',
                                 help="This is the method of delivery, e.g. Postcard, Email, or Banner Ad")
 
+
     @api.model
     def default_get(self, fields):
         values = super(UtmMixin, self).default_get(fields)
@@ -35,9 +36,13 @@ class UtmMixin(models.AbstractModel):
                 # if we receive a string for a many2one, we search/create the id
                 if field.type == 'many2one' and isinstance(value, str) and value:
                     Model = self.env[field.comodel_name]
-                    records = Model.search([('name', '=', value)], limit=1)
+                    # also search for achived records for campaign_id
+                    records = Model.with_context(active_test=not field_name == 'campaign_id').search([('name', '=', value)], limit=1)
                     if not records:
                         records = Model.create({'name': value, 'is_website': True})
+                    if field_name == 'campaign_id':
+                        while not records.active:
+                            records = records.reference_utm_campaign_id
                     value = records.id
                 if value:
                     values[field_name] = value

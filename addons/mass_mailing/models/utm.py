@@ -100,3 +100,13 @@ class UtmCampaign(models.Model):
                 domain += [('model', '=', model)]
             res[campaign.id] = set(self.env['mailing.trace'].search(domain).mapped('res_id'))
         return res
+
+    # override
+    def merge_utm_campaigns(self, name=False, user_id=False, stage_id=False, tag_ids=False):
+        """
+            After merge the campaigns, redirect the mailing_mail that link to old campaigns to the new merged campaign.
+        """
+        merged_campaign, deactived_campaign_ids = super(UtmCampaign, self).merge_utm_campaigns(name, user_id, stage_id, tag_ids)
+        mailing_mail_to_redirect = self.env["mailing.mailing"].search([('campaign_id.id', 'in', deactived_campaign_ids)])
+        mailing_mail_to_redirect.mapped(lambda r: r.write({'campaign_id': merged_campaign}))
+        return merged_campaign, deactived_campaign_ids
