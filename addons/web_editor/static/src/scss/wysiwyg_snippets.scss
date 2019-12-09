@@ -245,6 +245,23 @@ body.editor_enable.editor_has_snippets {
             text-transform: capitalize;
         }
 
+        we-imagepicker {
+            we-row {
+                max-width: 100%;
+            }
+
+            .o_we_edit_image {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+
+                > span {
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+            }
+        }
+
         we-customizeblock-options {
             display: block;
             padding: 0.5em;
