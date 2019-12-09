@@ -4259,7 +4259,7 @@ QUnit.module('ActionManager', {
         await testUtils.nextTick();
         await testUtils.fields.triggerKeydown($searchInput, 'enter');
 
-        assert.verifySteps(["search_read |,foo,ilike,m,foo,ilike,o"]);
+        assert.verifySteps(["search_read &,foo,ilike,m,foo,ilike,o"]);
 
         actionManager.destroy();
     });
