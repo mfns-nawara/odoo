@@ -5,10 +5,11 @@ from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from collections import defaultdict
 from math import floor
+import json
 
 from odoo import api, fields, models, _, SUPERUSER_ID
 from odoo.exceptions import UserError
-from odoo.tools import float_compare, float_round
+from odoo.tools import float_compare, float_round, format_datetime
 
 
 class MrpWorkorder(models.Model):
@@ -144,6 +145,68 @@ class MrpWorkorder(models.Model):
         'finished_workorder_id', string='By-products')
     allowed_lots_domain = fields.One2many(comodel_name='stock.production.lot', compute="_compute_allowed_lots_domain")
     is_finished_lines_editable = fields.Boolean(compute='_compute_is_finished_lines_editable')
+
+    json_popover = fields.Char('Popover Data JSON', compute='_compute_json_popover')
+
+    def _get_conflicted_workorder_ids(self):
+        """Get conflicted workorder_ids with current records.
+
+        Conflicted means having two workorders in the same time in the same workcenter.
+        It returns only for the current workorders the conflicted.
+
+        :return: defaultdict, key is wo id, value is conflited wo ids
+        """
+        sql = """
+        SELECT wo1.id, wo2.id FROM mrp_workorder wo1, mrp_workorder wo2 WHERE
+        wo1.id != wo2.id AND wo1.id IN %s AND wo1.workcenter_id = wo2.workcenter_id AND
+        (wo2.date_planned_start, wo2.date_planned_finished) OVERLAPS (wo1.date_planned_start, wo1.date_planned_finished)
+        """
+        self.env.cr.execute(sql, [tuple(self.ids)])
+        dict_list = defaultdict(list)
+        for wo_id, wo_id_conflict in self.env.cr.fetchall():
+            dict_list[wo_id].append(wo_id_conflict)
+        return dict_list
+
+    def _compute_json_popover(self):
+        conflicted_dict = self._get_conflicted_workorder_ids()
+        for wo in self:
+            infos = []
+            if wo.state in ['pending', 'ready']:
+                previous_wo = self.env['mrp.workorder'].search([
+                    ('next_work_order_id', '=', wo.id)
+                ])
+                prev_start = previous_wo and previous_wo.date_planned_start or False
+                prev_finished = previous_wo and previous_wo.date_planned_finished or False
+                if wo.state == 'pending' and prev_start and not (prev_start > wo.date_planned_finished):
+                    infos.append({
+                        'color': 'text-primary',
+                        'msg': _("Waiting the previous work order, planned from %s to %s") % (
+                            format_datetime(self.env, prev_start, dt_format=False),
+                            format_datetime(self.env, prev_finished, dt_format=False))
+                    })
+                if wo.date_planned_finished < fields.Datetime.now():
+                    infos.append({
+                        'color': 'text-warning',
+                        'msg': _("The work order should have already been processed.")
+                    })
+                if prev_start and prev_start > wo.date_planned_finished:
+                    infos.append({
+                        'color': 'text-danger',
+                        'msg': _("Scheduled before the previous work order, planned from %s to %s") % (
+                            format_datetime(self.env, prev_start, dt_format=False),
+                            format_datetime(self.env, prev_finished, dt_format=False))
+                    })
+                if conflicted_dict[wo.id]:
+                    infos.append({
+                        'color': 'text-danger',
+                        'msg': _("Planned at the same time than other workorder(s) at %s" % wo.workcenter_id.display_name)
+                    })
+            color_icon = infos and infos[-1]['color'] or 'd-none'
+            wo.json_popover = json.dumps({
+                'infos': infos,
+                'color': color_icon,
+                'replan': color_icon not in ['d-none', 'text-primary']
+            })
 
     # Both `date_planned_start` and `date_planned_finished` are related fields on `leave_id`. Let's say
     # we slide a workorder on a gantt view, a single call to write is made with both
@@ -661,6 +724,15 @@ class MrpWorkorder(models.Model):
     def action_cancel(self):
         self.leave_id.unlink()
         return self.write({'state': 'cancel'})
+
+    def action_replan(self):
+        """Replan a work order.
+
+        It actually replans every  "ready" or "pending"
+        work orders of the linked manufacturing orders.
+        """
+        for production in self.production_id:
+            production._plan_workorders(replan=True)
 
     def button_done(self):
         if any([x.state in ('done', 'cancel') for x in self]):
