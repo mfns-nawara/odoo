@@ -503,7 +503,7 @@ return AbstractModel.extend({
                 var value = event.record[fieldName];
                 event.color_index = _.isArray(value) ? value[0] : value;
             });
-            this.model_color = this.fields[fieldName].relation || element.model;
+            this.model_color = this.fields[fieldName].relation || this.modelName;
         }
         return Promise.resolve();
     },
@@ -579,6 +579,8 @@ return AbstractModel.extend({
         var self = this;
         var new_filters = {};
         var to_read = {};
+        var defs = [];
+        var color_filter = {};
 
         _.each(this.data.filters, function (filter, fieldName) {
             var field = self.fields[fieldName];
@@ -609,10 +611,10 @@ return AbstractModel.extend({
                 _.each(data, function (_value) {
                     var value = _.isArray(_value) ? _value[0] : _value;
                     var f = {
-                        'color_index': self.model_color === (field.relation || element.model) ? value : false,
+                        'color_index': self.model_color === (field.relation || self.modelName) ? value : false,
                         'value': value,
                         'label': fieldUtils.format[field.type](_value, field) || _t("Undefined"),
-                        'avatar_model': field.relation || element.model,
+                        'avatar_model': field.relation || self.modelName,
                     };
                     // if field used as color does not have value then push filter in undefined_fs,
                     // such filters should come last in filter list with Undefined string, later merge it with fs
@@ -620,7 +622,7 @@ return AbstractModel.extend({
                 });
             });
             _.each(_.union(fs, undefined_fs), function (f) {
-                var f1 = _.findWhere(filter.filters, f);
+                var f1 = _.findWhere(filter.filters, _.omit(f, 'color_index'));
                 if (f1) {
                     f1.display = true;
                 } else {
@@ -628,9 +630,27 @@ return AbstractModel.extend({
                     filter.filters.push(f);
                 }
             });
+
+            if (filter.color_model && filter.field_color) {
+                var ids = _.pluck(_.reject(filter.filters, function (f) { return f.color_index; }), 'value').filter(Boolean);
+                if (!color_filter[filter.color_model]) {
+                    color_filter[filter.color_model] = {};
+                }
+                if (ids) {
+                    defs.push(self._rpc({
+                        model: filter.color_model,
+                        method: 'read',
+                        args: [_.uniq(ids), [filter.field_color]],
+                    })
+                    .then(function (res) {
+                        _.each(res, function (c) {
+                            color_filter[filter.color_model][c.id] = c.color;
+                        });
+                    }));
+                }
+            }
         });
 
-        var defs = [];
         _.each(to_read, function (ids, model) {
             defs.push(self._rpc({
                     model: model,
@@ -649,6 +669,13 @@ return AbstractModel.extend({
                 if (filter.filters.length && (filter.filters[0].avatar_model in to_read)) {
                     _.each(filter.filters, function (f) {
                         f.label = to_read[f.avatar_model][f.value];
+                    });
+                }
+                if (filter.color_model && filter.field_color) {
+                    _.each(filter.filters, function (f) {
+                        if (!f.color_index) {
+                            f.color_index = color_filter[filter.color_model] && color_filter[filter.color_model][f.value];
+                        }
                     });
                 }
             });
