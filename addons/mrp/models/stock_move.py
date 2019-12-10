@@ -148,6 +148,14 @@ class StockMove(models.Model):
                 defaults['additional'] = True
         return defaults
 
+    def write(self, values):
+        res = super().write(values)
+        if 'product_uom_qty' in values:
+            for move in self:
+                if move.raw_material_production_id:
+                    move.unit_factor = (move.product_uom_qty - move.quantity_done) / move.raw_material_production_id.product_qty
+        return res
+
     def _action_assign(self):
         res = super(StockMove, self)._action_assign()
         for move in self.filtered(lambda x: x.production_id or x.raw_material_production_id):

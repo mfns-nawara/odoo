@@ -220,6 +220,7 @@ class MrpProduction(models.Model):
     picking_ids = fields.Many2many('stock.picking', compute='_compute_picking_ids', string='Picking associated to this manufacturing order')
     delivery_count = fields.Integer(string='Delivery Orders', compute='_compute_picking_ids')
     confirm_cancel = fields.Boolean(compute='_compute_confirm_cancel')
+    consumption = fields.Selection(related='bom_id.consumption', store=True)
 
     @api.depends('move_raw_ids.state', 'move_finished_ids.state')
     def _compute_confirm_cancel(self):
