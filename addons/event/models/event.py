@@ -164,6 +164,7 @@ class EventEvent(models.Model):
     registration_ids = fields.One2many(
         'event.registration', 'event_id', string='Attendees',
         readonly=False)
+    event_registrations_open = fields.Boolean('Registration open', compute='_compute_event_registrations_open')
     # Date fields
     date_tz = fields.Selection('_tz_get', string='Timezone', required=True, default=lambda self: self.env.user.tz or 'UTC')
     date_begin = fields.Datetime(
@@ -223,6 +224,11 @@ class EventEvent(models.Model):
             if event.seats_max > 0:
                 event.seats_available = event.seats_max - (event.seats_reserved + event.seats_used)
             event.seats_expected = event.seats_unconfirmed + event.seats_reserved + event.seats_used
+
+    @api.depends('date_end', 'seats_available', 'seats_availability')
+    def _compute_event_registrations_open(self):
+        for event in self:
+            event.event_registrations_open = event.date_end > fields.Datetime.now() and (event.seats_available or event.seats_availability == 'unlimited')
 
     @api.depends('stage_id', 'kanban_state')
     def _compute_kanban_state_label(self):
@@ -380,9 +386,6 @@ class EventEvent(models.Model):
         for event in self:
             for attendee in event.registration_ids.filtered(filter_func):
                 self.env['mail.template'].browse(template_id).send_mail(attendee.id, force_send=force_send)
-
-    def _is_event_registrable(self):
-        return self.date_end > fields.Datetime.now()
 
     def _get_ics_file(self):
         """ Returns iCalendar file for the event invitation.

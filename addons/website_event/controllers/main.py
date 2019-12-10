@@ -203,7 +203,7 @@ class WebsiteEventController(http.Controller):
             'event': event,
             'main_object': event,
             'range': range,
-            'registrable': event.sudo()._is_event_registrable(),
+            'registrable': event.sudo().event_registrations_open,
             'google_url': urls.get('google_url'),
             'iCal_url': urls.get('iCal_url'),
         }
