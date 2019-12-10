@@ -983,6 +983,19 @@ const actions = {
      * @param {Object} param0
      * @param {function} param0.dispatch
      * @param {Object} param0.state
+     * @param {string} composerLocalId
+     */
+    resetComposer({ dispatch, state }, composerLocalId,) {
+        const composer = state.composers[composerLocalId];
+        composer.textInputContent = '';
+        composer.textInputCursorStart = 0;
+        composer.textInputCursorEnd = 0;
+        composer.textInputHeight = "39px";
+    },
+    /**
+     * @param {Object} param0
+     * @param {function} param0.dispatch
+     * @param {Object} param0.state
      * @param {string} chatWindowLocalId
      * @param {integer} scrollTop
      */
@@ -993,6 +1006,29 @@ const actions = {
         dispatch('_updateChatWindowManager', {
             chatWindowInitialScrollTops: newChatWindowInitialScrollTops,
         });
+    },
+    /**
+     * @param {Object} param0
+     * @param {function} param0.dispatch
+     * @param {Object} param0.state
+     * @param {string} composerLocalId
+     * @param {string} composerContent
+     * @param {integer} composerSelectionStart
+     * @param {integer} composerSelectionEnd
+     */
+    saveComposerContent(
+        { dispatch, state },
+        composerLocalId,
+        composerContent,
+        composerSelectionStart,
+        composerSelectionEnd,
+        composerHeight,
+    ) {
+        const composer = state.composers[composerLocalId];
+        composer.textInputContent = composerContent;
+        composer.textInputCursorStart = composerSelectionStart;
+        composer.textInputCursorEnd = composerSelectionEnd;
+        composer.textInputHeight = composerHeight;
     },
     /**
      * Search for partners matching `keyword`.
@@ -1453,6 +1489,10 @@ const actions = {
             localId: composerLocalId,
             attachmentLocalIds: [],
             threadLocalId,
+            textInputContent: '',
+            textInputCursorStart: 0,
+            textInputCursorEnd: 0,
+            textInputHeight: "39px",
         };
         if (threadLocalId) {
             const thread = state.threads[threadLocalId];

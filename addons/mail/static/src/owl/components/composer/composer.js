@@ -163,10 +163,11 @@ class Composer extends Component {
         // TODO: take suggested recipients into account
         try {
             await this.storeDispatch('postMessage', this.props.composerLocalId, {
-                htmlContent: this._textInputRef.comp.getHtmlContent(),
+                htmlContent: this._setTextInputHtmlContent(this._textInputRef.comp.getContent()),
                 isLog: this.props.isLog,
             });
             this._textInputRef.comp.reset();
+            this.storeDispatch('resetComposer', this.props.composerLocalId);
             this.storeDispatch('unlinkAttachmentsFromComposer', this.props.composerLocalId);
             // TODO: we might need to remove trigger and use the store to wait for
             // the post rpc to be done
@@ -313,6 +314,14 @@ class Composer extends Component {
      * @private
      */
     _onInputTextInput() {
+        this.storeDispatch(
+            'saveComposerContent',
+            this.props.composerLocalId,
+            this._textInputRef.comp.getContent(),
+            this._textInputRef.comp.getSelectionStart(),
+            this._textInputRef.comp.getSelectionEnd(),
+            this._textInputRef.comp.getHeight(),
+        );
         this.state.hasTextInputContent = !this._textInputRef.comp.isEmpty();
     }
 
@@ -339,6 +348,17 @@ class Composer extends Component {
             return;
         }
         this._postMessage();
+    }
+
+    _setTextInputHtmlContent(textInputContent) {
+        //Removing unwanted extra spaces from message
+        let value = _.escape(textInputContent).trim();
+        value = value.replace(/(\r|\n){2,}/g, '<br/><br/>');
+        value = value.replace(/(\r|\n)/g, '<br/>');
+
+        // prevent html space collapsing
+        value = value.replace(/ /g, '&nbsp;').replace(/([^>])&nbsp;([^<])/g, '$1 $2');
+        return "<p>" + value + "</p>";
     }
 
 }
