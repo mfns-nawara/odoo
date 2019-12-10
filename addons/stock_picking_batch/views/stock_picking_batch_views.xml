@@ -65,7 +65,6 @@
                     <button name="action_assign" string="Check Availability" type="object" attrs="{'invisible': ['|', ('state', '!=', 'in_progress'), ('show_check_availability', '=', False)]}"/>
                     <button name="action_print" states="in_progress,done" string="Print" type="object"/>
                     <button name="action_cancel" string="Cancel" type="object" states="in_progress"/>
-                    <button name="action_assign" string="Check Availability" type="object" states="in_progress"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,in_progress,done"/>
                 </header>
                 <sheet>
