@@ -96,7 +96,7 @@
                                         <div class="content-group">
                                             <div class="mt16 row">
                                                 <label for="paperformat_id" string="Format" class="col-3 col-lg-3 o_light_label"/>
-                                                <field name="paperformat_id" class="oe_inline" required="1"/>
+                                                <field name="paperformat_id" class="oe_inline col-lg-6" required="1"/>
                                             </div>
                                         </div>
                                     </div>

@@ -950,6 +950,12 @@
                     flex: 1 0 50px;
                 }
             }
+            // New add class for mobile laout set checkbox and label
+            .adustment{
+                .o_field_widget {
+                    width: auto;
+                }
+            }
             button.btn-link:first-child {
                 padding: 0;
             }

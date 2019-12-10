@@ -26,11 +26,11 @@
                             <div class="o_setting_right_pane">
                                 <span class="o_form_label">Presence Control</span>
                                 <div class="content-group" name="hr_presence_options">
-                                    <div class="row">
+                                    <div class="row adustment">
                                         <field name="module_hr_attendance" class="col-lg-1 ml16"/>
                                         <label for="module_hr_attendance" class="o_light_label"/>
                                     </div>
-                                    <div class="row">
+                                    <div class="row adustment">
                                         <field name="hr_presence_control_login" class="col-lg-1 ml16"/>
                                         <label for="hr_presence_control_login" class="o_light_label"/>
                                     </div>
