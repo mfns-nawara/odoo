@@ -872,6 +872,11 @@ class AccountMove(models.Model):
                     recompute_all_taxes = True
                     line.recompute_tax_line = False
 
+                if not line.exclude_from_invoice_tab and line.account_id.user_type_id.type in ('receivable', 'payable'):
+                    error
+                if line.tax_repartition_line_id and line.account_id.user_type_id.type in ('receivable', 'payable'):
+                    error
+
             # Compute taxes.
             if recompute_all_taxes:
                 invoice._recompute_tax_lines()
@@ -2423,7 +2428,7 @@ class AccountMoveLine(models.Model):
         currency_field='always_set_currency_id')
     price_total = fields.Monetary(string='Total', store=True, readonly=True,
         currency_field='always_set_currency_id')
-    reconciled = fields.Boolean(compute='_amount_residual', store=True)
+    reconciled = fields.Boolean(compute='_compute_amount_residual', store=True)
     blocked = fields.Boolean(string='No Follow-up', default=False,
         help="You can check this box to mark this journal item as a litigation with the associated partner")
     date_maturity = fields.Date(string='Due Date', index=True, tracking=True,
@@ -2467,10 +2472,10 @@ class AccountMoveLine(models.Model):
     # ==== Reconciliation fields ====
     amount_residual = fields.Monetary(string='Residual Amount', store=True,
         currency_field='company_currency_id',
-        compute='_amount_residual',
+        compute='_compute_amount_residual',
         help="The residual amount on a journal item expressed in the company currency.")
     amount_residual_currency = fields.Monetary(string='Residual Amount in Currency', store=True,
-        compute='_amount_residual',
+        compute='_compute_amount_residual',
         help="The residual amount on a journal item expressed in its currency (possibly not the company currency).")
     full_reconcile_id = fields.Many2one('account.full.reconcile', string="Matching #", copy=False, index=True, readonly=True)
     matched_debit_ids = fields.One2many('account.partial.reconcile', 'credit_move_id', string='Matched Debits',
@@ -2919,59 +2924,98 @@ class AccountMoveLine(models.Model):
         for line in self:
             line.balance = line.debit - line.credit
 
-    @api.depends('debit', 'credit', 'account_id', 'amount_currency', 'currency_id', 'matched_debit_ids', 'matched_credit_ids', 'matched_debit_ids.amount', 'matched_credit_ids.amount', 'move_id.state', 'company_id')
-    def _amount_residual(self):
+    @api.depends('debit', 'credit', 'amount_currency',
+                 'account_id.reconcile', 'account_id.internal_type', 'currency_id',
+                 'matched_debit_ids', 'matched_credit_ids', 'matched_debit_ids.amount', 'matched_credit_ids.amount',
+                 'move_id.state')
+    def _compute_amount_residual(self):
         """ Computes the residual amount of a move line from a reconcilable account in the company currency and the line's currency.
             This amount will be 0 for fully reconciled lines or lines from a non-reconcilable account, the original line amount
             for unreconciled lines, and something in-between for partially reconciled lines.
         """
+
         for line in self:
-            if not line.account_id.reconcile and line.account_id.internal_type != 'liquidity':
-                line.reconciled = False
-                line.amount_residual = 0
-                line.amount_residual_currency = 0
-                continue
-            #amounts in the partial reconcile table aren't signed, so we need to use abs()
-            amount = abs(line.debit - line.credit)
-            amount_residual_currency = abs(line.amount_currency) or 0.0
-            sign = 1 if (line.debit - line.credit) > 0 else -1
-            if not line.debit and not line.credit and line.amount_currency and line.currency_id:
-                #residual for exchange rate entries
-                sign = 1 if float_compare(line.amount_currency, 0, precision_rounding=line.currency_id.rounding) == 1 else -1
+            if line.id and (line.account_id.reconcile or line.account_id.internal_type == 'liquidity'):
+                # Compute the residual amount in both foreign / company currencies.
+                rate = line.amount_currency / line.balance
+                reconciled_amount = 0.0
+                reconciled_amount_currency = 0.0
+                reconciled_amount_to_convert = 0.0
 
-            for partial_line in (line.matched_debit_ids + line.matched_credit_ids):
-                # If line is a credit (sign = -1) we:
-                #  - subtract matched_debit_ids (partial_line.credit_move_id == line)
-                #  - add matched_credit_ids (partial_line.credit_move_id != line)
-                # If line is a debit (sign = 1), do the opposite.
-                sign_partial_line = sign if partial_line.credit_move_id == line else (-1 * sign)
-
-                amount += sign_partial_line * partial_line.amount
-                #getting the date of the matched item to compute the amount_residual in currency
-                if line.currency_id and line.amount_currency:
-                    if partial_line.currency_id and partial_line.currency_id == line.currency_id:
-                        amount_residual_currency += sign_partial_line * partial_line.amount_currency
+                for partial in line.matched_debit_ids:
+                    reconciled_amount -= partial.amount
+                    if partial.currency_id == line.currency_id:
+                        reconciled_amount_currency -= partial.amount_currency
                     else:
-                        if line.balance and line.amount_currency:
-                            rate = line.amount_currency / line.balance
-                        else:
-                            date = partial_line.credit_move_id.date if partial_line.debit_move_id == line else partial_line.debit_move_id.date
-                            rate = line.currency_id.with_context(date=date).rate
-                        amount_residual_currency += sign_partial_line * line.currency_id.round(partial_line.amount * rate)
+                        reconciled_amount_to_convert -= partial.amount
 
-            #computing the `reconciled` field.
-            reconciled = False
-            digits_rounding_precision = line.company_id.currency_id.rounding
-            if (line.matched_debit_ids or line.matched_credit_ids) and float_is_zero(amount, precision_rounding=digits_rounding_precision):
-                if line.currency_id and line.amount_currency:
-                    if float_is_zero(amount_residual_currency, precision_rounding=line.currency_id.rounding):
-                        reconciled = True
-                else:
-                    reconciled = True
-            line.reconciled = reconciled
+                for partial in line.matched_credit_ids:
+                    reconciled_amount += partial.amount
+                    if partial.currency_id == line.currency_id:
+                        reconciled_amount_currency += partial.amount_currency
+                    else:
+                        reconciled_amount_to_convert += partial.amount
 
-            line.amount_residual = line.move_id.company_id.currency_id.round(amount * sign) if line.move_id.company_id else amount * sign
-            line.amount_residual_currency = line.currency_id and line.currency_id.round(amount_residual_currency * sign) or 0.0
+                reconciled_amount_currency += line.currency_id.round(reconciled_amount_to_convert * rate)
+
+                line.amount_residual = line.balance - reconciled_amount
+                line.amount_residual_currency = line.amount_currency - reconciled_amount_currency
+                line.reconciled = line.currency_id.is_zero(line.amount_residual_currency)
+
+            else:
+                # Must not have any reconciliation since the line is not eligible for that.
+                line.amount_residual = 0.0
+                line.amount_residual_currency = 0.0
+                line.reconciled = False
+
+
+        # for line in self:
+        #     if not line.account_id.reconcile and line.account_id.internal_type != 'liquidity':
+        #         line.reconciled = False
+        #         line.amount_residual = 0
+        #         line.amount_residual_currency = 0
+        #         continue
+        #     #amounts in the partial reconcile table aren't signed, so we need to use abs()
+        #     amount = abs(line.debit - line.credit)
+        #     amount_residual_currency = abs(line.amount_currency) or 0.0
+        #     sign = 1 if (line.debit - line.credit) > 0 else -1
+        #     if not line.debit and not line.credit and line.amount_currency and line.currency_id:
+        #         #residual for exchange rate entries
+        #         sign = 1 if float_compare(line.amount_currency, 0, precision_rounding=line.currency_id.rounding) == 1 else -1
+        #
+        #     for partial_line in (line.matched_debit_ids + line.matched_credit_ids):
+        #         # If line is a credit (sign = -1) we:
+        #         #  - subtract matched_debit_ids (partial_line.credit_move_id == line)
+        #         #  - add matched_credit_ids (partial_line.credit_move_id != line)
+        #         # If line is a debit (sign = 1), do the opposite.
+        #         sign_partial_line = sign if partial_line.credit_move_id == line else (-1 * sign)
+        #
+        #         amount += sign_partial_line * partial_line.amount
+        #         #getting the date of the matched item to compute the amount_residual in currency
+        #         if line.currency_id and line.amount_currency:
+        #             if partial_line.currency_id and partial_line.currency_id == line.currency_id:
+        #                 amount_residual_currency += sign_partial_line * partial_line.amount_currency
+        #             else:
+        #                 if line.balance and line.amount_currency:
+        #                     rate = line.amount_currency / line.balance
+        #                 else:
+        #                     date = partial_line.credit_move_id.date if partial_line.debit_move_id == line else partial_line.debit_move_id.date
+        #                     rate = line.currency_id.with_context(date=date).rate
+        #                 amount_residual_currency += sign_partial_line * line.currency_id.round(partial_line.amount * rate)
+        #
+        #     #computing the `reconciled` field.
+        #     reconciled = False
+        #     digits_rounding_precision = line.company_id.currency_id.rounding
+        #     if (line.matched_debit_ids or line.matched_credit_ids) and float_is_zero(amount, precision_rounding=digits_rounding_precision):
+        #         if line.currency_id and line.amount_currency:
+        #             if float_is_zero(amount_residual_currency, precision_rounding=line.currency_id.rounding):
+        #                 reconciled = True
+        #         else:
+        #             reconciled = True
+        #     line.reconciled = reconciled
+        #
+        #     line.amount_residual = line.move_id.company_id.currency_id.round(amount * sign) if line.move_id.company_id else amount * sign
+        #     line.amount_residual_currency = line.currency_id and line.currency_id.round(amount_residual_currency * sign) or 0.0
 
     @api.depends('tax_repartition_line_id.invoice_tax_id', 'tax_repartition_line_id.refund_tax_id')
     def _compute_tax_line_id(self):
