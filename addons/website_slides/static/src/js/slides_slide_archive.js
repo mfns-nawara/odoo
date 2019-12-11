@@ -6,20 +6,21 @@ var Dialog = require('web.Dialog');
 var core = require('web.core');
 var _t = core._t;
 
-var SlideArchiveDialog = Dialog.extend({
+var SlideDialog = Dialog.extend({
     template: 'slides.slide.archive',
 
     /**
      * @override
      */
     init: function (parent, options) {
+        this.unlink = options.unlink || false;
         options = _.defaults(options || {}, {
-            title: _t('Archive Slide'),
+            title:  this.unlink ? _t('Delete Category') : _t('Archive Slide'),
             size: 'medium',
             buttons: [{
-                text: _t('Archive'),
+                text: this.unlink ? _t('Delete') : _t('Archive'),
                 classes: 'btn-primary',
-                click: this._onClickArchive.bind(this)
+                click: this._onClickSlide.bind(this)
             }, {
                 text: _t('Cancel'),
                 close: true
@@ -36,17 +37,20 @@ var SlideArchiveDialog = Dialog.extend({
     //--------------------------------------------------------------------------
 
     /**
-     * Calls 'archive' on slide controller and then visually removes the slide dom element
+     * Calls 'archive' or 'unlink' on slide controller and then visually removes the slide dom element
      */
-    _onClickArchive: function () {
-        var self = this;
-
+    _onClickSlide: function () {
+        const route = this.unlink ? '/slides/slide/unlink': '/slides/slide/archive';
+        const self = this;
         this._rpc({
-            route: '/slides/slide/archive',
+            route: route,
             params: {
                 slide_id: this.slideId
-            },
+            }
         }).then(function () {
+            if (self.unlink) {
+                return;
+            }
             self.$slideTarget.closest('.o_wslides_slides_list_slide').remove();
             self.close();
         });
@@ -65,7 +69,7 @@ publicWidget.registry.websiteSlidesSlideArchive = publicWidget.Widget.extend({
     //--------------------------------------------------------------------------
 
     _openDialog: function ($slideTarget) {
-        new SlideArchiveDialog(this, {slideTarget: $slideTarget}).open();
+        new SlideDialog(this, {slideTarget: $slideTarget}).open();
     },
 
     //--------------------------------------------------------------------------
@@ -83,9 +87,40 @@ publicWidget.registry.websiteSlidesSlideArchive = publicWidget.Widget.extend({
     },
 });
 
+publicWidget.registry.websiteSlidesSlideUnlink = publicWidget.Widget.extend({
+    selector: '.o_wslides_js_slide_unlink',
+    xmlDependencies: ['/website_slides/static/src/xml/slide_management.xml'],
+    events: {
+        'click': '_onUnlinkSlideClick',
+    },
+
+    //--------------------------------------------------------------------------
+    // Private
+    //--------------------------------------------------------------------------
+
+    _openDialog: function ($slideTarget) {
+        new SlideDialog(this, {slideTarget: $slideTarget, unlink: true}).open();
+    },
+
+    //--------------------------------------------------------------------------
+    // Handlers
+    //--------------------------------------------------------------------------
+
+    /**
+     * @private
+     * @param {Event} ev
+     */
+    _onUnlinkSlideClick: function (ev) {
+        ev.preventDefault();
+        var $slideTarget = $(ev.currentTarget);
+        this._openDialog($slideTarget);
+    },
+});
+
 return {
-    slideArchiveDialog: SlideArchiveDialog,
-    websiteSlidesSlideArchive: publicWidget.registry.websiteSlidesSlideArchive
+    slideDialog: SlideDialog,
+    websiteSlidesSlideArchive: publicWidget.registry.websiteSlidesSlideArchive,
+    websiteSlidesSlideUnlink: publicWidget.registry.websiteSlidesSlideUnlink
 };
 
 });

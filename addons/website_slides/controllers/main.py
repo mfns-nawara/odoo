@@ -693,6 +693,21 @@ class WebsiteSlides(WebsiteProfile):
 
         return False
 
+    @http.route('/slides/slide/unlink', type='json', auth='user', website=True)
+    def slide_archive(self, slide_id):
+        """ This route allows channel publishers to unlink slides.
+        It has to be done in sudo mode since only website_publishers can write on slides in ACLs """
+        category = request.env['slide.slide'].browse(int(slide_id))
+        channel_id = category.channel_id
+        slides = request.env['slide.slide'].search([('category_id', '=', slide_id)])
+        if category.channel_id.can_publish:
+            slides.write({
+                'category_id': False,
+            })
+            request.env.cr.commit()
+            category.sudo().unlink()
+        return werkzeug.utils.redirect("/slides/%s" % (slug(channel_id)))
+
     @http.route('/slides/slide/toggle_is_preview', type='json', auth='user', website=True)
     def slide_preview(self, slide_id):
         slide = request.env['slide.slide'].browse(int(slide_id))
