@@ -2894,7 +2894,7 @@ QUnit.test('composer state: text save and restore', async function (assert) {
         .dispatchEvent(new window.KeyboardEvent('input'));
     await afterNextRender();
     document.querySelector(`.o_DiscussSidebarItem[data-thread-name="Special"]`).click();
-    await nextRender();
+    await afterNextRender();
     document.querySelector(`.o_ComposerTextInputTextArea`).focus();
     document.execCommand('insertText', false, "An other message");
     document.querySelector(`.o_ComposerTextInputTextArea`)
@@ -3026,7 +3026,7 @@ QUnit.test('composer state: attachments save and restore', async function (asser
     );
 });
 
-QUnit.only('post a simple message', async function (assert) {
+QUnit.test('post a simple message', async function (assert) {
     assert.expect(15);
 
     const self = this;
@@ -3059,7 +3059,7 @@ QUnit.only('post a simple message', async function (assert) {
                 );
                 assert.strictEqual(
                     args.kwargs.body,
-                    "<p>Test</p>", // AKU: summernote adds extra <p> for some reasons
+                    "<p>Test</p>",
                     "should post with provided content in composer input"
                 );
                 assert.strictEqual(
@@ -3188,21 +3188,21 @@ QUnit.test('input cleared only after message_post rpc is resolved', async functi
         },
     });
     // Type message
-    document.querySelector(`.o_ComposerTextInput_editable`).focus();
+    document.querySelector(`.o_ComposerTextInputTextArea`).focus();
     document.execCommand('insertText', false, "test message");
     assert.strictEqual(
-        document.querySelector(`.o_ComposerTextInput_editable`).textContent,
+        document.querySelector(`.o_ComposerTextInputTextArea`).value,
         "test message",
         "should have inserted text content in editable"
     );
 
     // Send message
-    document.querySelector(`.o_ComposerTextInput_editable`)
+    document.querySelector(`.o_ComposerTextInputTextArea`)
         .dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Enter' }));
     await afterNextRender();
     assert.verifySteps(['message_post:in-progress']);
     assert.strictEqual(
-        document.querySelector(`.o_ComposerTextInput_editable`).textContent,
+        document.querySelector(`.o_ComposerTextInputTextArea`).value,
         "test message",
         "should still have inserted HTML in editable when message_post is in progress"
     );
@@ -3212,7 +3212,7 @@ QUnit.test('input cleared only after message_post rpc is resolved', async functi
     await afterNextRender();
     assert.verifySteps(['message_post:done']);
     assert.strictEqual(
-        document.querySelector(`.o_ComposerTextInput_editable`).textContent,
+        document.querySelector(`.o_ComposerTextInputTextArea`).value,
         "",
         "should have no content in composer input after posting message"
     );
@@ -3248,22 +3248,22 @@ QUnit.test('input not cleared if message_post rpc is not resolved', async functi
         },
     });
     // Type message
-    document.querySelector(`.o_ComposerTextInput_editable`).focus();
+    document.querySelector(`.o_ComposerTextInputTextArea`).focus();
     document.execCommand('insertText', false, "test message");
     assert.strictEqual(
-        document.querySelector(`.o_ComposerTextInput_editable`).textContent,
+        document.querySelector(`.o_ComposerTextInputTextArea`).value,
         "test message",
         "should have inserted text content in editable"
     );
 
     // Send message
-    document.querySelector(`.o_ComposerTextInput_editable`)
+    document.querySelector(`.o_ComposerTextInputTextArea`)
         .dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Enter' }));
     await afterNextRender();
     assert.verifySteps(['message_post']);
     // Check input is not cleared as message_post is rejected
     assert.strictEqual(
-        document.querySelector(`.o_ComposerTextInput_editable`).textContent,
+        document.querySelector(`.o_ComposerTextInputTextArea`).value,
         "test message",
         "should still have content in composer input"
     );
@@ -3551,7 +3551,7 @@ QUnit.test('reply to message from inbox (message linked to document)', async fun
                 );
                 assert.strictEqual(
                     args.kwargs.body,
-                    "Test<p></p>", // AKU: summernote adds extra <p> for some reasons
+                    "<p>Test</p>",
                     "should post with provided content in composer input"
                 );
                 assert.strictEqual(
@@ -3619,12 +3619,12 @@ QUnit.test('reply to message from inbox (message linked to document)', async fun
     );
     assert.strictEqual(
         document.activeElement,
-        document.querySelector(`.o_ComposerTextInput_editable`),
+        document.querySelector(`.o_ComposerTextInputTextArea`),
         "composer text input should be auto-focus"
     );
 
     document.execCommand('insertText', false, "Test");
-    document.querySelector(`.o_ComposerTextInput_editable`)
+    document.querySelector(`.o_ComposerTextInputTextArea`)
         .dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Enter' }));
     assert.verifySteps(['message_post']);
     await afterNextRender();
