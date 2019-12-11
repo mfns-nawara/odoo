@@ -382,7 +382,7 @@ class TestReconciliationMatchingRules(AccountTestCommon):
             'debit': 10,
         })
         payment_bnk_line = AccountMoveLine.create({
-            'account_id': self.bank_journal.temp_liquidity_account_id.id,
+            'account_id': self.bank_journal.payment_transfer_account_id.id,
             'move_id': move.id,
             'partner_id': partner.id,
             'name': 'I\'m gonna cut you into little pieces',

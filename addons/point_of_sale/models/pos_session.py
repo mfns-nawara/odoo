@@ -714,7 +714,7 @@ class PosSession(models.Model):
         # faster without using the statement reconciliation.
         line_ids_vals = self.env['account.bank.statement.line']._prepare_account_move_line_vals(vals)
         for line_vals in line_ids_vals:
-            if line_vals['account_id'] == statement.journal_id.transfer_liquidity_account_id.id:
+            if line_vals['account_id'] == statement.journal_id.suspense_account_id.id:
                 line_vals['account_id'] = receivable_account.id
         vals['line_ids'] = [(0, 0, line_vals) for line_vals in line_ids_vals]
         return vals

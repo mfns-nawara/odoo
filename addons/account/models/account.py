@@ -898,14 +898,16 @@ class AccountJournal(models.Model):
         ondelete='restrict')
     default_debit_account_id = fields.Many2one('account.account', string='Default Debit Account',
         domain="[('deprecated', '=', False), ('company_id', '=', company_id)]", help="It acts as a default account for debit amount", ondelete='restrict')
-    temp_liquidity_account_id = fields.Many2one('account.account', string='Temporary Liquidity Account',
-        ondelete='restrict',
-        domain=[('deprecated', '=', False), ('reconcile', '=', True)],
-        help="The temporary bank account on which the amount will land until the reconciliation with a statement.")
-    transfer_liquidity_account_id = fields.Many2one('account.account', string='Transfer Account',
-        ondelete='restrict',
+    payment_transfer_account_id = fields.Many2one('account.account', string='Payment Orders Account',
+        ondelete='restrict', change_default=True,
         domain=[('deprecated', '=', False)],
-        help="The transfer account on which the statement amount will land until the reconciliation.")
+        help="Payments entries will be posted on the payment orders account and displayed as blue lines in the bank reconciliation widget. "
+             "During the reconciliation process, concerned transactions will be reconciled on that account.")
+    suspense_account_id = fields.Many2one('account.account', string='Suspense Account',
+        ondelete='restrict', readonly=False, store=True, require=True,
+        compute='_compute_suspense_account_id',
+        domain=[('deprecated', '=', False), ('reconcile', '=', True)],
+        help="Bank statements transactions will be posted on the suspense account until the final reconciliation with the right account.")
     restrict_mode_hash_table = fields.Boolean(string="Lock Posted Entries with Hash",
         help="If ticked, the accounting entry or invoice receives a hash as soon as it is posted and cannot be modified anymore.")
     sequence_id = fields.Many2one('ir.sequence', string='Entry Sequence',
@@ -914,9 +916,9 @@ class AccountJournal(models.Model):
     refund_sequence_id = fields.Many2one('ir.sequence', string='Credit Note Entry Sequence',
         copy=False, readonly=True,
         help="This field contains the information related to the numbering of the credit note entries of this journal.")
-    temp_payment_sequence_id = fields.Many2one('ir.sequence', string='Temporary Payment Sequence',
+    payment_sequence_id = fields.Many2one('ir.sequence', string='Payment Sequence',
         copy=False, readonly=True,
-        help="This field contains the information related to the numbering of the temporary payment sequence.")
+        help="This field contains the information related to the numbering of the payment sequence.")
     sequence = fields.Integer(help='Used to order Journals in the dashboard view', default=10)
     sequence_number_next = fields.Integer(string='Next Number',
         help='The next sequence number will be used for the next invoice.',
@@ -971,6 +973,19 @@ class AccountJournal(models.Model):
     _sql_constraints = [
         ('code_company_uniq', 'unique (code, name, company_id)', 'The code and name of the journal must be unique per company !'),
     ]
+
+    @api.depends('company_id', 'type')
+    def _compute_suspense_account_id(self):
+        for journal in self:
+            if journal.type not in ('bank', 'cash'):
+                journal.suspense_account_id = False
+            elif journal.suspense_account_id:
+                journal.suspense_account_id = journal.suspense_account_id
+            elif journal.company_id.default_journal_suspense_account_id:
+                journal.suspense_account_id = journal.company_id.default_journal_suspense_account_id
+            else:
+
+                journal.suspense_account_id = False
 
     def _compute_alias_domain(self):
         alias_domain = self.env["ir.config_parameter"].sudo().get_param("mail.catchall.domain")
@@ -1193,6 +1208,11 @@ class AccountJournal(models.Model):
                     'use_date_range': True,
                     'company_id': journal.company_id.id,
                 }).id
+        if vals.get('code'):
+            self.filtered(lambda j: j.type in ('bank', 'cash')).mapped('payment_sequence_id').write({
+                'name': _('%s: Payment Sequence') % vals['code'],
+                'prefix': 'TEMP' + vals['code'].upper() + '/%(range_year)s/',
+            })
         for record in self:
             if record.restrict_mode_hash_table and not record.secure_sequence_id:
                 record._create_secure_sequence(['secure_sequence_id'])
@@ -1219,16 +1239,7 @@ class AccountJournal(models.Model):
         return self.env['account.account'].create(account_vals)
 
     @api.model
-    def _create_temp_liquidity_account(self, journal_vals, account_vals):
-        ''' Hook to be overrided in localizations modules to add custom values.
-        :param journal_vals:    Parameter of the account.journal's create method.
-        :param account_vals:    Parameter of the account.account's create method.
-        :return:                An account.account record.
-        '''
-        return self.env['account.account'].create(account_vals)
-
-    @api.model
-    def _create_transfer_liquidity_account(self, journal_vals, account_vals):
+    def _create_payment_transfer_account(self, journal_vals, account_vals):
         ''' Hook to be overrided in localizations modules to add custom values.
         :param journal_vals:    Parameter of the account.journal's create method.
         :param account_vals:    Parameter of the account.account's create method.
@@ -1261,7 +1272,7 @@ class AccountJournal(models.Model):
         return sequence
 
     @api.model
-    def _create_temp_payment_sequence(self, journal_vals, sequence_vals):
+    def _create_payment_sequence(self, journal_vals, sequence_vals):
         ''' Hook to be overrided in localizations modules to add custom values.
         :param journal_vals:    Parameter of the account.journal's create method.
         :param sequence_vals:   Parameter of the ir.sequence's create method.
@@ -1290,8 +1301,7 @@ class AccountJournal(models.Model):
 
         if journal_type in ('bank', 'cash'):
             has_liquidity_accounts = vals.get('default_debit_account_id') or vals.get('default_credit_account_id')
-            has_temp_liquidity_account = vals.get('temp_liquidity_account_id')
-            has_transfer_liquidity_account = vals.get('transfer_liquidity_account_id')
+            has_payment_transfer_account = vals.get('payment_transfer_account_id')
             has_profit_account = vals.get('profit_account_id')
             has_loss_account = vals.get('loss_account_id')
 
@@ -1299,7 +1309,6 @@ class AccountJournal(models.Model):
                 liquidity_account_prefix = company.bank_account_code_prefix or ''
             else:
                 liquidity_account_prefix = company.cash_account_code_prefix or company.bank_account_code_prefix or ''
-            transfer_account_prefix = company.transfer_account_code_prefix or ''
 
             # === Fill missing name ===
             vals['name'] = vals.get('name') or vals.get('bank_acc_number')
@@ -1324,20 +1333,13 @@ class AccountJournal(models.Model):
                     'default_debit_account_id': liquidity_account.id,
                     'default_credit_account_id': liquidity_account.id,
                 })
-            if not has_temp_liquidity_account:
-                vals['temp_liquidity_account_id'] = self._create_temp_liquidity_account(vals, {
-                    'name': _('Temporary Bank') if journal_type == 'bank' else _('Temporary Cash'),
+            if not has_payment_transfer_account:
+                vals['payment_transfer_account_id'] = self._create_payment_transfer_account(vals, {
+                    'name': _('Payment Orders'),
                     'code': self.env['account.account']._search_new_account_code(company, digits, liquidity_account_prefix),
                     'reconcile': True,
                     'user_type_id': current_assets_type.id,
                     'currency_id': vals.get('currency_id'),
-                    'company_id': company.id,
-                }).id
-            if not has_transfer_liquidity_account:
-                vals['transfer_liquidity_account_id'] = self._create_transfer_liquidity_account(vals, {
-                    'name': _('Transfer Bank') if journal_type == 'bank' else _('Transfer Cash'),
-                    'code': self.env['account.account']._search_new_account_code(company, digits, transfer_account_prefix),
-                    'user_type_id': current_assets_type.id,
                     'company_id': company.id,
                 }).id
             if journal_type == 'cash' and not has_profit_account:
@@ -1368,10 +1370,10 @@ class AccountJournal(models.Model):
                 'name': _('%s: Refund Sequence') % vals['code'],
                 'prefix': 'R' + vals['code'].upper() + '/%(range_year)s/',
             }).id
-        if journal_type in ('bank', 'cash') and not vals.get('temp_payment_sequence_id'):
-            vals['temp_payment_sequence_id'] = self._create_temp_payment_sequence(vals, {
+        if journal_type in ('bank', 'cash') and not vals.get('payment_sequence_id'):
+            vals['payment_sequence_id'] = self._create_payment_sequence(vals, {
                 **default_sequence_vals,
-                'name': _('%s: Temporary Liquidity Sequence') % vals['code'],
+                'name': _('%s: Payment Sequence') % vals['code'],
                 'prefix': 'TEMP' + vals['code'].upper() + '/%(range_year)s/',
             }).id
 

@@ -482,6 +482,12 @@ class AccountBankStatementLine(models.Model):
     # HELPERS
     # -------------------------------------------------------------------------
 
+    @api.model
+    def _assert_suspense_account(self, journal):
+        if not journal.suspense_account_id:
+            raise UserError(_("You can't create a new statement line without a suspense account set on the %s journal.")
+                            % journal.display_name)
+
     def _seek_for_lines(self):
         ''' Helper used to dispatch the journal items between:
         - The lines using the liquidity account.
@@ -489,14 +495,16 @@ class AccountBankStatementLine(models.Model):
         - The lines being not in one of the two previous categories.
         :return: (liquidity_lines, transfer_lines, other_lines)
         '''
-        self.ensure_one()
+        self._assert_suspense_account(self.journal_id)
+
         liquidity_lines = self.env['account.move.line']
         transfer_lines = self.env['account.move.line']
         other_lines = self.env['account.move.line']
+
         for line in self.move_id.line_ids:
             if line.account_id in (self.journal_id.default_debit_account_id, self.journal_id.default_credit_account_id):
                 liquidity_lines += line
-            elif line.account_id == self.journal_id.transfer_liquidity_account_id:
+            elif line.account_id == self.journal_id.suspense_account_id:
                 transfer_lines += line
             else:
                 other_lines += line
@@ -664,12 +672,14 @@ class AccountBankStatementLine(models.Model):
         :return: A list of python dictionary to be passed to the account.move.line's 'create' method.
         '''
         journal = self.env['account.journal'].browse(vals['journal_id'])
+        self._assert_suspense_account(journal)
+
         liquidity_line_vals = self._prepare_liquidity_move_line_vals(vals)
         balance = liquidity_line_vals['debit'] - liquidity_line_vals['credit']
         counterpart_line_vals = self._prepare_counterpart_move_line_vals(vals, {
             'name': vals.get('payment_ref'),
             'balance': -balance,
-            'account_id': journal.transfer_liquidity_account_id.id,
+            'account_id': journal.suspense_account_id.id,
         })
         return [liquidity_line_vals, counterpart_line_vals]
 
@@ -850,7 +860,7 @@ class AccountBankStatementLine(models.Model):
         # OVERRIDE
         for vals in vals_list:
             statement = self.env['account.bank.statement'].browse(vals['statement_id'])
-            if statement.state != 'open':
+            if statement.state != 'open' and self._context.get('check_st_validity', True):
                 raise UserError(_("You can only create some statement line for opened statement."))
 
             journal = statement.journal_id
@@ -985,9 +995,13 @@ class AccountBankStatementLine(models.Model):
             'to_check': to_check,
         })
 
-        for existing_lines in existing_lines:
-            counterpart_line = self.move_id.line_ids.filtered(lambda line: line.account_id == existing_lines.account_id and not line.reconciled)[0]
-            (existing_lines + counterpart_line).reconcile()
+        for existing_line in existing_lines:
+            counterpart_line = self.move_id.line_ids.filtered(lambda line: line.account_id == existing_line.account_id and not line.reconciled)[0]
+            (existing_line + counterpart_line).reconcile()
+
+            # Update the payment date to match the current bank statement line's date.
+            if existing_line.payment_id:
+                existing_line.payment_id.payment_date = self.date
 
     # -------------------------------------------------------------------------
     # BUSINESS METHODS

@@ -42,7 +42,7 @@ class TestAccountMovePayment(AccountTestInvoicingCommon):
     def test_inbound_payment_move_1(self):
         ''' Check created account.move for an account.payment having the 'inbound' type. '''
         if self.env.user.has_group('account.group_account_user'):
-            liquidity_account = self.bank_journal.temp_liquidity_account_id
+            liquidity_account = self.bank_journal.payment_transfer_account_id
         else:
             liquidity_account = self.bank_journal.default_credit_account_id
 
@@ -114,7 +114,7 @@ class TestAccountMovePayment(AccountTestInvoicingCommon):
     def test_outbound_payment_move_1(self):
         ''' Check created account.move for an account.payment having the 'outbound' type. '''
         if self.env.user.has_group('account.group_account_user'):
-            liquidity_account = self.bank_journal.temp_liquidity_account_id
+            liquidity_account = self.bank_journal.payment_transfer_account_id
         else:
             liquidity_account = self.bank_journal.default_debit_account_id
 
@@ -186,8 +186,8 @@ class TestAccountMovePayment(AccountTestInvoicingCommon):
     def test_transfer_payment_move_1(self):
         ''' Check created account.move for an account.payment having the 'transfer' type. '''
         if self.env.user.has_group('account.group_account_user'):
-            liquidity_bank_account = self.bank_journal.temp_liquidity_account_id
-            liquidity_cash_account = self.cash_journal.temp_liquidity_account_id
+            liquidity_bank_account = self.bank_journal.payment_transfer_account_id
+            liquidity_cash_account = self.cash_journal.payment_transfer_account_id
         else:
             liquidity_bank_account = self.bank_journal.default_debit_account_id
             liquidity_cash_account = self.cash_journal.default_credit_account_id

@@ -440,7 +440,7 @@ class account_payment(models.Model):
         journal = journal or self.journal_id
         liquidity_account = journal.default_debit_account_id if self.amount >= 0.0 else journal.default_credit_account_id
         if self.env.user.has_group('account.group_account_user'):
-            return journal.temp_liquidity_account_id or liquidity_account
+            return journal.payment_transfer_account_id
         else:
             return liquidity_account
 

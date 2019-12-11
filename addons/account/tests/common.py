@@ -134,6 +134,12 @@ class AccountTestCommon(SavepointCase):
             'name': 'Opening Expense - (test)',
             'user_type_id': cls.env.ref('account.data_account_type_expenses').id,
         })
+        cls.sus = cls.env['account.account'].create({
+            'name': 'Suspense Account - (test)',
+            'code': 'X1115',
+            'user_type_id': cls.env.ref('account.data_account_type_current_assets').id,
+        })
+        cls.company.default_journal_suspense_account_id = cls.sus
 
         # Profit and Loss
         cls.income_fx_income = cls.env['account.account'].create({
@@ -802,8 +808,9 @@ class TestAccountReconciliationCommon(AccountTestCommon):
         super(TestAccountReconciliationCommon, cls).setUpClass()
         cls.company = cls.env['res.company'].create({
             'name': 'A test company',
-            'currency_id': cls.env.ref('base.EUR').id
+            'currency_id': cls.env.ref('base.EUR').id,
         })
+
         cls.env.user.company_id = cls.company
         # Generate minimal data for my new company
         cls.create_accounting_minimal_data()

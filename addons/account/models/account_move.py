@@ -1231,7 +1231,7 @@ class AccountMove(models.Model):
                 'currency': self.currency_id.symbol,
                 'digits': [69, self.currency_id.decimal_places],
                 'position': self.currency_id.position,
-                'date': counterpart_line.date,
+                'date': counterpart_line.payment_id.payment_date or counterpart_line.date,
                 'payment_id': counterpart_line.id,
                 'account_payment_id': counterpart_line.payment_id.id,
                 'payment_method_name': counterpart_line.payment_id.payment_method_id.name if counterpart_line.journal_id.type == 'bank' else None,
@@ -1758,13 +1758,13 @@ class AccountMove(models.Model):
         self.ensure_one()
 
         journal = self.journal_id
-        if self.type in ('entry', 'out_invoice', 'in_invoice', 'out_receipt', 'in_receipt'):
+        if self.type in ('out_invoice', 'in_invoice', 'out_receipt', 'in_receipt'):
             return journal.sequence_id
         if self.type in ('out_refund', 'in_refund'):
             return journal.refund_sequence_id or journal.sequence_id
         if self.line_ids.payment_id:
-            if self.env.user.has_group('account.group_account_user'):
-                return journal.temp_payment_sequence_id
+            if self.env.user.has_group('account.group_account_user') and journal.suspense_account_id:
+                return journal.payment_sequence_id
             else:
                 return journal.sequence_id
         return journal.sequence_id

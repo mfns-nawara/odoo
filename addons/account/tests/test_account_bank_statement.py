@@ -310,7 +310,7 @@ class TestAccountBankStatement(AccountTestInvoicingCommon):
             'name': cls.statement_line.payment_ref,
             'partner_id': cls.statement_line.partner_id.id,
             'currency_id': cls.currency_2.id,
-            'account_id': cls.statement.journal_id.transfer_liquidity_account_id.id,
+            'account_id': cls.statement.journal_id.suspense_account_id.id,
             'debit': 0.0,
             'credit': 1250.0,
             'amount_currency': -2500.0,
@@ -943,7 +943,7 @@ class TestAccountBankStatement(AccountTestInvoicingCommon):
 
         receivable_acc_1 = self.company_data['default_account_receivable']
         receivable_acc_2 = self.company_data['default_account_receivable'].copy()
-        temp_liquidity_acc = self.bank_journal_1.temp_liquidity_account_id
+        payment_transfer_acc = self.bank_journal_1.payment_transfer_account_id
         random_acc_1 = self.company_data['default_account_revenue']
         random_acc_2 = self.company_data['default_account_revenue'].copy()
         test_move = self.env['account.move'].create({
@@ -973,8 +973,8 @@ class TestAccountBankStatement(AccountTestInvoicingCommon):
                     'amount_currency': 1500.0,
                 }),
                 (0, None, {
-                    'name': 'test line 3 - temporary liquidity account',
-                    'account_id': temp_liquidity_acc.id,
+                    'name': 'test line 3 - payment transfer account',
+                    'account_id': payment_transfer_acc.id,
                     'currency_id': self.currency_2.id,
                     'debit': 30.0,
                     'credit': 0.0,
@@ -986,7 +986,7 @@ class TestAccountBankStatement(AccountTestInvoicingCommon):
 
         test_line_1 = test_move.line_ids.filtered(lambda line: line.account_id == receivable_acc_1)
         test_line_2 = test_move.line_ids.filtered(lambda line: line.account_id == receivable_acc_2)
-        test_line_3 = test_move.line_ids.filtered(lambda line: line.account_id == temp_liquidity_acc)
+        test_line_3 = test_move.line_ids.filtered(lambda line: line.account_id == payment_transfer_acc)
         self.statement_line.reconcile([
             # test line 1
             # Will reconcile 300.0 in balance, 600.0 in amount_currency.

@@ -610,7 +610,7 @@ class TestReconciliationExec(TestAccountReconciliationCommon):
 
         self.assertEqual(len(payment.move_line_ids), 2)
 
-        bank_line = payment.move_line_ids.filtered(lambda l: l.account_id.id == self.bank_journal_usd.temp_liquidity_account_id.id)
+        bank_line = payment.move_line_ids.filtered(lambda l: l.account_id.id == self.bank_journal_usd.payment_transfer_account_id.id)
         customer_line = payment.move_line_ids - bank_line
 
         self.assertEqual(len(bank_line), 1)
@@ -627,7 +627,7 @@ class TestReconciliationExec(TestAccountReconciliationCommon):
         self.assertEqual(len(reversed_move.line_ids), 2)
 
         # Testing the reconciliation matching between the move lines and their reversed counterparts
-        reversed_bank_line = reversed_move.line_ids.filtered(lambda l: l.account_id.id == self.bank_journal_usd.temp_liquidity_account_id.id)
+        reversed_bank_line = reversed_move.line_ids.filtered(lambda l: l.account_id.id == self.bank_journal_usd.payment_transfer_account_id.id)
         reversed_customer_line = reversed_move.line_ids - reversed_bank_line
 
         self.assertEqual(len(reversed_bank_line), 1)

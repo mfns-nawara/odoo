@@ -237,7 +237,7 @@ class AccountReconcileModel(models.Model):
         base_line_dict['tag_ids'] = [(6, 0, res['base_tags'])]
         return new_aml_dicts
 
-    def _get_write_off_move_lines_dict(self, st_line, open_balance_vals):
+    def _get_write_off_move_lines_dict(self, st_line, residual_balance):
         ''' Get move.lines dict (to be passed to the create()) corresponding to the reconciliation model's write-off lines.
         :param st_line:             An account.bank.statement.line record.(possibly empty, if performing manual reconciliation)
         :param open_balance_vals:   A dictionary representing the open-balance line of the current statement line.
@@ -248,25 +248,24 @@ class AccountReconcileModel(models.Model):
         if self.rule_type == 'invoice_matching' and (not self.match_total_amount or (self.match_total_amount_param == 100)):
             return []
 
-        residual_amount = open_balance_vals['debit'] - open_balance_vals['credit']
         lines_vals_list = []
 
         for line in self.line_ids:
 
-            if not line.account_id or st_line.company_currency_id.is_zero(residual_amount):
+            if not line.account_id or st_line.company_currency_id.is_zero(residual_balance):
                 return []
 
             if line.amount_type == 'percentage':
-                balance = residual_amount * (line.amount / 100.0)
+                balance = residual_balance * (line.amount / 100.0)
             elif line.amount_type == "regex":
                 match = re.search(line.amount_string, st_line.name)
                 if match:
                     amount = float(re.sub(r'\D' + line.decimal_separator, '', match.group(1)).replace(line.decimal_separator, '.'))
-                    balance = copysign(amount * (1 if residual_amount > 0.0 else -1), residual_amount)
+                    balance = copysign(amount * (1 if residual_balance > 0.0 else -1), residual_balance)
                 else:
                     balance = 0
             else:
-                balance = line.amount * (1 if residual_amount > 0.0 else -1)
+                balance = line.amount * (1 if residual_balance > 0.0 else -1)
 
             writeoff_line = {
                 'name': line.label or st_line.payment_ref,
@@ -316,7 +315,8 @@ class AccountReconcileModel(models.Model):
         if not open_balance_vals:
             return lines_vals_list
 
-        writeoff_vals_list = self._get_write_off_move_lines_dict(st_line, open_balance_vals)
+        residual_balance = open_balance_vals['debit'] - open_balance_vals['credit']
+        writeoff_vals_list = self._get_write_off_move_lines_dict(st_line, residual_balance)
 
         balance = st_line.company_currency_id.round(open_balance_vals['debit'] - open_balance_vals['credit'])
         for line_vals in writeoff_vals_list:
