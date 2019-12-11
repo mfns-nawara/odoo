@@ -47,7 +47,8 @@ class StockPickingBatch(models.Model):
          ('in_progress', 'In progress'),
          ('done', 'Done'),
          ('cancel', 'Cancelled')],
-        default='draft', copy=False, tracking=True, required=True, readonly=True)
+        default='draft', copy=False, tracking=True, required=True, readonly=True,
+        store=True, compute='_compute_state')
     picking_type_id = fields.Many2one(
         'stock.picking.type', 'Operation Type', check_company=True, copy=False,
         readonly=True, states={'draft': [('readonly', False)]})
@@ -74,6 +75,17 @@ class StockPickingBatch(models.Model):
             batch.move_line_ids = batch.picking_ids.move_lines.move_line_ids
             batch.show_check_availability = any(m.state != 'assigned' for m in batch.move_ids)
 
+    @api.depends('picking_ids', 'picking_ids.state')
+    def _compute_state(self):
+        for batch in self:
+            if not batch.picking_ids:
+                return
+            # Cancels automatically the batch picking if all its transfers are cancelled.
+            if all(picking.state == 'cancel' for picking in batch.picking_ids):
+                batch.state = 'cancel'
+            # Batch picking is marked as done if all its not canceled transfers are done.
+            elif all(picking.state in ['cancel', 'done'] for picking in batch.picking_ids):
+                batch.state = 'done'
 
     # -------------------------------------------------------------------------
     # CRUD
@@ -133,8 +145,6 @@ class StockPickingBatch(models.Model):
                     _("Batch Transfer"),
                     picking.batch_id.id,
                     picking.batch_id.name))
-
-        self.write({'state': 'done'})
         return self.picking_ids.button_validate()
 
     def action_assign(self):
