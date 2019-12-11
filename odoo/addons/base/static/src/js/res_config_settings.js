@@ -53,7 +53,13 @@ var BaseSettingRenderer = FormRenderer.extend({
     on_attach_callback: function () {
         this._super.apply(this, arguments);
         // set default focus on searchInput
-        this.searchInput.focus();
+        // this.searchInput.focus();    
+        // var smallScreen = window.matchMedia("(max-width: 767px)");
+        if (config.device.isMobile){
+            this.searchInput.blur();    //Remove focus in small screen
+        } else {
+            this.searchInput.focus();  
+        }
     },
 
     /**
@@ -224,7 +230,14 @@ var BaseSettingRenderer = FormRenderer.extend({
     },
 
     _onSettingTabClick: function (event) {
-        this.searchInput.focus();
+        // this.searchInput.focus();    
+        // var smallScreen = window.matchMedia("(max-width: 767px)");
+        if (config.device.isMobile){
+            // Screen is less than 767px
+            this.searchInput.blur();    //Remove focus during tab changing in small screen
+        } else {
+            this.searchInput.focus();  
+        }
         if (this.searchText.length > 0) {
             this.searchInput.val('');
             this.searchText = "";
