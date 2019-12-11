@@ -472,7 +472,6 @@ var BasicActivity = AbstractField.extend({
                 default_use_template: true,
                 default_template_id: templateID,
                 force_email: true,
-                custom_layout: 'mail.mail_notification_light',
             },
         };
         return this.do_action(action, { on_close: function () {

@@ -719,8 +719,7 @@ class MailActivityMixin(models.AbstractModel):
         for record in self.with_context(mail_post_autofollow=True):
             record.message_post_with_template(
                 template_id,
-                composition_mode='comment',
-                email_layout_xmlid='mail.mail_notification_light'
+                composition_mode='comment'
             )
         return True
 

@@ -2270,7 +2270,6 @@ QUnit.test('form activity widget: clic mail template', async function (assert) {
                         views: [[false, 'form']],
                         target: 'new',
                         context: {
-                            custom_layout: "mail.mail_notification_light",
                             default_res_id: 2,
                             default_model: 'partner',
                             default_use_template: true,
