@@ -57,22 +57,50 @@ class ComposerTextInput extends Component {
     }
 
     /**
+     * Return textarea current content
+     *
      * @return {string}
      */
     getContent() {
         return this._textareaRef.el.value;
     }
 
+    /**
+     * Returns selection start position
+     *
+     * @returns {integer}
+     */
     getSelectionStart() {
         return this._textareaRef.el.selectionStart;
     }
 
+    /**
+     * Returns selection end position
+     *
+     * @returns {integer}
+     */
     getSelectionEnd() {
         return this._textareaRef.el.selectionEnd;
     }
 
+    /**
+     * Returns textarea current height
+     *
+     * @returns {integer}
+     */
     getHeight() {
         return this._textareaRef.el.style.height;
+    }
+
+    /**
+     * Insert some text content in the textarea.
+     *
+     * @param {string} textContent
+     */
+    insertTextContent(textContent) {
+        let partA = this.getContent().slice(0, this.getSelectionStart());
+        let partB = this.getContent().slice(this.getSelectionEnd(), this.getContent().length);
+        this._textareaRef.el.value = partA + textContent + partB;
     }
 
     /**

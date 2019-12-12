@@ -551,8 +551,8 @@ QUnit.test('chat window: state conservation on toggle home menu', async function
     // Set a scroll position to chat window
     document.querySelector(`.o_Thread_messageList`).scrollTop = 142;
     // Set html content of the composer of the chat window
-    let composerTextInputEditable = document.querySelector(`.o_ComposerTextInput_editable`);
-    composerTextInputEditable.focus();
+    let composerTextInputTextArea = document.querySelector(`.o_ComposerTextInputTextArea`);
+    composerTextInputTextArea.focus();
     document.execCommand('insertText', false, 'XDU for the win !');
     // Set attachments of the composer
     const files = [
@@ -577,9 +577,9 @@ QUnit.test('chat window: state conservation on toggle home menu', async function
         142,
         "verify chat window initial scrollTop"
     );
-    composerTextInputEditable = document.querySelector(`.o_ComposerTextInput_editable`);
+    composerTextInputTextArea = document.querySelector(`.o_ComposerTextInputTextArea`);
     assert.strictEqual(
-        composerTextInputEditable.textContent,
+        composerTextInputTextArea.value,
         "XDU for the win !",
         "verifif chat window composer initial html input"
     );
@@ -596,9 +596,9 @@ QUnit.test('chat window: state conservation on toggle home menu', async function
         142,
         "chat window scrollTop should still be the same (1)"
     );
-    composerTextInputEditable = document.querySelector(`.o_ComposerTextInput_editable`);
+    composerTextInputTextArea = document.querySelector(`.o_ComposerTextInputTextArea`);
     assert.strictEqual(
-        composerTextInputEditable.textContent,
+        composerTextInputTextArea.value,
         "XDU for the win !",
         "Chat window composer should still have the same html input (1)"
     );
@@ -616,9 +616,9 @@ QUnit.test('chat window: state conservation on toggle home menu', async function
         142,
         "chat window scrollTop should still be the same (2)"
     );
-    composerTextInputEditable = document.querySelector(`.o_ComposerTextInput_editable`);
+    composerTextInputTextArea = document.querySelector(`.o_ComposerTextInputTextArea`);
     assert.strictEqual(
-        composerTextInputEditable.textContent,
+        composerTextInputTextArea.value,
         "XDU for the win !",
         "chat window composer should still have the same html input (2)"
     );
