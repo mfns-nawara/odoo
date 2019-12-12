@@ -4,3 +4,12 @@
 from . import controllers
 from . import models
 from . import report
+
+def post_init(cr, registry):
+    from odoo import api, SUPERUSER_ID
+
+    env = api.Environment(cr, SUPERUSER_ID, {})
+    domain = []
+    if 'is_fsm' in env['project.project']._fields:
+        domain = [('is_fsm', '=', False)]
+    env['project.project'].search(domain).write({'allow_timesheets': True})
