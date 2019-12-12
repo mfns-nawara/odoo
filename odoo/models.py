@@ -5063,11 +5063,11 @@ Record ids: %(records)s
                 (string); any falsy value simply returns the recordset ``self``
         """
         if not func:
-            return self                 # support for an empty path of fields
+            return self
         if isinstance(func, str):
             recs = self
             for name in func.split('.'):
-                recs = recs._mapped_func(operator.itemgetter(name))
+                recs = self._fields[name].mapped(recs)
             return recs
         else:
             return self._mapped_func(func)

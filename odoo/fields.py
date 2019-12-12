@@ -6,7 +6,7 @@
 from collections import OrderedDict, defaultdict
 from datetime import date, datetime, time
 from dateutil.relativedelta import relativedelta
-from functools import partial, lru_cache
+from functools import partial
 from operator import attrgetter
 import itertools
 import logging
@@ -705,7 +705,6 @@ class Field(MetaField('DummyField', (object,), {})):
     # Cache key for context-dependent fields
     #
 
-    @lru_cache(maxsize=1000)
     def cache_key(self, env):
         """ Return the cache key corresponding to ``self.depends_context``. """
         get_context = env.context.get
@@ -721,6 +720,16 @@ class Field(MetaField('DummyField', (object,), {})):
                 return get_context(key)
 
         return tuple(get(key) for key in self.depends_context)
+
+    def mapped(self, records):
+        vals, missing_id = records.env.cache.get_values_list(records, self)
+        if missing_id:
+            # prefetch all / most missing ids
+            remaining = records[:len(vals)]
+            missing = records._browse(records.env, missing_id, remaining._ids)
+            self.__get__(missing)
+            return vals + self.mapped(remaining)
+        return vals
 
     #
     # Setup of field triggers
