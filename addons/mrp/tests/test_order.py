@@ -1377,3 +1377,34 @@ class TestMrpOrder(TestMrpCommon):
 
         # Check Mo is created or not
         self.assertTrue(mo, "Mo is created")
+
+    def test_unlink_multi(self):
+        """ unlink multiple productions at once"""
+        # Create products
+        finished_product = self.env['product.product'].create({
+            'name': 'Finished',
+        })
+        product_raw = self.env['product.product'].create({
+            'name': 'component',
+        })
+
+        # Create bom for finish product
+        bom = self.env['mrp.bom'].create({
+            'product_id': finished_product.id,
+            'product_tmpl_id': finished_product.product_tmpl_id.id,
+            'product_uom_id': self.env.ref('uom.product_uom_unit').id,
+            'product_qty': 1.0,
+            'type': 'normal',
+            'bom_line_ids': [(5, 0), (0, 0, {'product_id': product_raw.id})]
+        })
+        productions = self.env['mrp.production']
+        for i in range(3):
+            mo_form = Form(self.env['mrp.production'])
+            mo_form.product_id = finished_product
+            mo_form.bom_id = bom
+            mo_form.product_uom_id = self.env.ref('uom.product_uom_unit')
+            mo_form.product_qty = 1
+            productions |= mo_form.save()
+
+        self.assertEqual(len(productions), 3)
+        productions.unlink()

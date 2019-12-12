@@ -864,10 +864,12 @@ class MrpProduction(models.Model):
     def action_cancel(self):
         """ Cancels production order, unfinished stock moves and set procurement
         orders in exception """
-        if not self.move_raw_ids:
-            self.state = 'cancel'
-            return True
-        self._action_cancel()
+        empty_mo = self.env['mrp.production']
+        for mo in self:
+            if not mo.move_raw_ids:
+                mo.state = 'cancel'
+                empty_mo |= mo
+        (self - empty_mo)._action_cancel()
         return True
 
     def _action_cancel(self):
@@ -883,16 +885,16 @@ class MrpProduction(models.Model):
             if documents:
                 documents_by_production[production] = documents
 
-        self.workorder_ids.filtered(lambda x: x.state not in ['done', 'cancel']).action_cancel()
-        finish_moves = self.move_finished_ids.filtered(lambda x: x.state not in ('done', 'cancel'))
-        raw_moves = self.move_raw_ids.filtered(lambda x: x.state not in ('done', 'cancel'))
+            production.workorder_ids.filtered(lambda x: x.state not in ['done', 'cancel']).action_cancel()
+            finish_moves = production.move_finished_ids.filtered(lambda x: x.state not in ('done', 'cancel'))
+            raw_moves = production.move_raw_ids.filtered(lambda x: x.state not in ('done', 'cancel'))
 
-        # log an activity on Parent MO if child MO is cancelled.
-        if finish_moves:
-            self._log_downside_manufactured_quantity({finish_move: (self.product_uom_qty, 0.0) for finish_move in finish_moves}, cancel=True)
-        (finish_moves | raw_moves)._action_cancel()
-        picking_ids = self.picking_ids.filtered(lambda x: x.state not in ('done', 'cancel'))
-        picking_ids.action_cancel()
+            # log an activity on Parent MO if child MO is cancelled.
+            if finish_moves:
+                production._log_downside_manufactured_quantity({finish_move: (production.product_uom_qty, 0.0) for finish_move in finish_moves}, cancel=True)
+            (finish_moves | raw_moves)._action_cancel()
+            picking_ids = production.picking_ids.filtered(lambda x: x.state not in ('done', 'cancel'))
+            picking_ids.action_cancel()
 
         for production, documents in documents_by_production.items():
             filtered_documents = {}
