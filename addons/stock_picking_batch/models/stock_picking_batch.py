@@ -26,9 +26,9 @@ class StockPickingBatch(models.Model):
         'res.company', string="Company", required=True, readonly=True,
         index=True, default=lambda self: self.env.company)
     picking_ids = fields.One2many(
-        'stock.picking', 'batch_id', string='Transfers',
-        domain="[('id', 'in', allowed_picking_ids)]",
-        readonly=True, states={'draft': [('readonly', False)]}, check_company=True,
+        'stock.picking', 'batch_id', string='Transfers', readonly=True,
+        domain="[('id', 'in', allowed_picking_ids)]", check_company=True,
+        states={'draft': [('readonly', False)], 'in_progress': [('readonly', False)]},
         help='List of transfers associated to this batch')
     show_check_availability = fields.Boolean(
         compute='_compute_move_ids',
@@ -102,6 +102,14 @@ class StockPickingBatch(models.Model):
         res = super().write(vals)
         if vals.get('picking_type_id'):
             self._sanity_check()
+        elif vals.get('picking_ids'):
+            batch_without_picking_type = self.filtered(lambda batch: not batch.picking_type_id)
+            if batch_without_picking_type:
+                picking_command = vals.get('picking_ids')[0]
+                picking_id = picking_command[2] and picking_command[2][0]
+                picking = self.env['stock.picking'].browse(picking_id)
+                batch_without_picking_type.picking_type_id = picking.picking_type_id.id
+                self._sanity_check()
         return res
 
     def unlink(self):

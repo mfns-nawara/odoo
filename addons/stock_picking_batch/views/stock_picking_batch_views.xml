@@ -61,7 +61,8 @@
                 <field name="show_check_availability" invisible="1"/>
                 <header>
                     <button name="action_confirm" states="draft" string="Confirm" type="object" class="oe_highlight"/>
-                    <button name="action_done" states="in_progress" string="Validate" type="object" class="oe_highlight"/>
+                    <button name="action_done" string="Validate" type="object" class="oe_highlight"
+                        attrs="{'invisible': ['|', ('picking_ids', '=', []), ('state', '!=', 'in_progress')]}"/>
                     <button name="action_assign" string="Check Availability" type="object" attrs="{'invisible': ['|', ('state', '!=', 'in_progress'), ('show_check_availability', '=', False)]}"/>
                     <button name="action_print" states="in_progress,done" string="Print" type="object"/>
                     <button name="action_cancel" string="Cancel" type="object" states="in_progress"/>
@@ -201,7 +202,14 @@
         <field name="inherit_id" ref="stock.vpicktree"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='state']" position="before">
-                <field name="batch_id" optional="show"/>
+                <field name="batch_id" optional="show"
+                    domain="[
+                        ('state', 'not in', ['cancel', 'done']),
+                        '|',
+                            ('picking_type_id', '=', picking_type_id),
+                            ('picking_type_id', '=', False),
+                    ]"
+                    context="{'default_picking_type_id': picking_type_id}"/>
             </xpath>
         </field>
     </record>
