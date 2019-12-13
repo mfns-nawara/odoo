@@ -473,6 +473,11 @@ class MrpProduction(models.Model):
         self.location_src_id = self.picking_type_id.default_location_src_id.id or location.id
         self.location_dest_id = self.picking_type_id.default_location_dest_id.id or location.id
 
+    def copy(self, default=None):
+        res = super().copy(default)
+        res.move_raw_ids = res.move_raw_ids.filtered(lambda move: move.bom_line_id)
+        return res
+
     def write(self, vals):
         res = super(MrpProduction, self).write(vals)
         if 'date_planned_start' in vals:

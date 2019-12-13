@@ -148,6 +148,14 @@ class StockMove(models.Model):
                 defaults['additional'] = True
         return defaults
 
+    @api.model
+    def create(self, values):
+        res = super().create(values)
+        # Compute the unit factor for newly created raw moves
+        if res.raw_material_production_id and not res.bom_line_id:
+            res.unit_factor = res.product_uom_qty / res.raw_material_production_id.product_qty
+        return res
+
     def write(self, values):
         res = super().write(values)
         if 'product_uom_qty' in values:
