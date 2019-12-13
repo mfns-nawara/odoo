@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<templates xml:space="preserve">
+
+    <t t-name="AccountMoveLinePreview">
+        <table class="table">
+            <tr>
+                <th>Account</th>
+                <th>Label</th>
+                <th>Partner</th>
+                <th>Debit</th>
+                <th>Credit</th>
+            </tr>
+            <t t-foreach="lines_to_preview" t-as="line">
+                <tr>
+                    <td><t t-esc="line['preview-account']"/></td>
+                    <td><t t-esc="line['name']"/></td>
+                    <td><t t-esc="line['preview-partner']"/></td>
+                    <td align="center"><t t-esc="line['debit']"/></td>
+                    <td align="center"><t t-esc="line['credit']"/></td>
+                </tr>
+            </t>
+        </table>
+    </t>
+</templates>
