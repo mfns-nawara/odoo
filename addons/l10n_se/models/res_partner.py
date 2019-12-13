@@ -9,6 +9,7 @@ class ResPartner(models.Model):
     _inherit = "res.partner"
 
     orgnumber = fields.Char('Organisational Number', compute="compute_orgnumber")
+    l10n_se_country_code = fields.Char(related="country_id.code")
 
     @api.model
     def compute_orgnumber(self):

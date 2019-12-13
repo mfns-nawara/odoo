@@ -6,7 +6,8 @@
         <field name="inherit_id" ref="base.view_partner_form"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='vat']" position="after">
-                    <field name="orgnumber" attrs="{'invisible': [('is_company','=', False)]}" readonly="1"/>
+                <field name="l10n_se_country_code" invisible="1"/>
+                <field name="orgnumber" attrs="{'invisible': ['|', ('is_company','=', False), ('l10n_se_country_code', '!=', 'SE')]}" readonly="1"/>
             </xpath>
         </field>
     </record>
