@@ -6,6 +6,7 @@ import base64
 from odoo import http,tools, _
 from odoo.http import request
 from odoo.addons.base.models.assetsbundle import AssetsBundle
+from odoo.addons.bus.controllers.main import BusController
 
 
 class LivechatController(http.Controller):
@@ -158,3 +159,24 @@ class LivechatController(http.Controller):
             ('uuid', '=', uuid)], limit=1)
         if channel:
             channel._email_livechat_transcript(email)
+
+class ImLiveChatController(BusController):
+    # --------------------------
+    # Extends BUS Controller Poll
+    # --------------------------
+    def _poll(self, dbname, channels, last, options):
+        res = super(ImLiveChatController, self)._poll(dbname, channels, last, options)
+        notifications = []
+        for mail_channel in request.env['mail.channel'].sudo().search([('channel_type', '=', 'livechat'), ('uuid', 'in', list(channels)), ('livechat_active', '=', True)]):
+            im_status = mail_channel.livechat_operator_id.im_status
+            if im_status != options.get('im_status'):
+                data = {
+                    'channel': mail_channel.uuid,
+                    'message': {
+                        '_type': 'operator_status',
+                        'im_status': im_status
+                    }
+                }
+                notifications.append(data)
+        res.extend(notifications)
+        return res
