@@ -1127,7 +1127,7 @@ action = model.setting_init_bank_account_action()
                     <field name="type_tax_use"/>
                     <field name="description"/>
                     <field name="company_id" options="{'no_create': True}" groups="base.group_multi_company"/>
-                    <field name="active" invisible="1"/>
+                    <field name="active" widget="boolean_toggle"/>
                 </tree>
             </field>
         </record>

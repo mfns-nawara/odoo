@@ -76,7 +76,7 @@
                     <field name="rate_ids" invisible="1"/>
                     <field name="date"/>
                     <field name="rate" digits="[12,6]"/>
-                    <field name="active" invisible="1"/>
+                    <field name="active" widget="boolean_toggle"/>
                 </tree>
             </field>
         </record>
