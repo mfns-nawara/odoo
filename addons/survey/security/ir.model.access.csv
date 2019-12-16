@@ -20,3 +20,7 @@ access_survey_user_input_line_user,survey.user_input.line.user,model_survey_user
 access_survey_user_input_line_survey_user,survey.user_input.line.survey.user,model_survey_user_input_line,group_survey_user,1,1,1,1
 access_survey_user_input_line_survey_manager,survey.user_input.line.survey.manager,model_survey_user_input_line,group_survey_manager,1,1,1,1
 access_gamification_badge_survey_user,gamification.badge.survey.user,model_gamification_badge,group_survey_user,1,1,1,1
+access_survey_question_image_all,survey.question.image.all,model_survey_question_image,,0,0,0,0
+access_survey_question_image_user,survey.question.image.user,model_survey_question_image,base.group_user,0,0,0,0
+access_survey_question_image_survey_user,survey.question.image.survey.user,model_survey_question_image,group_survey_user,1,1,1,1
+access_survey_question_image_survey_manager,survey.question.image.survey.manager,model_survey_question_image,group_survey_manager,1,1,1,1

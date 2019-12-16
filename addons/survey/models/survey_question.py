@@ -58,6 +58,7 @@ class SurveyQuestion(models.Model):
     survey_id = fields.Many2one('survey.survey', string='Survey', ondelete='cascade')
     scoring_type = fields.Selection(related='survey_id.scoring_type', string='Scoring Type', readonly=True)
     sequence = fields.Integer('Sequence', default=10)
+    survey_question_image = fields.One2many('survey.question.image', 'survey_question_id', 'Media')
     # page specific
     is_page = fields.Boolean('Is a page?')
     question_ids = fields.One2many('survey.question', string='Questions', compute="_compute_question_ids")
@@ -101,6 +102,7 @@ class SurveyQuestion(models.Model):
     display_mode = fields.Selection(
         [('columns', 'Radio Buttons'), ('dropdown', 'Selection Box')],
         string='Display Mode', default='columns', help='Display mode of simple choice questions.')
+    answer_image = fields.Boolean(default=False)
     # -- comments (simple choice, multiple choice, matrix (without count as an answer))
     comments_allowed = fields.Boolean('Show Comments Field')
     comments_message = fields.Char('Comment Message', translate=True, default=lambda self: _("If other, please specify:"))
@@ -132,6 +134,16 @@ class SurveyQuestion(models.Model):
         ('validation_date', 'CHECK (validation_min_date <= validation_max_date)', 'Max date cannot be smaller than min date!'),
         ('validation_datetime', 'CHECK (validation_min_datetime <= validation_max_datetime)','Max datetime cannot be smaller than min datetime!')
     ]
+
+    def _get_images(self):
+        self.ensure_one()
+        images = list(self.survey_question_image)
+        return images
+
+    @api.onchange('display_mode')
+    def _onchange_display_mode(self):
+        if self.display_mode == 'dropdown':
+            self.answer_image = False
 
     @api.onchange('validation_email')
     def _onchange_validation_email(self):
@@ -450,6 +462,7 @@ class SurveyQuestionAnswer(models.Model):
     matrix_question_id = fields.Many2one('survey.question', string='Question (as matrix row)', ondelete='cascade')
     sequence = fields.Integer('Label Sequence order', default=10)
     value = fields.Char('Suggested value', translate=True, required=True)
+    image = fields.Image()
     is_correct = fields.Boolean('Is a correct answer')
     answer_score = fields.Float('Score for this choice', help="A positive score indicates a correct choice; a negative or null score indicates a wrong answer")
 

@@ -176,6 +176,7 @@
                 <span t-if="question.constr_mandatory" class="text-danger">*</span>
             </h4>
             <div t-field='question.description' class="text-muted oe_no_empty"/>
+            <t t-call="survey.question_media_carousel"/>
             <t t-if="question.question_type == 'text_box'"><t t-call="survey.question_text_box"/></t>
             <t t-if="question.question_type == 'char_box'"><t t-call="survey.question_char_box"/></t>
             <t t-if="question.question_type == 'numerical_box'"><t t-call="survey.question_numerical_box"/></t>
@@ -185,6 +186,42 @@
             <t t-if="question.question_type == 'multiple_choice'"><t t-call="survey.question_multiple_choice"/></t>
             <t t-if="question.question_type == 'matrix'"><t t-call="survey.question_matrix"/></t>
             <div class="o_survey_question_error alert alert-danger d-none" role="alert"></div>
+        </div>
+    </template>
+
+    <template id="question_media_carousel" name="Carousel: question media">
+        <t t-set="q" t-value="question.id"/>
+        <div t-if="question.survey_question_image" t-attf-id="o-carousel-question-#{q}" class="carousel slide mb-2" data-ride="carousel" data-interval="0">
+            <t t-set="images" t-value="question._get_images()"/>
+            <div class="carousel-outer position-relative">
+                <div class="carousel-inner h-100 mb-2">
+                    <t t-foreach="images" t-as="image">
+                        <div t-attf-class="carousel-item h-100#{' active' if image_first else ''} mb-2">
+                            <div t-if="image.embed_code" class="d-flex align-items-center mb-2 justify-content-center h-100 embed-responsive embed-responsive-16by9" style="width: 70%;margin: auto;">
+                                <t t-raw="image.embed_code"/>
+                            </div>
+                            <div t-else="" t-field="image.image_1920" class="d-flex align-items-center mb-2 justify-content-center h-100" t-options='{"widget": "image", "preview_image": "image_1024", "class": "question_img mh-100", "alt-field": "name", "itemprop": "image"}'/>
+                        </div>
+                    </t>
+                </div>
+                <t t-if="len(images) > 1">
+                    <a class="carousel-control-prev" t-attf-href="#o-carousel-question-#{q}" role="button" data-slide="prev">
+                        <span class="fa fa-chevron-left p-2" role="img" aria-label="Previous" title="Previous"/>
+                    </a>
+                    <a class="carousel-control-next" t-attf-href="#o-carousel-question-#{q}" role="button" data-slide="next">
+                        <span class="fa fa-chevron-right p-2" role="img" aria-label="Next" title="Next"/>
+                    </a>
+                </t>
+            </div>
+            <div t-ignore="True" class="d-none d-md-block text-center">
+                <ol t-if="len(images) > 1" class="carousel-indicators d-inline-block position-static mx-auto my-0 p-1 text-left">
+                    <t t-foreach="images" t-as="image">
+                        <li t-attf-class="d-inline-block m-1 align-top {{'active' if image_first else ''}}" t-attf-data-target="#o-carousel-question-#{q}" t-att-data-slide-to="str(image_index)">
+                            <div t-field="image.image_128" t-options='{"widget": "image", "qweb_img_responsive": False, "class": "o_image_64_contain", "alt-field": "name"}'/>
+                        </li>
+                    </t>
+                </ol>
+            </div>
         </div>
     </template>
 
@@ -270,6 +307,9 @@
                     <input type="radio" t-att-value='label.id' class="o_survey_form_choice_item"
                            t-att-checked="answer_line and answer_line.suggested_answer_id.id == label.id and 'checked' or None"/>
                     <span t-field='label.value'/>
+                    <div t-if="question.answer_image and label.image" class="d-flex align-items-center mb-2 mt-2 justify-content-center" style="height:300px;width:300px;" t-att-class="' img-success ' if quizz_correction and label.answer_score > 0.0 else None">
+                        <div t-if="label.image" t-field="label.image" class="d-flex align-items-center mb-2 mt-2 justify-content-center h-100" t-options='{"widget": "image", "class": "mcq_img", "alt-field": "name", "itemprop": "image"}'/>
+                    </div>
                 </label>
             </div>
             <div t-if='question.comments_allowed and question.comment_count_as_answer' class="js_comments col-lg-12" >
@@ -295,10 +335,15 @@
              t-att-data-question-type="question.question_type">
             <div t-foreach='question.suggested_answer_ids' t-as='label' t-attf-class="col-lg-#{question.column_nb}">
                 <t t-set="answer_line" t-value="answer_lines.filtered(lambda line: line.suggested_answer_id == label)"/>
-                <label t-att-class="' bg-success ' if quizz_correction and label.answer_score > 0.0 else None">
-                    <input type="checkbox" t-att-value='label.id' class="o_survey_form_choice_item"
-                           t-att-checked="'checked' if answer_line else None"/>
-                    <span t-field='label.value'/>
+                <label>
+                    <div t-att-class="' bg-success ' if quizz_correction and label.answer_score > 0.0 else None">
+                        <input type="checkbox" t-att-value='label.id' class="o_survey_form_choice_item"
+                            t-att-checked="'checked' if answer_line else None"/>
+                        <span t-field='label.value'/>
+                    </div>
+                    <div t-if="question.answer_image and label.image" class="d-flex align-items-center mb-2 mt-2 justify-content-center" style="height:300px;width:300px;" t-att-class="' img-success ' if quizz_correction and label.answer_score > 0.0 else None">
+                        <div t-if="label.image" t-field="label.image" class="d-flex align-items-center mb-2 mt-2 justify-content-center h-100" t-options='{"widget": "image", "class": "mcq_img", "alt-field": "name", "itemprop": "image"}'/>
+                    </div>
                 </label>
             </div>
 
@@ -376,6 +421,7 @@
                                             <span t-if="question.constr_mandatory" class="text-danger">*</span>
                                             <span t-if="quizz_correction" class="badge badge-pill" t-att-data-score-question="question.id"></span>
                                         </h2>
+                                        <t t-call="survey.question_media_carousel"/>
                                         <t t-if="question.description"><div class="text-muted oe_no_empty" t-field='question.description'/></t>
                                         <t t-if="question.question_type == 'text_box'"><t t-call="survey.question_text_box"/></t>
                                         <t t-if="question.question_type == 'char_box'"><t t-call="survey.question_char_box"/></t>

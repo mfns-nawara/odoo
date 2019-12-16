@@ -109,6 +109,7 @@
                                 <tree editable="bottom">
                                     <field name="sequence" widget="handle"/>
                                     <field name="value" string="Choices"/>
+                                    <field name="image" string="Image" options="{'accepted_file_extensions': 'image/*'}"  attrs="{'column_invisible': [('parent.answer_image', '=', False)]}"/>
                                     <field name="is_correct" attrs="{'column_invisible': ['|', ('parent.scoring_type', '=', 'no_scoring'), ('parent.question_type', '=', 'matrix')]}"/>
                                     <field name="answer_score" attrs="{'column_invisible': ['|', ('parent.scoring_type', '=', 'no_scoring'), ('parent.question_type', '=', 'matrix')]}"/>
                                 </tree>
@@ -151,16 +152,94 @@
                             <group string="Display mode" attrs="{'invisible':[('question_type','not in',['simple_choice', 'multiple_choice'])]}">
                                 <field name="display_mode" string="Format" attrs="{'invisible':[('question_type','not in',['simple_choice'])],'required':[('question_type','=','simple_choice')]}"/>
                                 <field name="column_nb" string="Number of columns" attrs="{'invisible':[('display_mode','=','dropdown'), ('question_type','=','simple_choice')]}"/>
+                                <field name="answer_image" string="Allow images on answers" attrs="{'invisible':[('display_mode','=','dropdown'), ('question_type','=','simple_choice')]}"/>
                             </group>
                             <group string="Allow Comments" attrs="{'invisible':[('question_type','not in',['simple_choice','multiple_choice', 'matrix'])]}">
                                 <field name='comments_allowed' />
                                 <field name='comments_message' attrs="{'invisible': [('comments_allowed', '=', False)]}"/>
                                 <field name='comment_count_as_answer' attrs="{'invisible': ['|', ('comments_allowed', '=', False), ('question_type', 'in', ['matrix'])]}" />
                             </group>
+                            <group string="Illustration">
+                                <field name="survey_question_image" class="o_survey_question_image_list" mode="kanban" options="{'create_text':'Add a Media'}" nolabel="1"/>
+                            </group>
                         </page>
                     </notebook>
                 </sheet>
             </form>
+        </field>
+    </record>
+    <record id="view_survey_question_image_form" model='ir.ui.view'>
+        <field name="name">survey.question.media.view.form</field>
+        <field name="model">survey.question.image</field>
+        <field name="arch" type="xml">
+            <form string="Question Media">
+                <div class="row o_survey_question_image_modal">
+                    <div class="col-md-6 col-xl-5">
+                        <label for="name" string="Image Name"/>
+                        <h2><field name="name" placeholder="Image Name"/></h2>
+                        <label for="video_url" string="Video URL"/><br/>
+                        <field name="video_url"/><br/>
+                    </div>
+                    <div class="col-md-6 col-xl-7 text-center o_survey_question_image_modal_container">
+                        <div class="row">
+                            <div class="col">
+                                <field name="image_1920" widget="image"/>
+                            </div>
+                            <div class="col" attrs="{'invisible': [('video_url', 'in', ['', False])]}">
+                                <div class="o_video_container p-2">
+                                    <span>Video Preview</span>
+                                    <field name="embed_code" class="mt-2" widget="video_preview"/>
+                                    <h4 class="o_invalid_warning text-muted text-center" attrs="{'invisible': [('embed_code', '!=', False)]}">
+                                        Please enter a valid Video URL.
+                                    </h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </field>
+    </record>
+    <record id="survey_question_image_view_kanban" model="ir.ui.view">
+        <field name="name">survey.question.image.view.kanban</field>
+        <field name="model">survey.question.image</field>
+        <field name="arch" type="xml">
+            <kanban string="Images" default_order="sequence">
+                <field name="id"/>
+                <field name="name"/>
+                <field name="image_1920"/>
+                <field name="sequence" widget="handle"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="card oe_kanban_global_click p-0">
+                            <div class="o_squared_image">
+                                <img class="card-img-top" t-att-src="kanban_image('survey.question.image', 'image_1920', record.id.value)" t-att-alt="record.name.value"/>
+                            </div>
+                            <div class="card-body p-0">
+                                <h4 class="card-title p-2 m-0 bg-200">
+                                    <small><field name="name"/></small>
+                                </h4>
+                            </div>
+                            <!-- below 100 Kb: good -->
+                            <t t-if="record.image_1920.raw_value.length &lt; 100*1000">
+                                <t t-set="size_status" t-value="'badge-success'"/>
+                                <t t-set="message">Acceptable file size</t>
+                            </t>
+                            <!-- below 1000 Kb: decent -->
+                            <t t-elif="record.image_1920.raw_value.length &lt; 1000*1000">
+                                <t t-set="size_status" t-value="'badge-warning'" />
+                                <t t-set="message">Huge file size. The image should be optimized/reduced.</t>
+                            </t>
+                            <!-- above 1000 Kb: bad -->
+                            <t t-else="1">
+                                <t t-set="size_status" t-value="'badge-danger'"/>
+                                <t t-set="message">Optimization required! Reduce the image size or increase your compression settings.</t>
+                            </t>
+                            <span t-attf-class="badge #{size_status} o_question_image_size" t-esc="record.image_1920.value" t-att-title="message"/>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
         </field>
     </record>
     <record model="ir.ui.view" id="survey_question_tree">
