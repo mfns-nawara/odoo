@@ -36,10 +36,16 @@ class ComposerTextInput extends Component {
         this._textareaRef = useRef('textarea');
     }
 
+    /**
+     * Updates the composer text input content when the component is mounted to its defaults values
+     */
     mounted() {
         this._update();
     }
 
+    /**
+     * Update the composer text input content when composer has changed
+     */
     patched() {
         this._update();
     }
@@ -112,11 +118,17 @@ class ComposerTextInput extends Component {
         return this._textareaRef.el.value === "";
     }
 
+    /**
+     * Resets the textarea value of the composer text input
+     */
     reset() {
         this._textareaRef.el.value = "";
     }
 
-    _onInputEditable(){
+    /**
+     * @private
+     */
+    _onInputEditable() {
         this._textareaRef.el.style.height = "0px";
         this._textareaRef.el.style.overflow = "auto";
         this._textareaRef.el.style.height = (this._textareaRef.el.scrollHeight)+"px";
@@ -168,6 +180,10 @@ class ComposerTextInput extends Component {
         ev.preventDefault();
     }
 
+    /**
+     *
+     * @private
+     */
     _update() {
         this._textareaRef.el.setSelectionRange(
             this.storeProps.composer.textInputCursorStart,

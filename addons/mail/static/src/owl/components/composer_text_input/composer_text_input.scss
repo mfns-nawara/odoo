@@ -5,37 +5,6 @@
 .o_ComposerTextInput {
     min-width: 0;
 
-    &.o-mobile > .note-editor > .note-editing-area {
-        padding: 15px 10px 10px 10px;
-    }
-
-    > .note-editor {
-        height: 100%;
-
-        > .note-editing-area {
-            overflow: auto;
-            height: 100%;
-
-            > .note-editable[contenteditable=true] {
-                max-height: 200px;
-                height: 100%;
-            }
-
-            > .note-placeholder {
-                padding: 0;
-            }
-        }
-
-        > .note-statusbar {
-            display: none;
-        }
-
-        > .note-toolbar {
-            border: 0;
-            padding: 0;
-        }
-    }
-
     > textarea {
         padding: 10px 10px 10px 10px;
         display: block;

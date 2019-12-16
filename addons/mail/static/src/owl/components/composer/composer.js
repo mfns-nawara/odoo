@@ -163,7 +163,7 @@ class Composer extends Component {
         // TODO: take suggested recipients into account
         try {
             await this.storeDispatch('postMessage', this.props.composerLocalId, {
-                htmlContent: this._setTextInputHtmlContent(this._textInputRef.comp.getContent()),
+                htmlContent: this._getTextInputContentAsHtml(this._textInputRef.comp.getContent()),
                 isLog: this.props.isLog,
             });
             this._textInputRef.comp.reset();
@@ -350,7 +350,7 @@ class Composer extends Component {
         this._postMessage();
     }
 
-    _setTextInputHtmlContent(textInputContent) {
+    _getTextInputContentAsHtml(textInputContent) {
         //Removing unwanted extra spaces from message
         let value = _.escape(textInputContent).trim();
         value = value.replace(/(\r|\n){2,}/g, '<br/><br/>');

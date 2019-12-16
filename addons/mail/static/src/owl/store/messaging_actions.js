@@ -985,12 +985,13 @@ const actions = {
      * @param {Object} param0.state
      * @param {string} composerLocalId
      */
-    resetComposer({ dispatch, state }, composerLocalId,) {
-        const composer = state.composers[composerLocalId];
-        composer.textInputContent = '';
-        composer.textInputCursorStart = 0;
-        composer.textInputCursorEnd = 0;
-        composer.textInputHeight = "39px";
+    resetComposer({ dispatch, state }, composerLocalId) {
+        Object.assign(state.composers[composerLocalId], {
+            textInputContent : '',
+            textInputCursorStart : 0,
+            textInputCursorEnd : 0,
+            textInputHeight : "39px",
+        });
     },
     /**
      * @param {Object} param0
@@ -1008,27 +1009,27 @@ const actions = {
         });
     },
     /**
-     * @param {Object} param0
-     * @param {function} param0.dispatch
-     * @param {Object} param0.state
+     * @param {Object} state
      * @param {string} composerLocalId
      * @param {string} composerContent
      * @param {integer} composerSelectionStart
      * @param {integer} composerSelectionEnd
+     * @param {integer} composerHeight
      */
     saveComposerContent(
-        { dispatch, state },
+        { state },
         composerLocalId,
         composerContent,
         composerSelectionStart,
         composerSelectionEnd,
         composerHeight,
     ) {
-        const composer = state.composers[composerLocalId];
-        composer.textInputContent = composerContent;
-        composer.textInputCursorStart = composerSelectionStart;
-        composer.textInputCursorEnd = composerSelectionEnd;
-        composer.textInputHeight = composerHeight;
+        Object.assign(state.composers[composerLocalId], {
+            textInputContent : composerContent,
+            textInputCursorStart : composerSelectionStart,
+            textInputCursorEnd : composerSelectionEnd,
+            textInputHeight : composerHeight,
+        });
     },
     /**
      * Search for partners matching `keyword`.
