@@ -1,8 +1,9 @@
 odoo.define('mail.component.ChatterTopbar', function (require) {
 'use strict';
 
+const useStoreCompareKeys = require('mail.hooks.useStoreCompareKeys');
+
 const { Component } = owl;
-const { useStore } = owl.hooks;
 
 class ChatterTopbar extends Component {
     /**
@@ -11,12 +12,13 @@ class ChatterTopbar extends Component {
      */
     constructor(...args) {
         super(...args);
-        this.storeProps = useStore((state, props) => {
+        this.storeProps = useStoreCompareKeys((state, props) => {
             const thread = state.threads[props.threadLocalId];
             return {
                 attachmentsAmount: thread && thread.attachmentLocalIds
                     ? thread.attachmentLocalIds.length
                     : 0,
+                // TODO SEB this is currently always 0
                 followersAmount: 0
             };
         });

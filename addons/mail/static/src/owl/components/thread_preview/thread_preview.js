@@ -3,10 +3,11 @@ odoo.define('mail.component.ThreadPreview', function (require) {
 
 const MessageAuthorPrefix = require('mail.component.MessageAuthorPrefix');
 const PartnerImStatusIcon = require('mail.component.PartnerImStatusIcon');
+const useStoreCompareKeys = require('mail.hooks.useStoreCompareKeys');
 const mailUtils = require('mail.utils');
 
 const { Component } = owl;
-const { useDispatch, useGetters, useStore } = owl.hooks;
+const { useDispatch, useGetters } = owl.hooks;
 
 class ThreadPreview extends Component {
 
@@ -18,7 +19,7 @@ class ThreadPreview extends Component {
         super(...args);
         this.storeDispatch = useDispatch();
         this.storeGetters = useGetters();
-        this.storeProps = useStore((state, props) => {
+        this.storeProps = useStoreCompareKeys((state, props) => {
             const threadLocalId = props.threadLocalId;
             const thread = state.threads[threadLocalId];
             let lastMessage;

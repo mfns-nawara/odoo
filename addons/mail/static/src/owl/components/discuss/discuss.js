@@ -8,9 +8,10 @@ const Sidebar = require('mail.component.DiscussSidebar');
 const MobileNavbar = require('mail.component.MobileMessagingNavbar');
 const Thread = require('mail.component.Thread');
 const ThreadPreviewList = require('mail.component.ThreadPreviewList');
+const useStoreCompareKeys = require('mail.hooks.useStoreCompareKeys');
 
 const { Component, useState } = owl;
-const { useDispatch, useGetters, useRef, useStore } = owl.hooks;
+const { useDispatch, useGetters, useRef } = owl.hooks;
 
 class Discuss extends Component {
 
@@ -54,7 +55,7 @@ class Discuss extends Component {
         });
         this.storeDispatch = useDispatch();
         this.storeGetters = useGetters();
-        this.storeProps = useStore(state => {
+        this.storeProps = useStoreCompareKeys(state => {
             const {
                 activeThreadLocalId,
                 stringifiedDomain,
@@ -66,6 +67,7 @@ class Discuss extends Component {
             const activeThreadCache = activeThreadCacheLocalId
                 ? state.threadCaches[activeThreadCacheLocalId]
                 : undefined;
+            // TODO SEB: transform into storeProps.discuss...
             return Object.assign({}, state.discuss, {
                 activeThread,
                 activeThreadCache,
