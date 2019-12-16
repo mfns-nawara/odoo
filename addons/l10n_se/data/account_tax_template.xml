@@ -2,7 +2,7 @@
 <odoo>
     <data noupdate="1">
         <record id="sale_tax_25_goods" model="account.tax.template">
-            <field name="chart_template_id" ref="l10nse_chart_template" />
+            <field name="chart_template_id" ref="l10nse_chart_template"/>
             <field name="name">Utgående moms 25%</field>
             <field name="description">ST25</field>
             <field name="amount">25</field>
@@ -35,7 +35,7 @@
             ]"/>
         </record>
         <record id="sale_tax_25_services" model="account.tax.template">
-            <field name="chart_template_id" ref="l10nse_chart_template" />
+            <field name="chart_template_id" ref="l10nse_chart_template"/>
             <field name="name">Utgående moms Tjänst 25%</field>
             <field name="description">ST25</field>
             <field name="amount">25</field>
@@ -68,7 +68,7 @@
             ]"/>
         </record>
         <record id="purchase_tax_25_goods" model="account.tax.template">
-            <field name="chart_template_id" ref="l10nse_chart_template" />
+            <field name="chart_template_id" ref="l10nse_chart_template"/>
             <field name="name">Ingående moms 25%</field>
             <field name="description">PT25</field>
             <field name="amount">25</field>
@@ -101,7 +101,7 @@
             ]"/>
         </record>
         <record id="purchase_tax_25_services" model="account.tax.template">
-            <field name="chart_template_id" ref="l10nse_chart_template" />
+            <field name="chart_template_id" ref="l10nse_chart_template"/>
             <field name="name">Ingående moms Tjänst 25%</field>
             <field name="description">PT25</field>
             <field name="amount">25</field>
@@ -134,7 +134,7 @@
             ]"/>
         </record>
         <record id="sale_tax_12_goods" model="account.tax.template">
-            <field name="chart_template_id" ref="l10nse_chart_template" />
+            <field name="chart_template_id" ref="l10nse_chart_template"/>
             <field name="name">Utgående moms 12%</field>
             <field name="description">ST12</field>
             <field name="amount">12</field>
@@ -167,7 +167,7 @@
             ]"/>
         </record>
         <record id="sale_tax_12_services" model="account.tax.template">
-            <field name="chart_template_id" ref="l10nse_chart_template" />
+            <field name="chart_template_id" ref="l10nse_chart_template"/>
             <field name="name">Utgående moms Tjänst 12%</field>
             <field name="description">ST12</field>
             <field name="amount">12</field>
@@ -200,7 +200,7 @@
             ]"/>
         </record>
         <record id="purchase_tax_12_goods" model="account.tax.template">
-            <field name="chart_template_id" ref="l10nse_chart_template" />
+            <field name="chart_template_id" ref="l10nse_chart_template"/>
             <field name="name">Ingående moms 12%</field>
             <field name="description">PT12</field>
             <field name="amount">12</field>
@@ -233,7 +233,7 @@
             ]"/>
         </record>
         <record id="purchase_tax_12_services" model="account.tax.template">
-            <field name="chart_template_id" ref="l10nse_chart_template" />
+            <field name="chart_template_id" ref="l10nse_chart_template"/>
             <field name="name">Ingående moms Tjänst 12%</field>
             <field name="description">PT12</field>
             <field name="amount">12</field>
@@ -266,7 +266,7 @@
             ]"/>
         </record>
         <record id="sale_tax_6_goods" model="account.tax.template">
-            <field name="chart_template_id" ref="l10nse_chart_template" />
+            <field name="chart_template_id" ref="l10nse_chart_template"/>
             <field name="name">Utgående moms 6%</field>
             <field name="description">ST6</field>
             <field name="amount">6</field>
@@ -299,7 +299,7 @@
             ]"/>
         </record>
         <record id="sale_tax_6_services" model="account.tax.template">
-            <field name="chart_template_id" ref="l10nse_chart_template" />
+            <field name="chart_template_id" ref="l10nse_chart_template"/>
             <field name="name">Utgående moms Tjänst 6%</field>
             <field name="description">ST6</field>
             <field name="amount">6</field>
@@ -332,7 +332,7 @@
             ]"/>
         </record>
         <record id="purchase_tax_6_goods" model="account.tax.template">
-            <field name="chart_template_id" ref="l10nse_chart_template" />
+            <field name="chart_template_id" ref="l10nse_chart_template"/>
             <field name="name">Ingående moms 6%</field>
             <field name="description">PT6</field>
             <field name="amount">6</field>
@@ -365,7 +365,7 @@
             ]"/>
         </record>
         <record id="purchase_tax_6_services" model="account.tax.template">
-            <field name="chart_template_id" ref="l10nse_chart_template" />
+            <field name="chart_template_id" ref="l10nse_chart_template"/>
             <field name="name">Ingående moms Tjänst 6%</field>
             <field name="description">PT6</field>
             <field name="amount">6</field>
@@ -399,7 +399,7 @@
         </record>
         <!-- Tax template VAT in EC goods -->
         <record id="sale_tax_services_EC" model="account.tax.template">
-            <field name="chart_template_id" ref="l10nse_chart_template" />
+            <field name="chart_template_id" ref="l10nse_chart_template"/>
             <field name="name">Momsfri försäljning av tjänst EU</field>
             <field name="description">SE0</field>
             <field name="amount" eval="0" />
@@ -430,7 +430,7 @@
             ]"/>
         </record>
         <record id="sale_tax_goods_EC" model="account.tax.template">
-            <field name="chart_template_id" ref="l10nse_chart_template" />
+            <field name="chart_template_id" ref="l10nse_chart_template"/>
             <field name="name">Momsfri Försäljning av varor EU</field>
             <field name="description">SE0</field>
             <field name="amount" eval="0" />
@@ -461,7 +461,7 @@
             ]"/>
         </record>
         <record id="purchase_goods_tax_25_EC" model="account.tax.template">
-            <field name="chart_template_id" ref="l10nse_chart_template" />
+            <field name="chart_template_id" ref="l10nse_chart_template"/>
             <field name="name">Inköp av varor EU moms 25%</field>
             <field name="description">PE25</field>
             <field name="amount">25</field>
@@ -505,7 +505,7 @@
             ]"/>
         </record>
         <record id="purchase_goods_tax_12_EC" model="account.tax.template">
-            <field name="chart_template_id" ref="l10nse_chart_template" />
+            <field name="chart_template_id" ref="l10nse_chart_template"/>
             <field name="name">Inköp av varor EU moms 12%</field>
             <field name="description">PE12</field>
             <field name="amount">12</field>
@@ -548,7 +548,7 @@
             ]"/>
         </record>
         <record id="purchase_goods_tax_6_EC" model="account.tax.template">
-            <field name="chart_template_id" ref="l10nse_chart_template" />
+            <field name="chart_template_id" ref="l10nse_chart_template"/>
             <field name="name">Inköp av varor EU moms 6%</field>
             <field name="description">PE6</field>
             <field name="amount">6</field>
@@ -592,7 +592,7 @@
         </record>
         <!-- Tax template VAT in EC services -->
         <record id="purchase_services_tax_25_EC" model="account.tax.template">
-            <field name="chart_template_id" ref="l10nse_chart_template" />
+            <field name="chart_template_id" ref="l10nse_chart_template"/>
             <field name="name">Inköp av tjänst EU moms 25%</field>
             <field name="description">PE25</field>
             <field name="amount">25</field>
@@ -635,7 +635,7 @@
             ]"/>
         </record>
         <record id="purchase_services_tax_12_EC" model="account.tax.template">
-            <field name="chart_template_id" ref="l10nse_chart_template" />
+            <field name="chart_template_id" ref="l10nse_chart_template"/>
             <field name="name">Inköp av tjänst EU moms 12%</field>
             <field name="description">PE12</field>
             <field name="amount">12</field>
@@ -677,7 +677,7 @@
             ]"/>
         </record>
         <record id="purchase_services_tax_6_EC" model="account.tax.template">
-            <field name="chart_template_id" ref="l10nse_chart_template" />
+            <field name="chart_template_id" ref="l10nse_chart_template"/>
             <field name="name">Inköp av tjänst EU moms 6%</field>
             <field name="description">PE6</field>
             <field name="amount">6</field>
@@ -720,7 +720,7 @@
         </record>
         <!-- Tax template VAT Export -->
         <record id="sale_tax_services_NEC" model="account.tax.template">
-            <field name="chart_template_id" ref="l10nse_chart_template" />
+            <field name="chart_template_id" ref="l10nse_chart_template"/>
             <field name="name">Momsfri försäljning av tjänst utanför EU</field>
             <field name="description">SE0</field>
             <field name="amount" eval="0" />
@@ -751,7 +751,7 @@
             ]"/>
         </record>
         <record id="sale_tax_goods_NEC" model="account.tax.template">
-            <field name="chart_template_id" ref="l10nse_chart_template" />
+            <field name="chart_template_id" ref="l10nse_chart_template"/>
             <field name="name">Momsfri försäljning av varor utanför EU</field>
             <field name="description">SE0</field>
             <field name="amount" eval="0" />
@@ -782,7 +782,7 @@
             ]"/>
         </record>
         <record id="purchase_goods_tax_25_NEC" model="account.tax.template">
-            <field name="chart_template_id" ref="l10nse_chart_template" />
+            <field name="chart_template_id" ref="l10nse_chart_template"/>
             <field name="name">Beskattningsunderlag vid import 25%</field>
             <field name="description">PN25</field>
             <field name="amount">25</field>
@@ -825,7 +825,7 @@
             ]"/>
         </record>
         <record id="purchase_goods_tax_12_NEC" model="account.tax.template">
-            <field name="chart_template_id" ref="l10nse_chart_template" />
+            <field name="chart_template_id" ref="l10nse_chart_template"/>
             <field name="name">Beskattningsunderlag vid import 12%</field>
             <field name="description">PN12</field>
             <field name="amount">12</field>
@@ -867,7 +867,7 @@
             ]"/>
         </record>
         <record id="purchase_goods_tax_6_NEC" model="account.tax.template">
-            <field name="chart_template_id" ref="l10nse_chart_template" />
+            <field name="chart_template_id" ref="l10nse_chart_template"/>
             <field name="name">Beskattningsunderlag vid import 6%</field>
             <field name="description">PN6</field>
             <field name="amount">6</field>
@@ -909,7 +909,7 @@
             ]"/>
         </record>
         <record id="purchase_services_tax_25_NEC" model="account.tax.template">
-            <field name="chart_template_id" ref="l10nse_chart_template" />
+            <field name="chart_template_id" ref="l10nse_chart_template"/>
             <field name="name">Inköp av tjänster utanför EU 25%</field>
             <field name="description">PN25</field>
             <field name="amount">25</field>
@@ -952,7 +952,7 @@
             ]"/>
         </record>
         <record id="purchase_services_tax_12_NEC" model="account.tax.template">
-            <field name="chart_template_id" ref="l10nse_chart_template" />
+            <field name="chart_template_id" ref="l10nse_chart_template"/>
             <field name="name">Inköp av tjänster utanför EU 12%</field>
             <field name="description">PN12</field>
             <field name="amount">12</field>
@@ -995,7 +995,7 @@
             ]"/>
         </record>
         <record id="purchase_services_tax_6_NEC" model="account.tax.template">
-            <field name="chart_template_id" ref="l10nse_chart_template" />
+            <field name="chart_template_id" ref="l10nse_chart_template"/>
             <field name="name">Inköp av tjänster utanför EU 6%</field>
             <field name="description">PN6</field>
             <field name="amount">6</field>
