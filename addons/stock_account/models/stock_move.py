@@ -269,7 +269,8 @@ class StockMove(models.Model):
                 continue
             if svl.currency_id.is_zero(svl.value):
                 continue
-            svl.stock_move_id._account_entry_move(svl.quantity, svl.description, svl.id, svl.value)
+            description = svl.stock_move_id.reference + ' - ' + svl.product_id.name if svl.stock_move_id.reference else svl.product_id.name
+            svl.stock_move_id._account_entry_move(svl.quantity, description, svl.id, svl.value)
 
         stock_valuation_layers._check_company()
 
@@ -380,7 +381,7 @@ class StockMove(models.Model):
         # This method returns a dictionary to provide an easy extension hook to modify the valuation lines (see purchase for an example)
         self.ensure_one()
         debit_line_vals = {
-            'name': self.name,
+            'name': self.reference + ' - ' + self.product_id.name if self.reference else self.product_id.name,
             'product_id': self.product_id.id,
             'quantity': qty,
             'product_uom_id': self.product_id.uom_id.id,
@@ -392,7 +393,7 @@ class StockMove(models.Model):
         }
 
         credit_line_vals = {
-            'name': self.name,
+            'name': self.reference + ' - ' + self.product_id.name if self.reference else self.product_id.name,
             'product_id': self.product_id.id,
             'quantity': qty,
             'product_uom_id': self.product_id.uom_id.id,

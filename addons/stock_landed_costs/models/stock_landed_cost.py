@@ -73,6 +73,7 @@ class LandedCost(models.Model):
     vendor_bill_id = fields.Many2one(
         'account.move', 'Vendor Bill', copy=False, domain=[('type', '=', 'in_invoice')])
     currency_id = fields.Many2one('res.currency', related='company_id.currency_id')
+    is_having_svl = fields.Boolean(compute='_compute_is_having_svl', default=False)
 
     @api.depends('cost_lines.price_unit')
     def _compute_total_amount(self):
@@ -266,6 +267,11 @@ class LandedCost(models.Model):
         for key, value in towrite_dict.items():
             AdjustementLines.browse(key).write({'additional_landed_cost': value})
         return True
+
+    @api.depends('stock_valuation_layer_ids')
+    def _compute_is_having_svl(self):
+        for record in self:
+            record.is_having_svl = record.stock_valuation_layer_ids
 
     def action_view_stock_valuation_layers(self):
         self.ensure_one()
