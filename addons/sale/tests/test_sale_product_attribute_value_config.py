@@ -105,17 +105,14 @@ class TestSaleProductAttributeValueConfig(TestSaleProductAttributeValueCommon):
             # Create a dummy SO to prevent the variant from being deleted by
             # _create_variant_ids() because the variant is a related field that
             # is required on the SO line
-            so = self.env['sale.order'].create({'partner_id': 1})
-            self.env['sale.order.line'].create({
-                'order_id': so.id,
-                'name': "test",
-                'product_id': variant.id
-            })
-            # additional variant to test correct ignoring when mismatch values
-            self.env['sale.order.line'].create({
-                'order_id': so.id,
-                'name': "test",
-                'product_id': variant2.id
+            print("%f %f" % (variant.id, variant.uom_id.id))
+            print("%f %f" % (variant2.id, variant2.uom_id.id))
+            so = self.env['sale.order'].create({
+                'partner_id': 1,
+                'order_line': [
+                    (0, 0, {'product_id': variant.id}),
+                    (0, 0, {'product_id': variant2.id}),
+                ]
             })
 
             variant2.active = False
