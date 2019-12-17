@@ -3,7 +3,6 @@ odoo.define('mail.chatter_tests', function (require) {
 
 var mailTestUtils = require('mail.testUtils');
 
-const Chatter = require('mail.Chatter');
 var core = require('web.core');
 var FormView = require('web.FormView');
 var KanbanView = require('web.KanbanView');
@@ -3377,41 +3376,6 @@ QUnit.test('chatter: suggested recipients reflect saved changes', async function
         "Bob",
         "should have the correct modified recipient name");
 
-    form.destroy();
-});
-
-QUnit.test('chatter: log note composer not reflected on saved changes', async function (assert) {
-    assert.expect(0);
-
-    testUtils.mock.patch(Chatter, {
-        _openComposerMessage() {
-            throw new Error("should not be called");
-        },
-    });
-
-    const form = await createView({
-        View: FormView,
-        model: 'partner',
-        res_id: 2,
-        data: this.data,
-        services: this.services,
-        arch: `
-        <form string="Partners">
-            <sheet>
-                <field name="foo"/>
-            </sheet>
-            <div class="oe_chatter">
-                <field name="message_ids" widget="mail_thread" options="{\'display_log_button\': True}"/>
-            </div>
-        </form>`,
-        viewOptions: { mode: 'edit' },
-    });
-
-    await testUtils.dom.click(form.$('.o_chatter_button_log_note'));
-    await testUtils.fields.editInput(form.$('.o_field_char'), 'Bob');
-    await testUtils.dom.click(form.$('.o_form_button_save'));
-
-    testUtils.mock.unpatch(Chatter);
     form.destroy();
 });
 
