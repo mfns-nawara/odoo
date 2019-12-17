@@ -30,10 +30,14 @@ var SlideArchiveDialog = Dialog.extend({
         this.slideId = this.$slideTarget.data('slideId');
         this._super(parent, options);
     },
-    _displayCategoryEmptyFlag: function (categoryID){
-        var categorySlides = $('.o_wslides_slides_list_slide[data-category-id=' + categoryID + ']');
-        if (categorySlides.length === 0){
-            $('.category-empty[data-category-id='+ categoryID +']').removeClass('d-none');
+    _displayCategoryEmptyFlag: function (){
+        var categorySlideList = $(this.$slideTarget.parents()[2]);
+        // I don't see how I can manage to do it without using global selectors.
+        // In master, there is a task that will introduce the concept of a content management widget, which will handle all of that stuff with events.
+        var categoryId = categorySlideList.data('categoryId');
+        var slideList = $('.o_wslides_slide_list[data-category-id='+ categoryId +']').find('.o_wslides_js_list_item');
+        if (slideList.length === 0){
+            $('.category-empty[data-category-id='+ categoryId +']').removeClass('d-none');
         }
     },
     //---------
@@ -53,7 +57,7 @@ var SlideArchiveDialog = Dialog.extend({
                 slide_id: this.slideId
             },
         }).then(function (data) {
-            if (!data.error){
+            if (data){
                 self.$slideTarget.closest('.o_wslides_slides_list_slide').remove();
                 self._displayCategoryEmptyFlag(data.category_id);
             }

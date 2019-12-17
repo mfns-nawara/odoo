@@ -569,7 +569,7 @@ class Channel(models.Model):
 
         return category_data
 
-    def _resequence_slides(self, slide, category_id):
+    def _resequence_slides(self, slide, category_id=None):
         ids_to_resequence = self.slide_ids.ids
         index_of_added_slide = ids_to_resequence.index(slide.id)
         next_category_id = None

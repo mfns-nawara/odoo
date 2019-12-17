@@ -63,16 +63,15 @@ publicWidget.registry.websiteSlidesCourseSlidesList = publicWidget.Widget.extend
         });
     },
     _toggleCategoryEmptyFlag: function (){
-        var categories = $('.o_wslides_slide_list');
-        for (var i = 0; i < categories.length; i++){
-            var categoryID = $(categories[i]).data('categoryId');
-            var categorySlideCount = $(categories[i]).find('.o_wslides_slides_list_slide:not(.o_not_editable)').length;
+        this.$('.o_wslides_slide_list').each(function (){
+            var categoryID = $(this).data('categoryId');
+            var categorySlideCount = $(this).find('.o_wslides_slides_list_slide:not(.o_not_editable)').length;
             if (categorySlideCount === 0){
-                $('.category-empty[data-category-id='+ categoryID +']').removeClass('d-none');
+                this.$('.category-empty[data-category-id='+ categoryID +']').removeClass('d-none');
             } else {
-                $('.category-empty[data-category-id='+ categoryID +']').addClass('d-none');
+                this.$('.category-empty[data-category-id='+ categoryID +']').addClass('d-none');
             }
-        }
+        });
     },
     /**
      * Change links href to fullscreen mode for SEO.
