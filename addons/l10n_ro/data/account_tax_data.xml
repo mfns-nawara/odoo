@@ -977,7 +977,6 @@
         <field name="amount">0</field>
         <field name="amount_type">percent</field>
         <field name="type_tax_use">sale</field>
-        <field name="tax_group_id" ref="tax_group_tva_eu"/>
         <field name="invoice_repartition_line_ids" eval="[(5,0,0),
             (0,0, {
                 'factor_percent': 100,
@@ -1009,7 +1008,6 @@
         <field name="amount">0</field>
         <field name="amount_type">percent</field>
         <field name="type_tax_use">sale</field>
-        <field name="tax_group_id" ref="tax_group_tva_eu"/>
         <field name="invoice_repartition_line_ids" eval="[(5,0,0),
             (0,0, {
                 'factor_percent': 100,

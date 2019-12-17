@@ -9,11 +9,11 @@
 # Copyright (C) 2009 (<http://www.filsystem.ro>)
 
 {
-    "name" : "Romania - Accounting",
-    "author" : "Fekete Mihai (OdooERP Romania SRL)",
+    "name": "Romania - Accounting",
+    "author": "Fekete Mihai (OdooERP Romania SRL)",
     "website": "https://www.odooerpromania.ro",
     'category': 'Localization',
-    "depends" : [
+    "depends": [
         'account',
         'base_vat',
     ],

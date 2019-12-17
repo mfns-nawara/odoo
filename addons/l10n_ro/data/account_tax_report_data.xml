@@ -3,422 +3,20 @@
 
     <record id="tax_report" model="account.tax.report">
         <field name="name">Tax Report</field>
-        <field name="country_id" ref="base.ro"/>
     </record>
 
-    <record id="account_tax_report_baza_tva_clt" model="account.tax.report.line">
-        <field name="name">BAZA TVA COLECTAT</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="1"/>
-    </record>
-
-    <record id="account_tax_report_baza_tva_0" model="account.tax.report.line">
-        <field name="name">Baza TVA 0%</field>
-        <field name="tag_name">Baza TVA 0%</field>
-        <field name="code">ROTAX_TVA_colectata_0_Baza</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="1"/>
-        <field name="parent_id" ref="account_tax_report_baza_tva_clt"/>
-    </record>
-
-    <record id="account_tax_report_baza_tva_19" model="account.tax.report.line">
-        <field name="name">Baza TVA 19%</field>
-        <field name="tag_name">Baza TVA 19%</field>
-        <field name="code">ROTAX_TVA_colectata_19_Baza</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="2"/>
-        <field name="parent_id" ref="account_tax_report_baza_tva_clt"/>
-    </record>
-
-    <record id="account_tax_report_baza_tva_24" model="account.tax.report.line">
-        <field name="name">Baza TVA 24%</field>
-        <field name="tag_name">Baza TVA 24%</field>
-        <field name="code">ROTAX_TVA_colectata_24_Baza</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="3"/>
-        <field name="parent_id" ref="account_tax_report_baza_tva_clt"/>
-    </record>
-
-    <record id="account_tax_report_baza_tva_5" model="account.tax.report.line">
-        <field name="name">Baza TVA 5%</field>
-        <field name="tag_name">Baza TVA 5%</field>
-        <field name="code">ROTAX_TVA_colectata_5_Baza</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="4"/>
-        <field name="parent_id" ref="account_tax_report_baza_tva_clt"/>
-    </record>
-
-    <record id="account_tax_report_baza_tva_9" model="account.tax.report.line">
-        <field name="name">Baza TVA 9%</field>
-        <field name="tag_name">Baza TVA 9%</field>
-        <field name="code">ROTAX_TVA_colectata_9_Baza</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="5"/>
-        <field name="parent_id" ref="account_tax_report_baza_tva_clt"/>
-    </record>
-
-    <record id="account_tax_report_baza_tva_intrcmtr_bnr" model="account.tax.report.line">
-        <field name="name">Baza TVA Intracomunitar Bunuri</field>
-        <field name="tag_name">Baza TVA Intracomunitar Bunuri</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="6"/>
-        <field name="parent_id" ref="account_tax_report_baza_tva_clt"/>
-    </record>
-
-    <record id="account_tax_report_baza_tva_intrcmtr_srvci" model="account.tax.report.line">
-        <field name="name">Baza TVA Intracomunitar Servicii</field>
-        <field name="tag_name">Baza TVA Intracomunitar Servicii</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="7"/>
-        <field name="parent_id" ref="account_tax_report_baza_tva_clt"/>
-    </record>
-
-    <record id="account_tax_report_baza_tva_tx_invrsa" model="account.tax.report.line">
-        <field name="name">Baza TVA Taxare Inversa</field>
-        <field name="tag_name">Baza TVA Taxare Inversa</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="8"/>
-        <field name="parent_id" ref="account_tax_report_baza_tva_clt"/>
-    </record>
-
-    <record id="account_tax_report_tva_colcta" model="account.tax.report.line">
-        <field name="name">TVA COLECTATA</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="2"/>
-    </record>
-
-    <record id="account_tax_report_tva_0" model="account.tax.report.line">
-        <field name="name">TVA 0%</field>
-        <field name="tag_name">TVA 0% (TVA colectata)</field>
-        <field name="code">ROTAX_TVA_colectata_0</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="1"/>
-        <field name="parent_id" ref="account_tax_report_tva_colcta"/>
-    </record>
-
-    <record id="account_tax_report_tva_19" model="account.tax.report.line">
-        <field name="name">TVA 19%</field>
-        <field name="tag_name">TVA 19% (TVA colectata)</field>
-        <field name="code">ROTAX_TVA_colectata_19</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="2"/>
-        <field name="parent_id" ref="account_tax_report_tva_colcta"/>
-    </record>
-
-    <record id="account_tax_report_tva_24" model="account.tax.report.line">
-        <field name="name">TVA 24%</field>
-        <field name="tag_name">TVA 24% (TVA colectata)</field>
-        <field name="code">ROTAX_TVA_colectata_24</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="3"/>
-        <field name="parent_id" ref="account_tax_report_tva_colcta"/>
-    </record>
-
-    <record id="account_tax_report_tva_5" model="account.tax.report.line">
-        <field name="name">TVA 5%</field>
-        <field name="tag_name">TVA 5% (TVA colectata)</field>
-        <field name="code">ROTAX_TVA_colectata_5</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="4"/>
-        <field name="parent_id" ref="account_tax_report_tva_colcta"/>
-    </record>
-
-    <record id="account_tax_report_tva_9" model="account.tax.report.line">
-        <field name="name">TVA 9%</field>
-        <field name="tag_name">TVA 9% (TVA colectata)</field>
-        <field name="code">ROTAX_TVA_colectata_9</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="5"/>
-        <field name="parent_id" ref="account_tax_report_tva_colcta"/>
-    </record>
-
-    <record id="account_tax_report_tva_intracmunitr_bunri" model="account.tax.report.line">
-        <field name="name">TVA Intracomunitar Bunuri (TVA colectata)</field>
-        <field name="tag_name">TVA Intracomunitar Bunuri (TVA colectata)</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="6"/>
-        <field name="parent_id" ref="account_tax_report_tva_colcta"/>
-    </record>
-
-    <record id="account_tax_report_tva_intra_srvci" model="account.tax.report.line">
-        <field name="name">TVA Intracomunitar Servicii (TVA colectata)</field>
-        <field name="tag_name">TVA Intracomunitar Servicii (TVA colectata)</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="7"/>
-        <field name="parent_id" ref="account_tax_report_tva_colcta"/>
-    </record>
-
-    <record id="account_tax_report_tva_tx_invrsa" model="account.tax.report.line">
-        <field name="name">TVA Taxare Inversa (TVA colectata)</field>
-        <field name="tag_name">TVA Taxare Inversa (TVA colectata)</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="8"/>
-        <field name="parent_id" ref="account_tax_report_tva_colcta"/>
-    </record>
-
-    <record id="account_tax_report_baza_tva_deducbl" model="account.tax.report.line">
-        <field name="name">BAZA TVA DEDUCTIBILA</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="3"/>
-    </record>
-
-    <record id="account_tax_report_baza_tva_deducbl_0" model="account.tax.report.line">
-        <field name="name">Baza TVA 0%</field>
-        <field name="tag_name">Baza TVA 0% (deductibila)</field>
-        <field name="code">ROTAX_TVA_deductibila_0_Baza</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="1"/>
-        <field name="parent_id" ref="account_tax_report_baza_tva_deducbl"/>
-    </record>
-
-    <record id="account_tax_report_baza_tva_deducbl_19" model="account.tax.report.line">
-        <field name="name">Baza TVA 19%</field>
-        <field name="tag_name">Baza TVA 19% (deductibila)</field>
-        <field name="code">ROTAX_TVA_deductibila_19_Baza</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="2"/>
-        <field name="parent_id" ref="account_tax_report_baza_tva_deducbl"/>
-    </record>
-
-    <record id="account_tax_report_baza_tva_deducbl_24" model="account.tax.report.line">
-        <field name="name">Baza TVA 24%</field>
-        <field name="tag_name">Baza TVA 24% (deductibila)</field>
-        <field name="code">ROTAX_TVA_deductibila_24_Baza</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="3"/>
-        <field name="parent_id" ref="account_tax_report_baza_tva_deducbl"/>
-    </record>
-
-    <record id="account_tax_report_baza_tva_deducbl_5" model="account.tax.report.line">
-        <field name="name">Baza TVA 5%</field>
-        <field name="tag_name">Baza TVA 5% (deductibila)</field>
-        <field name="code">ROTAX_TVA_deductibila_5_Baza</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="4"/>
-        <field name="parent_id" ref="account_tax_report_baza_tva_deducbl"/>
-    </record>
-
-    <record id="account_tax_report_baza_tva_deducbl_9" model="account.tax.report.line">
-        <field name="name">Baza TVA 9%</field>
-        <field name="tag_name">Baza TVA 9% (deductibila)</field>
-        <field name="code">ROTAX_TVA_deductibila_9_Baza</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="5"/>
-        <field name="parent_id" ref="account_tax_report_baza_tva_deducbl"/>
-    </record>
-
-    <record id="account_tax_report_ro_baza_tva_intracmunitr_bnuri" model="account.tax.report.line">
-        <field name="name">Baza TVA Intracomunitar Bunuri (deductibila)</field>
-        <field name="tag_name">Baza TVA Intracomunitar Bunuri (deductibila)</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="6"/>
-        <field name="parent_id" ref="account_tax_report_baza_tva_deducbl"/>
-    </record>
-
-    <record id="account_tax_report_ro_baza_tva_intracmunitr_srvci" model="account.tax.report.line">
-        <field name="name">Baza TVA Intracomunitar Servicii (deductibila)</field>
-        <field name="tag_name">Baza TVA Intracomunitar Servicii (deductibila)</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="7"/>
-        <field name="parent_id" ref="account_tax_report_baza_tva_deducbl"/>
-    </record>
-
-    <record id="account_tax_report_ro_baza_tva_tx_invrsa" model="account.tax.report.line">
-        <field name="name">Baza TVA Taxare Inversa (deductibila)</field>
-        <field name="tag_name">Baza TVA Taxare Inversa (deductibila)</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="8"/>
-        <field name="parent_id" ref="account_tax_report_baza_tva_deducbl"/>
-    </record>
-
-    <record id="account_tax_report_ro_tva_decucible" model="account.tax.report.line">
-        <field name="name">TVA DEDUCTIBILA</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="4"/>
-    </record>
-
-    <record id="account_tax_report_ro_tva_decucible_0" model="account.tax.report.line">
-        <field name="name">TVA 0%</field>
-        <field name="tag_name">TVA 0%</field>
-        <field name="code">ROTAX_TVA_deductibila_0</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="1"/>
-        <field name="parent_id" ref="account_tax_report_ro_tva_decucible"/>
-    </record>
-
-    <record id="account_tax_report_ro_tva_decucible_19" model="account.tax.report.line">
-        <field name="name">TVA 19% (deductibila)</field>
-        <field name="tag_name">TVA 19% (deductibila)</field>
-        <field name="code">ROTAX_TVA_deductibila_19</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="2"/>
-        <field name="parent_id" ref="account_tax_report_ro_tva_decucible"/>
-    </record>
-
-    <record id="account_tax_report_ro_tva_decucible_24" model="account.tax.report.line">
-        <field name="name">TVA 24% (deductibila)</field>
-        <field name="tag_name">TVA 24% (deductibila)</field>
-        <field name="code">ROTAX_TVA_deductibila_24</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="3"/>
-        <field name="parent_id" ref="account_tax_report_ro_tva_decucible"/>
-    </record>
-
-    <record id="account_tax_report_ro_tva_decucible_5" model="account.tax.report.line">
-        <field name="name">TVA 5% (deductibila)</field>
-        <field name="tag_name">TVA 5% (deductibila)</field>
-        <field name="code">ROTAX_TVA_deductibila_5</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="4"/>
-        <field name="parent_id" ref="account_tax_report_ro_tva_decucible"/>
-    </record>
-
-    <record id="account_tax_report_ro_tva_decucible_9" model="account.tax.report.line">
-        <field name="name">TVA 9% (deductibila)</field>
-        <field name="tag_name">TVA 9% (deductibila)</field>
-        <field name="code">ROTAX_TVA_deductibila_9</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="5"/>
-        <field name="parent_id" ref="account_tax_report_ro_tva_decucible"/>
-    </record>
-
-    <record id="account_tax_report_ro_tva_intracmunitr_bunri" model="account.tax.report.line">
-        <field name="name">TVA Intracomunitar Bunuri (deductibila)</field>
-        <field name="tag_name">TVA Intracomunitar Bunuri (deductibila)</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="6"/>
-        <field name="parent_id" ref="account_tax_report_ro_tva_decucible"/>
-    </record>
-
-    <record id="account_tax_report_ro_tva_intracmunitr_srvci" model="account.tax.report.line">
-        <field name="name">TVA Intracomunitar Servicii (deductibila)</field>
-        <field name="tag_name">TVA Intracomunitar Servicii (deductibila)</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="7"/>
-        <field name="parent_id" ref="account_tax_report_ro_tva_decucible"/>
-    </record>
-
-    <record id="account_tax_report_ro_tva_tx_invrsa" model="account.tax.report.line">
-        <field name="name">TVA Taxare Inversa (deductibila)</field>
-        <field name="tag_name">TVA Taxare Inversa (deductibila)</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="8"/>
-        <field name="parent_id" ref="account_tax_report_ro_tva_decucible"/>
-    </record>
-
-    <record id="account_tax_report_ro_baza_tva_nxgibl" model="account.tax.report.line">
-        <field name="name">BAZA TVA NEEXIGIBILA</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="5"/>
-    </record>
-
-    <record id="account_tax_report_ro_baza_tva_nxgibl_colcta" model="account.tax.report.line">
-        <field name="name">Baza TVA Neexigibil Colectat</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="1"/>
-        <field name="parent_id" ref="account_tax_report_ro_baza_tva_nxgibl"/>
-    </record>
-
-    <record id="account_tax_report_ro_baza_tva_nxgibl_deducble" model="account.tax.report.line">
-        <field name="name">Baza TVA Neexigibil Deductibil</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="2"/>
-        <field name="parent_id" ref="account_tax_report_ro_baza_tva_nxgibl"/>
-    </record>
-
-    <record id="account_tax_report_ro_tva_nxgibl" model="account.tax.report.line">
-        <field name="name">TVA NEEXIGIBILA</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="6"/>
-    </record>
-
-    <record id="account_tax_report_ro_tva_nxgibl_colcta" model="account.tax.report.line">
-        <field name="name">TVA Neexigibil Colectat</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="1"/>
-        <field name="parent_id" ref="account_tax_report_ro_tva_nxgibl"/>
-    </record>
-
-    <record id="account_tax_report_ro_tva_nxgibl_deducble" model="account.tax.report.line">
-        <field name="name">TVA Neexigibil Deductibil</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="2"/>
-        <field name="parent_id" ref="account_tax_report_ro_tva_nxgibl"/>
-    </record>
-
-    <record id="account_tax_report_ro_baza_tva_tx_invrs" model="account.tax.report.line">
-        <field name="name">BAZA TVA TAXARE INVERSA</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="7"/>
-    </record>
-
-    <record id="account_tax_report_ro_baza_tva_tx1_invrs" model="account.tax.report.line">
-        <field name="name">Baza TVA Taxare inversa</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="1"/>
-        <field name="parent_id" ref="account_tax_report_ro_baza_tva_tx_invrs"/>
-    </record>
-
-    <record id="account_tax_report_ro_baza_tva_tx_scutita" model="account.tax.report.line">
-        <field name="name">BAZA TVA TAXARE SCUTITA</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="8"/>
-    </record>
-
-    <record id="account_tax_report_ro_baza_tva_tx_scutita_achizt" model="account.tax.report.line">
-        <field name="name">Baza TVA Taxare Scutita - Achizitii</field>
-        <field name="tag_name">Baza TVA Taxare Scutita - Achizitii</field>
-        <field name="code">ROTAX_Baza_TVA_Taxare_Scutita_Achizitii</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="1"/>
-        <field name="parent_id" ref="account_tax_report_ro_baza_tva_tx_scutita"/>
-    </record>
-
-    <record id="account_tax_report_ro_baza_tva_tx_scutita_vnzari" model="account.tax.report.line">
-        <field name="name">Baza TVA Taxare Scutita - Vanzari</field>
-        <field name="tag_name">Baza TVA Taxare Scutita - Vanzari</field>
-        <field name="code">ROTAX_Baza_TVA_Taxare_Scutita_Vanzari</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="2"/>
-        <field name="parent_id" ref="account_tax_report_ro_baza_tva_tx_scutita"/>
-    </record>
-
-    <record id="account_tax_report_ro_baza_tva_tx_intracmutr_nempzbl" model="account.tax.report.line">
-        <field name="name">BAZA TVA TAXARE INTRACOMUNITARA NEIMPOZABILA</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="9"/>
-    </record>
-
-    <record id="account_tax_report_ro_baza_tva_tx_intracmutr_nempzbl_achzti" model="account.tax.report.line">
-        <field name="name">Baza TVA Taxare intracomunitara neimpozabila - Achizitii</field>
-        <field name="tag_name">Baza TVA Taxare intracomunitara neimpozabila - Achizitii</field>
-        <field name="code">ROTAX_Baza_TVA_Taxare_intracomunitara_neimpozabila_Achizitii</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="1"/>
-        <field name="parent_id" ref="account_tax_report_ro_baza_tva_tx_intracmutr_nempzbl"/>
-    </record>
-
-    <record id="account_tax_report_ro_baza_tva_tx_intracmutr_nempzbl_vnzari" model="account.tax.report.line">
-        <field name="name">Baza TVA Taxare intracomunitara neimpozabila - Vanzari</field>
-        <field name="tag_name">Baza TVA Taxare intracomunitara neimpozabila - Vanzari</field>
-        <field name="code">ROTAX_Baza_TVA_Taxare_intracomunitara_neimpozabila_Vanzari</field>
-        <field name="report_id" ref="tax_report"/>
-        <field name="sequence" eval="2"/>
-        <field name="parent_id" ref="account_tax_report_ro_baza_tva_tx_intracmutr_nempzbl"/>
-    </record>
-
-    <record id="account_tax_report_ro_baza_intracom_eu" model="account.tax.report.line">
+<record id="account_tax_report_ro_baza_intracom_eu" model="account.tax.report.line">
         <field name="name">Baza COMERŢ INTRACOMUNITAR ŞI ÎN AFARA UE</field>
         <field name="code">tax_ro_baza_intracom_eu</field>
         <field name="sequence" eval="0"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_intracom_eu" model="account.tax.report.line">
         <field name="name">TVA COMERŢ INTRACOMUNITAR ŞI ÎN AFARA UE</field>
         <field name="code">tax_ro_tva_intracom_eu</field>
         <field name="sequence" eval="1"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd1" model="account.tax.report.line">
@@ -427,7 +25,7 @@
         <field name="code">tax_ro_baza_rd1</field>
         <field name="sequence" eval="2"/>
         <field name="parent_id" ref="account_tax_report_ro_baza_intracom_eu"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd2" model="account.tax.report.line">
@@ -436,7 +34,7 @@
         <field name="code">tax_ro_baza_rd2</field>
         <field name="sequence" eval="3"/>
         <field name="parent_id" ref="account_tax_report_ro_baza_intracom_eu"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd3" model="account.tax.report.line">
@@ -445,7 +43,7 @@
         <field name="code">tax_ro_baza_rd3</field>
         <field name="sequence" eval="4"/>
         <field name="parent_id" ref="account_tax_report_ro_baza_intracom_eu"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd31" model="account.tax.report.line">
@@ -454,7 +52,7 @@
         <field name="code">tax_ro_baza_rd31</field>
         <field name="sequence" eval="5"/>
         <field name="parent_id" ref="account_tax_report_ro_baza_rd3"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd4" model="account.tax.report.line">
@@ -463,7 +61,7 @@
         <field name="code">tax_ro_baza_rd4</field>
         <field name="sequence" eval="6"/>
         <field name="parent_id" ref="account_tax_report_ro_baza_intracom_eu"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd5" model="account.tax.report.line">
@@ -472,7 +70,7 @@
         <field name="code">tax_ro_baza_rd5</field>
         <field name="sequence" eval="7"/>
         <field name="parent_id" ref="account_tax_report_ro_baza_intracom_eu"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_rd5" model="account.tax.report.line">
@@ -481,7 +79,7 @@
         <field name="code">tax_ro_tva_rd5</field>
         <field name="sequence" eval="8"/>
         <field name="parent_id" ref="account_tax_report_ro_tva_intracom_eu"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd51" model="account.tax.report.line">
@@ -490,7 +88,7 @@
         <field name="code">tax_ro_baza_rd51</field>
         <field name="sequence" eval="9"/>
         <field name="parent_id" ref="account_tax_report_ro_baza_rd5"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_rd51" model="account.tax.report.line">
@@ -499,7 +97,7 @@
         <field name="code">tax_ro_tva_rd51</field>
         <field name="sequence" eval="10"/>
         <field name="parent_id" ref="account_tax_report_ro_tva_rd5"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd6" model="account.tax.report.line">
@@ -508,7 +106,7 @@
         <field name="code">tax_ro_baza_rd6</field>
         <field name="sequence" eval="11"/>
         <field name="parent_id" ref="account_tax_report_ro_baza_intracom_eu"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_rd6" model="account.tax.report.line">
@@ -517,7 +115,7 @@
         <field name="code">tax_ro_tva_rd6</field>
         <field name="sequence" eval="12"/>
         <field name="parent_id" ref="account_tax_report_ro_tva_intracom_eu"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd7" model="account.tax.report.line">
@@ -526,7 +124,7 @@
         <field name="code">tax_ro_baza_rd7</field>
         <field name="sequence" eval="13"/>
         <field name="parent_id" ref="account_tax_report_ro_baza_intracom_eu"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_rd7" model="account.tax.report.line">
@@ -535,7 +133,7 @@
         <field name="code">tax_ro_tva_rd7</field>
         <field name="sequence" eval="14"/>
         <field name="parent_id" ref="account_tax_report_ro_tva_intracom_eu"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd71" model="account.tax.report.line">
@@ -544,7 +142,7 @@
         <field name="code">tax_ro_baza_rd71</field>
         <field name="sequence" eval="15"/>
         <field name="parent_id" ref="account_tax_report_ro_baza_rd7"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_rd71" model="account.tax.report.line">
@@ -553,7 +151,7 @@
         <field name="code">tax_ro_tva_rd71</field>
         <field name="sequence" eval="16"/>
         <field name="parent_id" ref="account_tax_report_ro_tva_rd7"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd8" model="account.tax.report.line">
@@ -562,7 +160,7 @@
         <field name="code">tax_ro_baza_rd8</field>
         <field name="sequence" eval="17"/>
         <field name="parent_id" ref="account_tax_report_ro_baza_intracom_eu"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_rd8" model="account.tax.report.line">
@@ -571,21 +169,21 @@
         <field name="code">tax_ro_tva_rd8</field>
         <field name="sequence" eval="18"/>
         <field name="parent_id" ref="account_tax_report_ro_tva_intracom_eu"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_livrari" model="account.tax.report.line">
         <field name="name">BAZA LIVRĂRI DE BUNURI/ PRESTĂRI DE SERVICII ÎN INTERIORUL ŢĂRII ŞI EXPORTURI</field>
         <field name="code">tax_ro_baza_livrari</field>
         <field name="sequence" eval="19"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_livrari" model="account.tax.report.line">
         <field name="name">TVA LIVRĂRI DE BUNURI/ PRESTĂRI DE SERVICII ÎN INTERIORUL ŢĂRII ŞI EXPORTURI</field>
         <field name="code">tax_ro_tva_livrari</field>
         <field name="sequence" eval="20"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd9" model="account.tax.report.line">
@@ -594,7 +192,7 @@
         <field name="code">tax_ro_baza_rd9</field>
         <field name="sequence" eval="21"/>
         <field name="parent_id" ref="account_tax_report_ro_baza_livrari"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_rd9" model="account.tax.report.line">
@@ -603,7 +201,7 @@
         <field name="code">tax_ro_tva_rd9</field>
         <field name="sequence" eval="22"/>
         <field name="parent_id" ref="account_tax_report_ro_tva_livrari"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd91" model="account.tax.report.line">
@@ -612,7 +210,7 @@
         <field name="code">tax_ro_baza_rd91</field>
         <field name="sequence" eval="23"/>
         <field name="parent_id" ref="account_tax_report_ro_baza_rd9"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_rd91" model="account.tax.report.line">
@@ -621,7 +219,7 @@
         <field name="code">tax_ro_tva_rd91</field>
         <field name="sequence" eval="24"/>
         <field name="parent_id" ref="account_tax_report_ro_tva_rd9"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd92" model="account.tax.report.line">
@@ -630,7 +228,7 @@
         <field name="sequence" eval="25"/>
         <field name="parent_id" ref="account_tax_report_ro_baza_rd9"/>
         <field name="formula">0.5 * tax_ro_baza_rd222</field>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_rd92" model="account.tax.report.line">
@@ -639,7 +237,7 @@
         <field name="code">tax_ro_tva_rd92</field>
         <field name="sequence" eval="26"/>
         <field name="parent_id" ref="account_tax_report_ro_tva_rd9"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd10" model="account.tax.report.line">
@@ -648,7 +246,7 @@
         <field name="code">tax_ro_baza_rd10</field>
         <field name="sequence" eval="27"/>
         <field name="parent_id" ref="account_tax_report_ro_baza_livrari"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_rd10" model="account.tax.report.line">
@@ -657,7 +255,7 @@
         <field name="code">tax_ro_tva_rd10</field>
         <field name="sequence" eval="28"/>
         <field name="parent_id" ref="account_tax_report_ro_tva_livrari"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd101" model="account.tax.report.line">
@@ -666,7 +264,7 @@
         <field name="code">tax_ro_baza_rd101</field>
         <field name="sequence" eval="29"/>
         <field name="parent_id" ref="account_tax_report_ro_baza_rd10"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_rd101" model="account.tax.report.line">
@@ -675,7 +273,7 @@
         <field name="code">tax_ro_tva_rd101</field>
         <field name="sequence" eval="30"/>
         <field name="parent_id" ref="account_tax_report_ro_tva_rd10"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd102" model="account.tax.report.line">
@@ -684,7 +282,7 @@
         <field name="sequence" eval="31"/>
         <field name="formula">0.5 * tax_ro_baza_rd232</field>
         <field name="parent_id" ref="account_tax_report_ro_baza_rd10"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_rd102" model="account.tax.report.line">
@@ -693,7 +291,7 @@
         <field name="code">tax_ro_tva_rd102</field>
         <field name="sequence" eval="32"/>
         <field name="parent_id" ref="account_tax_report_ro_tva_rd10"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd11" model="account.tax.report.line">
@@ -702,7 +300,7 @@
         <field name="code">tax_ro_baza_rd11</field>
         <field name="sequence" eval="33"/>
         <field name="parent_id" ref="account_tax_report_ro_baza_livrari"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_rd11" model="account.tax.report.line">
@@ -711,7 +309,7 @@
         <field name="code">tax_ro_tva_rd11</field>
         <field name="sequence" eval="34"/>
         <field name="parent_id" ref="account_tax_report_ro_tva_livrari"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd111" model="account.tax.report.line">
@@ -720,7 +318,7 @@
         <field name="code">tax_ro_baza_rd111</field>
         <field name="sequence" eval="35"/>
         <field name="parent_id" ref="account_tax_report_ro_baza_rd11"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_rd111" model="account.tax.report.line">
@@ -729,7 +327,7 @@
         <field name="code">tax_ro_tva_rd111</field>
         <field name="sequence" eval="36"/>
         <field name="parent_id" ref="account_tax_report_ro_tva_rd11"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd112" model="account.tax.report.line">
@@ -738,7 +336,7 @@
         <field name="sequence" eval="37"/>
         <field name="formula">0.5 * tax_ro_baza_rd242</field>
         <field name="parent_id" ref="account_tax_report_ro_baza_rd11"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_rd112" model="account.tax.report.line">
@@ -747,7 +345,7 @@
         <field name="code">tax_ro_tva_rd112</field>
         <field name="sequence" eval="38"/>
         <field name="parent_id" ref="account_tax_report_ro_tva_rd11"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd12" model="account.tax.report.line">
@@ -755,7 +353,7 @@
         <field name="code">tax_ro_baza_rd12</field>
         <field name="sequence" eval="39"/>
         <field name="parent_id" ref="account_tax_report_ro_baza_livrari"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_rd12" model="account.tax.report.line">
@@ -763,7 +361,7 @@
         <field name="code">tax_ro_tva_rd12</field>
         <field name="sequence" eval="40"/>
         <field name="parent_id" ref="account_tax_report_ro_tva_livrari"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd121" model="account.tax.report.line">
@@ -772,7 +370,7 @@
         <field name="code">tax_ro_baza_rd121</field>
         <field name="sequence" eval="41"/>
         <field name="parent_id" ref="account_tax_report_ro_baza_rd12"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_rd121" model="account.tax.report.line">
@@ -781,7 +379,7 @@
         <field name="code">tax_ro_tva_rd121</field>
         <field name="sequence" eval="42"/>
         <field name="parent_id" ref="account_tax_report_ro_tva_rd12"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd122" model="account.tax.report.line">
@@ -790,7 +388,7 @@
         <field name="code">tax_ro_baza_rd122</field>
         <field name="sequence" eval="43"/>
         <field name="parent_id" ref="account_tax_report_ro_baza_rd12"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_rd122" model="account.tax.report.line">
@@ -799,7 +397,7 @@
         <field name="code">tax_ro_tva_rd122</field>
         <field name="sequence" eval="44"/>
         <field name="parent_id" ref="account_tax_report_ro_tva_rd12"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd123" model="account.tax.report.line">
@@ -808,7 +406,7 @@
         <field name="code">tax_ro_baza_rd123</field>
         <field name="sequence" eval="45"/>
         <field name="parent_id" ref="account_tax_report_ro_baza_rd12"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_rd123" model="account.tax.report.line">
@@ -817,7 +415,7 @@
         <field name="code">tax_ro_tva_rd123</field>
         <field name="sequence" eval="46"/>
         <field name="parent_id" ref="account_tax_report_ro_tva_rd12"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd13" model="account.tax.report.line">
@@ -826,7 +424,7 @@
         <field name="code">tax_ro_baza_rd13</field>
         <field name="sequence" eval="47"/>
         <field name="parent_id" ref="account_tax_report_ro_baza_livrari"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd14" model="account.tax.report.line">
@@ -835,7 +433,7 @@
         <field name="code">tax_ro_baza_rd14</field>
         <field name="sequence" eval="48"/>
         <field name="parent_id" ref="account_tax_report_ro_baza_livrari"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd15" model="account.tax.report.line">
@@ -844,7 +442,7 @@
         <field name="code">tax_ro_baza_rd15</field>
         <field name="sequence" eval="49"/>
         <field name="parent_id" ref="account_tax_report_ro_baza_livrari"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd16" model="account.tax.report.line">
@@ -853,7 +451,7 @@
         <field name="code">tax_ro_baza_rd16</field>
         <field name="sequence" eval="50"/>
         <field name="parent_id" ref="account_tax_report_ro_baza_livrari"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_rd16" model="account.tax.report.line">
@@ -862,7 +460,7 @@
         <field name="code">tax_ro_tva_rd16</field>
         <field name="sequence" eval="51"/>
         <field name="parent_id" ref="account_tax_report_ro_tva_livrari"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_col" model="account.tax.report.line">
@@ -870,7 +468,7 @@
         <field name="code">total_tax_ro_baza_col</field>
         <field name="sequence" eval="52"/>
         <field name="formula">tax_ro_baza_intracom_eu + tax_ro_baza_livrari</field>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_col" model="account.tax.report.line">
@@ -878,21 +476,21 @@
         <field name="code">total_tax_ro_tva_col</field>
         <field name="sequence" eval="53"/>
         <field name="formula">tax_ro_tva_intracom_eu + tax_ro_tva_livrari</field>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_intracom_eu_achiz" model="account.tax.report.line">
         <field name="name">BAZA ACHIZIŢII INTRACOMUNITARE DE BUNURI ŞI ALTE ACHIZIŢII DE BUNURI ŞI SERVICII IMPOZABILE ÎN ROMÂNIA</field>
         <field name="code">tax_ro_baza_intracom_eu_a</field>
         <field name="sequence" eval="54"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_intracom_eu_achiz" model="account.tax.report.line">
         <field name="name">TVA ACHIZIŢII INTRACOMUNITARE DE BUNURI ŞI ALTE ACHIZIŢII DE BUNURI ŞI SERVICII IMPOZABILE ÎN ROMÂNIA</field>
         <field name="code">tax_ro_tva_intracom_eu_a</field>
         <field name="sequence" eval="55"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd18" model="account.tax.report.line">
@@ -901,7 +499,7 @@
         <field name="code">tax_ro_baza_rd18</field>
         <field name="sequence" eval="56"/>
         <field name="parent_id" ref="account_tax_report_ro_baza_intracom_eu_achiz"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_rd18" model="account.tax.report.line">
@@ -910,7 +508,7 @@
         <field name="code">tax_ro_tva_rd18</field>
         <field name="sequence" eval="57"/>
         <field name="parent_id" ref="account_tax_report_ro_tva_intracom_eu_achiz"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd181" model="account.tax.report.line">
@@ -919,7 +517,7 @@
         <field name="code">tax_ro_baza_rd181</field>
         <field name="sequence" eval="58"/>
         <field name="parent_id" ref="account_tax_report_ro_baza_rd18"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_rd181" model="account.tax.report.line">
@@ -928,7 +526,7 @@
         <field name="code">tax_ro_tva_rd181</field>
         <field name="sequence" eval="59"/>
         <field name="parent_id" ref="account_tax_report_ro_tva_rd18"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd19" model="account.tax.report.line">
@@ -937,7 +535,7 @@
         <field name="code">tax_ro_baza_rd19</field>
         <field name="sequence" eval="60"/>
         <field name="parent_id" ref="account_tax_report_ro_baza_intracom_eu_achiz"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_rd19" model="account.tax.report.line">
@@ -946,7 +544,7 @@
         <field name="code">tax_ro_tva_rd19</field>
         <field name="sequence" eval="61"/>
         <field name="parent_id" ref="account_tax_report_ro_tva_intracom_eu_achiz"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd20" model="account.tax.report.line">
@@ -955,7 +553,7 @@
         <field name="code">tax_ro_baza_rd20</field>
         <field name="sequence" eval="62"/>
         <field name="parent_id" ref="account_tax_report_ro_baza_intracom_eu_achiz"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_rd20" model="account.tax.report.line">
@@ -964,7 +562,7 @@
         <field name="code">tax_ro_tva_rd20</field>
         <field name="sequence" eval="63"/>
         <field name="parent_id" ref="account_tax_report_ro_tva_intracom_eu_achiz"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd201" model="account.tax.report.line">
@@ -973,7 +571,7 @@
         <field name="code">tax_ro_baza_rd201</field>
         <field name="sequence" eval="64"/>
         <field name="parent_id" ref="account_tax_report_ro_baza_rd20"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_rd201" model="account.tax.report.line">
@@ -982,7 +580,7 @@
         <field name="code">tax_ro_tva_rd201</field>
         <field name="sequence" eval="65"/>
         <field name="parent_id" ref="account_tax_report_ro_tva_rd20"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd21" model="account.tax.report.line">
@@ -991,7 +589,7 @@
         <field name="code">tax_ro_baza_rd21</field>
         <field name="sequence" eval="66"/>
         <field name="parent_id" ref="account_tax_report_ro_baza_intracom_eu_achiz"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_rd21" model="account.tax.report.line">
@@ -1000,21 +598,21 @@
         <field name="code">tax_ro_tva_rd21</field>
         <field name="sequence" eval="67"/>
         <field name="parent_id" ref="account_tax_report_ro_tva_intracom_eu_achiz"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_achiz" model="account.tax.report.line">
         <field name="name">BAZA ACHIZIŢII DE BUNURI/ SERVICII ÎN INTERIORUL ŢĂRII ŞI IMPORTURI, ACHIZIŢII INTRACOMUNITARE, SCUTITE SAU NEIMPOZABILE</field>
         <field name="code">tax_ro_baza_achiz</field>
         <field name="sequence" eval="68"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_achiz" model="account.tax.report.line">
         <field name="name">TVA ACHIZIŢII DE BUNURI/ SERVICII ÎN INTERIORUL ŢĂRII ŞI IMPORTURI, ACHIZIŢII INTRACOMUNITARE, SCUTITE SAU NEIMPOZABILE</field>
         <field name="code">tax_ro_tva_achiz</field>
         <field name="sequence" eval="69"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd22" model="account.tax.report.line">
@@ -1023,7 +621,7 @@
         <field name="code">tax_ro_baza_rd22</field>
         <field name="sequence" eval="70"/>
         <field name="parent_id" ref="account_tax_report_ro_baza_achiz"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_rd22" model="account.tax.report.line">
@@ -1032,7 +630,7 @@
         <field name="code">tax_ro_tva_rd22</field>
         <field name="sequence" eval="71"/>
         <field name="parent_id" ref="account_tax_report_ro_tva_achiz"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd221" model="account.tax.report.line">
@@ -1041,7 +639,7 @@
         <field name="code">tax_ro_baza_rd221</field>
         <field name="sequence" eval="72"/>
         <field name="parent_id" ref="account_tax_report_ro_baza_rd22"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_rd221" model="account.tax.report.line">
@@ -1050,7 +648,7 @@
         <field name="code">tax_ro_tva_rd221</field>
         <field name="sequence" eval="73"/>
         <field name="parent_id" ref="account_tax_report_ro_tva_rd22"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd222" model="account.tax.report.line">
@@ -1059,7 +657,7 @@
         <field name="code">tax_ro_baza_rd222</field>
         <field name="sequence" eval="74"/>
         <field name="parent_id" ref="account_tax_report_ro_baza_rd22"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_rd222" model="account.tax.report.line">
@@ -1068,7 +666,7 @@
         <field name="code">tax_ro_tva_rd222</field>
         <field name="sequence" eval="75"/>
         <field name="parent_id" ref="account_tax_report_ro_tva_rd22"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd23" model="account.tax.report.line">
@@ -1077,7 +675,7 @@
         <field name="code">tax_ro_baza_rd23</field>
         <field name="sequence" eval="76"/>
         <field name="parent_id" ref="account_tax_report_ro_baza_achiz"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_rd23" model="account.tax.report.line">
@@ -1086,7 +684,7 @@
         <field name="code">tax_ro_tva_rd23</field>
         <field name="sequence" eval="77"/>
         <field name="parent_id" ref="account_tax_report_ro_tva_achiz"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd231" model="account.tax.report.line">
@@ -1095,7 +693,7 @@
         <field name="code">tax_ro_baza_rd231</field>
         <field name="sequence" eval="78"/>
         <field name="parent_id" ref="account_tax_report_ro_baza_rd23"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_rd231" model="account.tax.report.line">
@@ -1104,7 +702,7 @@
         <field name="code">tax_ro_tva_rd231</field>
         <field name="sequence" eval="79"/>
         <field name="parent_id" ref="account_tax_report_ro_tva_rd23"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd232" model="account.tax.report.line">
@@ -1113,7 +711,7 @@
         <field name="code">tax_ro_baza_rd232</field>
         <field name="sequence" eval="80"/>
         <field name="parent_id" ref="account_tax_report_ro_baza_rd23"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_rd232" model="account.tax.report.line">
@@ -1122,7 +720,7 @@
         <field name="code">tax_ro_tva_rd232</field>
         <field name="sequence" eval="81"/>
         <field name="parent_id" ref="account_tax_report_ro_tva_rd23"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd24" model="account.tax.report.line">
@@ -1131,7 +729,7 @@
         <field name="code">tax_ro_baza_rd24</field>
         <field name="sequence" eval="82"/>
         <field name="parent_id" ref="account_tax_report_ro_baza_achiz"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_rd24" model="account.tax.report.line">
@@ -1140,7 +738,7 @@
         <field name="code">tax_ro_tva_rd24</field>
         <field name="sequence" eval="83"/>
         <field name="parent_id" ref="account_tax_report_ro_tva_achiz"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd241" model="account.tax.report.line">
@@ -1149,7 +747,7 @@
         <field name="code">tax_ro_baza_rd241</field>
         <field name="sequence" eval="84"/>
         <field name="parent_id" ref="account_tax_report_ro_baza_rd24"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_rd241" model="account.tax.report.line">
@@ -1158,7 +756,7 @@
         <field name="code">tax_ro_tva_rd241</field>
         <field name="sequence" eval="85"/>
         <field name="parent_id" ref="account_tax_report_ro_tva_rd24"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd242" model="account.tax.report.line">
@@ -1167,7 +765,7 @@
         <field name="code">tax_ro_baza_rd242</field>
         <field name="sequence" eval="86"/>
         <field name="parent_id" ref="account_tax_report_ro_baza_rd24"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_rd242" model="account.tax.report.line">
@@ -1176,7 +774,7 @@
         <field name="code">tax_ro_tva_rd242</field>
         <field name="sequence" eval="87"/>
         <field name="parent_id" ref="account_tax_report_ro_tva_rd24"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd25" model="account.tax.report.line">
@@ -1185,7 +783,7 @@
         <field name="code">tax_ro_baza_rd25</field>
         <field name="sequence" eval="88"/>
         <field name="parent_id" ref="account_tax_report_ro_baza_achiz"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_rd25" model="account.tax.report.line">
@@ -1194,7 +792,7 @@
         <field name="code">tax_ro_tva_rd25</field>
         <field name="sequence" eval="89"/>
         <field name="parent_id" ref="account_tax_report_ro_tva_achiz"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd251" model="account.tax.report.line">
@@ -1203,7 +801,7 @@
         <field name="code">tax_ro_baza_rd251</field>
         <field name="sequence" eval="90"/>
         <field name="parent_id" ref="account_tax_report_ro_baza_rd25"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_rd251" model="account.tax.report.line">
@@ -1212,7 +810,7 @@
         <field name="code">tax_ro_tva_rd251</field>
         <field name="sequence" eval="91"/>
         <field name="parent_id" ref="account_tax_report_ro_tva_rd25"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd252" model="account.tax.report.line">
@@ -1221,7 +819,7 @@
         <field name="code">tax_ro_baza_rd252</field>
         <field name="sequence" eval="92"/>
         <field name="parent_id" ref="account_tax_report_ro_baza_rd25"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_rd252" model="account.tax.report.line">
@@ -1230,7 +828,7 @@
         <field name="code">tax_ro_tva_rd252</field>
         <field name="sequence" eval="93"/>
         <field name="parent_id" ref="account_tax_report_ro_tva_rd25"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd253" model="account.tax.report.line">
@@ -1239,7 +837,7 @@
         <field name="code">tax_ro_baza_rd253</field>
         <field name="sequence" eval="94"/>
         <field name="parent_id" ref="account_tax_report_ro_baza_rd25"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_rd253" model="account.tax.report.line">
@@ -1248,7 +846,7 @@
         <field name="code">tax_ro_tva_rd253</field>
         <field name="sequence" eval="95"/>
         <field name="parent_id" ref="account_tax_report_ro_tva_rd25"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_rd26" model="account.tax.report.line">
@@ -1257,7 +855,7 @@
         <field name="code">tax_ro_tva_rd26</field>
         <field name="sequence" eval="96"/>
         <field name="parent_id" ref="account_tax_report_ro_tva_achiz"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_rd27" model="account.tax.report.line">
@@ -1266,7 +864,7 @@
         <field name="code">tax_ro_tva_rd27</field>
         <field name="sequence" eval="97"/>
         <field name="parent_id" ref="account_tax_report_ro_tva_achiz"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd28" model="account.tax.report.line">
@@ -1275,7 +873,7 @@
         <field name="code">tax_ro_baza_rd28</field>
         <field name="sequence" eval="98"/>
         <field name="parent_id" ref="account_tax_report_ro_baza_achiz"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd281" model="account.tax.report.line">
@@ -1284,7 +882,7 @@
         <field name="code">tax_ro_baza_rd281</field>
         <field name="sequence" eval="99"/>
         <field name="parent_id" ref="account_tax_report_ro_baza_rd28"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd29" model="account.tax.report.line">
@@ -1292,7 +890,7 @@
         <field name="code">tax_ro_baza_rd29</field>
         <field name="sequence" eval="100"/>
         <field name="formula">tax_ro_baza_intracom_eu_a + tax_ro_baza_achiz</field>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_rd29" model="account.tax.report.line">
@@ -1300,7 +898,7 @@
         <field name="code">tax_ro_tva_rd29</field>
         <field name="sequence" eval="101"/>
         <field name="formula">tax_ro_tva_intracom_eu_a + tax_ro_tva_achiz</field>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_rd30" model="account.tax.report.line">
@@ -1308,7 +906,7 @@
         <field name="code">tax_ro_tva_rd30</field>
         <field name="formula">tax_ro_tva_intracom_eu_a + tax_ro_tva_achiz</field>
         <field name="sequence" eval="102"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_rd31" model="account.tax.report.line">
@@ -1316,7 +914,7 @@
         <field name="tag_name">31 - TVA - TVA efectiv restituită cumpărătorilor straini, inclusiv comisionul unităţilor autorizate</field>
         <field name="code">tax_ro_tva_rd31</field>
         <field name="sequence" eval="103"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_baza_rd32" model="account.tax.report.line">
@@ -1324,7 +922,7 @@
         <field name="tag_name">32 - BAZA - Regularizări taxă dedusă</field>
         <field name="code">tax_ro_baza_rd32</field>
         <field name="sequence" eval="104"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_rd32" model="account.tax.report.line">
@@ -1332,7 +930,7 @@
         <field name="tag_name">32 - TVA - Regularizări taxă dedusă</field>
         <field name="code">tax_ro_tva_rd32</field>
         <field name="sequence" eval="105"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_rd33" model="account.tax.report.line">
@@ -1340,7 +938,7 @@
         <field name="tag_name">33 - TVA - Ajustări conform pro-rata / ajustări pentru bunurile de capital</field>
         <field name="code">tax_ro_tva_rd33</field>
         <field name="sequence" eval="106"/>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
     <record id="account_tax_report_ro_tva_rd34" model="account.tax.report.line">
@@ -1348,7 +946,7 @@
         <field name="code">tax_ro_tva_rd34</field>
         <field name="sequence" eval="107"/>
         <field name="formula">tax_ro_tva_intracom_eu_a + tax_ro_tva_achiz + tax_ro_tva_rd31 + tax_ro_tva_rd32 + tax_ro_tva_rd33</field>
-        <field name="country_id" ref="base.ro"/>
+        <field name="report_id" ref="tax_report"/>
     </record>
 
 </odoo>
