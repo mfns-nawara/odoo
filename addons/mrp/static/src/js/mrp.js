@@ -254,3 +254,32 @@ field_registry
 
 return FieldEmbedURLViewer;
 });
+
+
+odoo.define('mrp.mrp_workorder_popover', function (require) {
+'use strict';
+
+const Widget = require('web.Widget');
+const widget_registry = require('web.widget_registry');
+
+const MrpWorkorderPopoverWidget = Widget.extend({
+    tagName: 'div',
+
+    init: function (parent, params) {
+        this.color = params.data.popover_information.color;
+        this.message = params.data.popover_information.message;
+        this._super(parent);
+    },
+
+    start: function() {
+        var self = this;
+        return this._super.apply(this, arguments).then(function () {
+            self.$el.text(self.message);
+            self.$el.css({'background-color': self.color});
+        });
+    },
+});
+
+widget_registry.add('mrp_workorder_popover', MrpWorkorderPopoverWidget)
+return MrpWorkorderPopoverWidget;
+});

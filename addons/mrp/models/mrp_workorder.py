@@ -238,6 +238,14 @@ class MrpWorkorder(models.Model):
     def name_get(self):
         return [(wo.id, "%s - %s - %s" % (wo.production_id.name, wo.product_id.name, wo.name)) for wo in self]
 
+    def read(self, fields, load='_classic_read'):
+        res = super().read(fields, load=load)
+        if self.env.context.get('include_popover_information'):
+            popover_information = self._get_popover_information()
+            for rec in res:
+                rec['popover_information'] = popover_information[rec['id']]
+        return res
+
     def unlink(self):
         # Removes references to workorder to avoid Validation Error
         (self.mapped('move_raw_ids') | self.mapped('move_finished_ids')).write({'workorder_id': False})
@@ -660,6 +668,12 @@ class MrpWorkorder(models.Model):
     def _compute_qty_remaining(self):
         for wo in self:
             wo.qty_remaining = float_round(wo.qty_production - wo.qty_produced, precision_rounding=wo.production_id.product_uom_id.rounding)
+
+    def _get_popover_information(self):
+        res = {}
+        for workorder in self:
+            res[workorder.id] = {'color': 'red', 'message': 'coucou'}
+        return res
 
 
 class MrpWorkorderLine(models.Model):

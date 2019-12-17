@@ -20,6 +20,12 @@
         </rng:element>
     </rng:define>
 
+    <rng:define name="widget">
+        <rng:element name="widget">
+            <rng:attribute name="name"/>
+        </rng:element>
+    </rng:define>
+
     <rng:define name="tree">
         <rng:element name="tree">
             <rng:ref name="overload"/>
@@ -72,6 +78,7 @@
                     <rng:ref name="tree"/>
                     <rng:ref name="groupby"/>
                     <rng:ref name="button"/>
+                    <rng:ref name="widget"/>
                     <rng:ref name="filter"/>
                     <rng:ref name="html"/>
                     <rng:element name="newline"><rng:empty/></rng:element>
