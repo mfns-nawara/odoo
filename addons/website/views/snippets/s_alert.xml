@@ -2,7 +2,7 @@
 <odoo>
 
 <template id="s_alert" name="Alert">
-    <div class="s_alert s_alert_md alert-delta w-100 clearfix">
+    <div class="s_alert s_alert_md alert-info w-100 clearfix">
         <i class="fa fa-2x fa-info-circle s_alert_icon"/>
         <div class="s_alert_content">
             <p>Explain the benefits you offer. <br/>Don't write about products or services here, write about solutions.</p>
@@ -12,18 +12,23 @@
 
 <template id="s_alert_options" inherit_id="website.snippet_options">
     <xpath expr="." position="inside">
-        <div data-selector=".s_alert">
+        <div data-selector=".s_alert" data-js="Alert">
             <we-colorpicker string="Color"
                 data-select-style="true"
                 data-css-property="background-color"
                 data-color-prefix="alert-"/>
-        </div>
-
-        <div data-selector=".s_alert">
             <we-select string="Size">
                 <we-button data-select-class="s_alert_sm">Small</we-button>
                 <we-button data-select-class="s_alert_md">Medium</we-button>
                 <we-button data-select-class="s_alert_lg">Large</we-button>
+            </we-select>
+            <we-select string="Type" data-apply-to=".fa">
+                <we-button data-select-class="fa-user-circle" data-select-type="alert-primary">Primary</we-button>
+                <we-button data-select-class="fa-user-circle-o" data-select-type="alert-secondary">Secondary</we-button>
+                <we-button data-select-class="fa-info-circle" data-select-type="alert-info">Info</we-button>
+                <we-button data-select-class="fa-check-circle" data-select-type="alert-success">Success</we-button>
+                <we-button data-select-class="fa-exclamation-triangle" data-select-type="alert-warning">Warning</we-button>
+                <we-button data-select-class="fa-exclamation-circle" data-select-type="alert-danger">Danger</we-button>
             </we-select>
         </div>
     </xpath>
