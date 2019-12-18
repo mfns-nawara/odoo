@@ -1,0 +1,17 @@
+
+.s_rating[data-vcss="001"] {
+    &.s_rating_1x { .fa { font-size: 1em; }; }
+    &.s_rating_2x { .fa { font-size: 2em; }; }
+    &.s_rating_3x { .fa { font-size: 3em; }; }
+    &.s_rating_inline {
+        display: flex;
+        align-items: center;
+
+        .s_rating_title {
+            margin: 0;
+        }
+        .s_rating_icons {
+            margin-left: auto;
+        }
+    }
+}
