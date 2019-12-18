@@ -199,6 +199,11 @@ font[class*='bg-'] {
         border-top-left-radius: $size;
         border-bottom-right-radius: $size;
     }
+    &.rounded-circle-empty {
+        @extend .rounded-circle;
+        border: 2px solid #dddddd;
+        background: transparent;
+    }
 }
 
 // Buttons
