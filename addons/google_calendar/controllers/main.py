@@ -40,6 +40,7 @@ class GoogleCalendarController(http.Controller):
                 }
 
             # If App authorized, and user access accepted, We launch the synchronization
+            print('coucouc biloute')
             return GoogleCal.with_context(context).synchronize_events()
 
         return {"status": "success"}

@@ -400,9 +400,9 @@ class GoogleCalendar(models.AbstractModel):
 
         _originalStartTime = dict()
         if event_new.allday:
-            _originalStartTime['date'] = event_new.recurrent_id_date.strftime("%Y-%m-%d")
+            _originalStartTime['date'] = event_new.recurrence_id.dtstart.strftime("%Y-%m-%d")
         else:
-            _originalStartTime['dateTime'] = event_new.recurrent_id_date.strftime("%Y-%m-%dT%H:%M:%S.%fz")
+            _originalStartTime['dateTime'] = event_new.recurrence_id.dtstart.strftime("%Y-%m-%dT%H:%M:%S.%fz")
 
         data.update(
             recurringEventId=event_ori_google_id,
@@ -423,7 +423,7 @@ class GoogleCalendar(models.AbstractModel):
             attendees = self.env['calendar.attendee'].sudo().search([('google_internal_event_id', '=ilike', '%s\_%%' % event.GG.event['id'])])
             excluded_recurrent_event_ids = set(attendee.event_id for attendee in attendees)
             for event in excluded_recurrent_event_ids:
-                event.write({'recurrent_id': meeting.id, 'recurrent_id_date': event.start, 'user_id': meeting.user_id.id})
+                event.write({'recurrence_id': meeting.recurrence_id.id, 'user_id': meeting.user_id.id})
         return event
 
     def update_from_google(self, event, single_event_dict, type):
@@ -527,6 +527,7 @@ class GoogleCalendar(models.AbstractModel):
             result['recurrency'] = True
             res = CalendarEvent.browse([event['id']]).write(result)
         elif type == "create":
+            print(result)
             res = CalendarEvent.create(result).id
 
         if self.env.context.get('curr_attendee'):
@@ -597,7 +598,7 @@ class GoogleCalendar(models.AbstractModel):
         new_ids = []
         new_ids += recs.create_new_events()
         new_ids += recs.bind_recurring_events_to_google()
-
+        print('oupdate')
         res = recs.update_events(lastSync)
 
         current_user.write({'google_calendar_last_sync_date': ask_time})
@@ -617,8 +618,8 @@ class GoogleCalendar(models.AbstractModel):
         my_attendees = self.env['calendar.attendee'].with_context(virtual_id=False).search([('partner_id', '=', my_partner_id),
             ('google_internal_event_id', '=', False),
             '|',
-            ('event_id.stop', '>', fields.Datetime.to_string(self.get_minTime())),
-            ('event_id.final_date', '>', fields.Datetime.to_string(self.get_minTime())),
+            ('event_id.stop', '>', self.get_minTime()),
+            ('event_id.recurrence_id.until', '>', self.get_minTime()),
         ])
         for att in my_attendees:
             other_google_ids = [other_att.google_internal_event_id for other_att in att.event_id.attendee_ids if
@@ -628,7 +629,7 @@ class GoogleCalendar(models.AbstractModel):
                     att.write({'google_internal_event_id': other_google_id})
                     break
             else:
-                if not att.event_id.recurrent_id or att.event_id.recurrent_id == 0:
+                if not att.event_id.recurrence_id:
                     status, response, ask_time = self.create_an_event(att.event_id)
                     if status_response(status):
                         update_date = datetime.strptime(response['updated'], "%Y-%m-%dT%H:%M:%S.%fz")
@@ -645,20 +646,25 @@ class GoogleCalendar(models.AbstractModel):
         """ get the current context modified to prevent virtual ids and active test. """
         return dict(self.env.context, virtual_id=False, active_test=False)
 
+    from odoo.tools.profiler import profile
+
+    @profile
     def bind_recurring_events_to_google(self):
         new_ids = []
         CalendarAttendee = self.env['calendar.attendee']
         my_partner_id = self.env.user.partner_id.id
         context_norecurrent = self.get_context_no_virtual()
         my_attendees = CalendarAttendee.with_context(context_norecurrent).search([('partner_id', '=', my_partner_id), ('google_internal_event_id', '=', False)])
+        my_attendees = my_attendees[:100]
         for att in my_attendees:
+            print(att)
             new_google_internal_event_id = False
-            source_event_record = self.env['calendar.event'].browse(att.event_id.recurrent_id)
+            source_event_record = att.event_id.recurrence_id.first_event_id
             source_attendee_record = CalendarAttendee.search([('partner_id', '=', my_partner_id), ('event_id', '=', source_event_record.id)], limit=1)
             if not source_attendee_record:
                 continue
 
-            recurrent_id_date = fields.Datetime.to_string(att.event_id.recurrent_id_date)
+            recurrent_id_date = fields.Datetime.to_string(att.event_id.recurrence_id.dtstart)
             if recurrent_id_date and source_event_record.allday and source_attendee_record.google_internal_event_id:
                 new_google_internal_event_id = source_attendee_record.google_internal_event_id + '_' + recurrent_id_date.split(' ')[0].replace('-', '')
             elif recurrent_id_date and source_attendee_record.google_internal_event_id:
@@ -667,6 +673,7 @@ class GoogleCalendar(models.AbstractModel):
             if new_google_internal_event_id:
                 #TODO WARNING, NEED TO CHECK THAT EVENT and ALL instance NOT DELETE IN GMAIL BEFORE !
                 try:
+                    # this sends an http request => very slow
                     status, response, ask_time = self.update_recurrent_event_exclu(new_google_internal_event_id, source_attendee_record.google_internal_event_id, att.event_id)
                     if status_response(status):
                         att.write({'google_internal_event_id': new_google_internal_event_id})
@@ -735,8 +742,8 @@ class GoogleCalendar(models.AbstractModel):
                 ('partner_id', '=', my_partner_id),
                 ('google_internal_event_id', '!=', False),
                 '|',
-                ('event_id.stop', '>', fields.Datetime.to_string(self.get_minTime())),
-                ('event_id.final_date', '>', fields.Datetime.to_string(self.get_minTime())),
+                ('event_id.stop', '>', self.get_minTime()),
+                ('event_id.recurrence_id.until', '>', self.get_minTime()),
             ]
 
             # Select all events from Odoo which have been already synchronized in gmail
@@ -762,7 +769,7 @@ class GoogleCalendar(models.AbstractModel):
             ev_to_sync.OE.found = True
             ev_to_sync.OE.event_id = event.id
             ev_to_sync.OE.isRecurrence = event.recurrency
-            ev_to_sync.OE.isInstance = bool(event.recurrent_id and event.recurrent_id > 0)
+            ev_to_sync.OE.isInstance = event.recurrence_id.first_event_id != event
             ev_to_sync.OE.update = event.oe_update_date
             ev_to_sync.OE.status = event.active
             ev_to_sync.OE.synchro = att.oe_synchro_date
@@ -825,43 +832,45 @@ class GoogleCalendar(models.AbstractModel):
                         recs.update_from_google(event.OE.event, event.GG.event, 'write')
                     elif actSrc == 'OE':
                         recs.update_to_google(event.OE.event, event.GG.event)
-                elif isinstance(actToDo, Exclude):
-                    if actSrc == 'OE':
-                        recs.delete_an_event(current_event[0])
-                    elif actSrc == 'GG':
-                        new_google_event_id = event.GG.event['id'].rsplit('_', 1)[1]
-                        parent_oe = event_to_synchronize[base_event][0][1].OE.event
-                        if 'T' in new_google_event_id:
-                            new_google_event_id = new_google_event_id.replace('T', '')[:-1]
-                        else:
-                            #allday event, need to match the changes that will be applied with _inverse_dates otherwise the exclusion will not occur
-                            if parent_oe:
-                                new_google_event_id = new_google_event_id + parent_oe.start.strftime("%H%M%S")
-                            else:
-                                new_google_event_id = new_google_event_id + "000000"
+                # elif isinstance(actToDo, Exclude):
+                #     if actSrc == 'OE':
+                #         recs.delete_an_event(current_event[0])
+                #     elif actSrc == 'GG':
+                #         # How am I supposed to pige a broc of this?
+                #         new_google_event_id = event.GG.event['id'].rsplit('_', 1)[1]
+                #         import pdb; pdb.set_trace()
+                #         parent_oe = event_to_synchronize[base_event][0][1].OE.event
+                #         if 'T' in new_google_event_id:
+                #             new_google_event_id = new_google_event_id.replace('T', '')[:-1]
+                #         else:
+                #             #allday event, need to match the changes that will be applied with _inverse_dates otherwise the exclusion will not occur
+                #             if parent_oe:
+                #                 new_google_event_id = new_google_event_id + parent_oe.start.strftime("%H%M%S")
+                #             else:
+                #                 new_google_event_id = new_google_event_id + "000000"
 
-                        if event.GG.status:
-                            parent_event = {}
-                            if not event_to_synchronize[base_event][0][1].OE.event_id:
-                                main_ev = CalendarAttendee.with_context(context_novirtual).search([('google_internal_event_id', '=', event.GG.event['id'].rsplit('_', 1)[0])], limit=1)
-                                event_to_synchronize[base_event][0][1].OE.event_id = main_ev.event_id.id
+                #         if event.GG.status:
+                #             parent_event = {}
+                #             if not event_to_synchronize[base_event][0][1].OE.event_id:
+                #                 main_ev = CalendarAttendee.with_context(context_novirtual).search([('google_internal_event_id', '=', event.GG.event['id'].rsplit('_', 1)[0])], limit=1)
+                #                 event_to_synchronize[base_event][0][1].OE.event_id = main_ev.event_id.id
 
-                            if event_to_synchronize[base_event][0][1].OE.event_id:
-                                parent_event['id'] = "%s-%s" % (event_to_synchronize[base_event][0][1].OE.event_id, new_google_event_id)
-                                res = recs.update_from_google(parent_event, event.GG.event, "copy")
-                            else:
-                                recs.create_from_google(event, my_partner_id)
-                        else:
-                            if parent_oe:
-                                CalendarEvent.browse("%s-%s" % (parent_oe.id, new_google_event_id)).with_context(curr_attendee=event.OE.attendee_id).unlink(can_be_deleted=True)
-                            else:
-                                main_att = CalendarAttendee.with_context(context_novirtual).search([('partner_id', '=', my_partner_id), ('google_internal_event_id', '=', event.GG.event['id'].rsplit('_', 1)[0])], limit=1)
-                                if main_att:
-                                    excluded_event_id = str(main_att.event_id.id) + '-' + new_google_event_id
+                #             if event_to_synchronize[base_event][0][1].OE.event_id:
+                #                 parent_event['id'] = "%s-%s" % (event_to_synchronize[base_event][0][1].OE.event_id, new_google_event_id)
+                #                 res = recs.update_from_google(parent_event, event.GG.event, "copy")
+                #             else:
+                #                 recs.create_from_google(event, my_partner_id)
+                #         else:
+                #             if parent_oe:
+                #                 CalendarEvent.browse("%s-%s" % (parent_oe.id, new_google_event_id)).with_context(curr_attendee=event.OE.attendee_id).unlink(can_be_deleted=True)
+                #             else:
+                #                 main_att = CalendarAttendee.with_context(context_novirtual).search([('partner_id', '=', my_partner_id), ('google_internal_event_id', '=', event.GG.event['id'].rsplit('_', 1)[0])], limit=1)
+                #                 if main_att:
+                #                     excluded_event_id = str(main_att.event_id.id) + '-' + new_google_event_id
 
-                                    CalendarEvent.browse(excluded_event_id).with_context(google_internal_event_id=event.GG.event.get('id'), oe_update_date=False).unlink(can_be_deleted=False)
-                                else:
-                                    _logger.warning("Could not create the correct exclusion for event")
+                #                     CalendarEvent.browse(excluded_event_id).with_context(google_internal_event_id=event.GG.event.get('id'), oe_update_date=False).unlink(can_be_deleted=False)
+                #                 else:
+                #                     _logger.warning("Could not create the correct exclusion for event")
 
                 elif isinstance(actToDo, Delete):
                     if actSrc == 'GG':
