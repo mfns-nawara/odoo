@@ -411,5 +411,19 @@
         data-target="> .container, > .container-fluid">
         <we-checkbox string="Stretch" data-select-class="container|container-fluid" data-no-preview="true"/>
     </div>
+    
+    <!-- Scroll to next section button -->
+    <div data-js="ScrollButton"
+        data-selector="section">
+        <we-row string="Scroll down button" class="o_we_inline o_scroll_button_opt">
+            <we-colorpicker
+                data-select-style="true"
+                data-css-property="color"
+                data-color-prefix="text-"
+                data-apply-to=".o_scroll_button"
+                data-dependencies="scroll_button_opt"/>
+            <we-checkbox data-toggle-button="true" data-no-preview="true" data-name="scroll_button_opt"/>
+        </we-row>
+    </div>
 </template>
 </odoo>

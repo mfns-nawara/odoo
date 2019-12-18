@@ -892,6 +892,20 @@ registry.anchorSlide = publicWidget.Widget.extend({
     },
 
     //--------------------------------------------------------------------------
+    // Private
+    //--------------------------------------------------------------------------
+
+    /**
+     * @private
+     * @param {jQuery} $el the element to scroll to.
+     */
+    _scrollTo: function ($el) {
+        $('html, body').animate({
+            scrollTop: $el.offset().top,
+        }, 500);
+    },
+
+    //--------------------------------------------------------------------------
     // Handlers
     //--------------------------------------------------------------------------
 
@@ -911,9 +925,21 @@ registry.anchorSlide = publicWidget.Widget.extend({
             return;
         }
         ev.preventDefault();
-        $('html, body').animate({
-            scrollTop: $anchor.offset().top,
-        }, 500);
+        this._scrollTo($anchor);
+    },
+});
+
+registry.ScrollButton = registry.anchorSlide.extend({
+    selector: '.o_scroll_button',
+
+    /**
+     * @override
+     */
+    _onAnimateClick: function (ev) {
+        const $nextSection = this.$el.closest('section').next('section');
+        if ($nextSection.length) {
+            this._scrollTo($nextSection);
+        }
     },
 });
 

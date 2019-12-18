@@ -1297,6 +1297,45 @@ const UrlPickerUserValueWidget = InputUserValueWidget.extend({
     },
 });
 
+options.registry.ScrollButton = options.Class.extend({
+    //--------------------------------------------------------------------------
+    // Options
+    //--------------------------------------------------------------------------
+
+    /**
+     * Toggles the scroll down button.
+     */
+    toggleButton: function (previewMode, widgetValue, params) {
+        this.$button = this.$button || this.$target.find('.o_scroll_button');
+        if (widgetValue) {
+            if (!this.$button.length) {
+                const button = document.createElement('button');
+                button.classList.add('o_scroll_button', 'fa', 'fa-angle-down');
+                button.title = _t("Scroll down to next section");
+                this.$button = $(button);
+            }
+            this.$target.append(this.$button);
+        } else {
+            this.$button.detach();
+        }
+    },
+
+    //--------------------------------------------------------------------------
+    // Private
+    //--------------------------------------------------------------------------
+
+    /**
+     * @override
+     */
+    _computeWidgetState: function (methodName, params) {
+        switch (methodName) {
+            case 'toggleButton':
+                return !!this.$target.find('.o_scroll_button').length;
+        }
+        return this._super(...arguments);
+    },
+});
+
 options.userValueWidgetsRegistry['we-urlpicker'] = UrlPickerUserValueWidget;
 return {
     UrlPickerUserValueWidget: UrlPickerUserValueWidget,

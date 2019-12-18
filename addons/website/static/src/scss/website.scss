@@ -221,6 +221,25 @@ font[class*='bg-'] {
     }
 }
 
+// Allows absolutely positioned elements (including scroll button)
+section {
+    position: relative;
+}
+
+// Sroll to next section button
+.o_scroll_button {
+    background: none;
+    border: none;
+    width: 100%;
+    position: absolute !important;
+    bottom: 0;
+    text-align: center;
+    font-size: 3em;
+    &:focus {
+        outline: none;
+    }
+}
+
 // Blockquotes
 .blockquote {
     font-size: 1rem;
