@@ -68,6 +68,8 @@ class Alias(models.Model):
              "- everyone: everyone can post\n"
              "- partners: only authenticated partners\n"
              "- followers: only followers of the related document or members of following channels\n")
+    alias_bounced_content = fields.Html("Bounced Mail Content", translate=True,
+                                        help="Mail content received by a unauthorized sender using this alias.")
 
     _sql_constraints = [
         ('alias_unique', 'UNIQUE(alias_name)', 'Unfortunately this email alias is already used, please choose a unique one')
