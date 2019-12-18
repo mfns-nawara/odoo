@@ -12,13 +12,4 @@
     .s_hr_double { border-top-style: double; }
     .s_hr_dotted { border-top-style: dotted; }
     .s_hr_solid  { border-top-style: solid;  }
-    // Thickness
-    $count: 5;
-    $base-width: 1px;
-    @while $count > 0 {
-        .s_hr_#{$base-width * $count} {
-            border-top-width: $base-width * $count;
-        }
-        $count: $count - 1;
-    }
 }

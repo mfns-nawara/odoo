@@ -15,11 +15,8 @@
                 data-css-property="border-color"
                 data-color-prefix="border-"
                 data-excluded="transparent_grayscale"/>
-            <we-select string="Thickness">
-                <t t-foreach="range(1,6)" t-as="s_hr_thickness">
-                    <we-button t-attf-data-select-class="s_hr_{{s_hr_thickness}}px"><t t-esc="s_hr_thickness"/>px</we-button>
-                </t>
-            </we-select>
+            <we-input string="Thickness" class="o_we_inline" data-unit="px"
+                      data-select-style="1px" data-css-property="border-top-width"/>
             <we-select string="Style">
                 <we-button data-select-class="s_hr_solid">Solid</we-button>
                 <we-button data-select-class="s_hr_dashed">Dashed</we-button>
