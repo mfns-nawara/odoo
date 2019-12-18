@@ -1158,7 +1158,7 @@ class AccountTaxGroup(models.Model):
 class AccountTax(models.Model):
     _name = 'account.tax'
     _description = 'Tax'
-    _order = 'sequence,id'
+    _order = 'active desc, sequence,id'
 
     @api.model
     def _default_tax_group(self):
