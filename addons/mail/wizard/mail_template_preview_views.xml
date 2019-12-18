@@ -30,6 +30,7 @@
                     </div>
                     <group>
                         <field name="subject"/>
+                        <field name="author_id" attrs="{'invisible':[('author_id','=', False)]}"/>
                         <field name="email_from" attrs="{'invisible':[('email_from','=', False)]}"/>
                         <field name="partner_ids" widget="many2many_tags" attrs="{'invisible':[('partner_ids', '=', [])]}"/>
                         <field name="email_to" attrs="{'invisible':[('email_to','=', False)]}"/>

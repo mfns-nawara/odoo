@@ -8,7 +8,7 @@ from odoo.exceptions import UserError
 class MailTemplatePreview(models.TransientModel):
     _name = 'mail.template.preview'
     _description = 'Email Template Preview'
-    _MAIL_TEMPLATE_FIELDS = ['subject', 'body_html', 'email_from', 'email_to',
+    _MAIL_TEMPLATE_FIELDS = ['subject', 'author_id', 'body_html', 'email_from', 'email_to',
                              'email_cc', 'reply_to', 'scheduled_date', 'attachment_ids']
 
     @api.model
@@ -38,6 +38,7 @@ class MailTemplatePreview(models.TransientModel):
     error_msg = fields.Char('Error Message', readonly=True)
     # Fields same than the mail.template model, computed with resource_ref and lang
     subject = fields.Char('Subject', compute='_compute_mail_template_fields')
+    author_id = fields.Char('Author', compute='_compute_mail_template_fields')
     email_from = fields.Char('From', compute='_compute_mail_template_fields', help="Sender address")
     email_to = fields.Char('To', compute='_compute_mail_template_fields',
                            help="Comma-separated recipient addresses")
