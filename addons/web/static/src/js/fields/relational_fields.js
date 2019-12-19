@@ -1194,6 +1194,15 @@ var FieldX2Many = AbstractField.extend({
         if (!this.view) {
             return this._super();
         }
+        if(this.attrs.options){
+            this.trigger_up('eval_field_options', {
+                options: this.attrs.options,
+                record: this.record,
+                callback: function (result) {
+                    this.evalOptions = result;
+                }});
+            }
+
         if (this.renderer) {
             this.currentColInvisibleFields = this._evalColumnInvisibleFields();
             return this.renderer.updateState(this.value, {

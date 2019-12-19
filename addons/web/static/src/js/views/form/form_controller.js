@@ -20,6 +20,7 @@ var FormController = BasicController.extend({
         toggle_column_order: '_onToggleColumnOrder',
         focus_control_button: '_onFocusControlButton',
         form_dialog_discarded: '_onFormDialogDiscarded',
+        eval_field_options: '_evalFieldOptions'
     }),
     /**
      * @override
@@ -409,6 +410,15 @@ var FormController = BasicController.extend({
     _enableButtons: function () {
         this._super.apply(this, arguments);
         this.renderer.enableButtons();
+    },
+
+    _evalFieldOptions: function(ev) {
+        var options = ev.data.options;
+        var element = this.model.localData[ev.data.record.id];
+        var evalOptions = this.model._evalOptions(element,options)
+        if (ev.data.callback) {
+            ev.data.callback(evalOptions);
+        }
     },
     /**
      * Only display the pager if we are not on a new record.

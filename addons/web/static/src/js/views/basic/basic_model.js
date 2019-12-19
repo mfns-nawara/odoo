@@ -2217,6 +2217,35 @@ var BasicModel = AbstractModel.extend({
         return result;
     },
     /**
+     * Evaluate options
+     *
+     * @private
+     * @param {Object} element a valid element object, which will serve as eval
+     *   context.
+     * @param {Object} options
+     * @returns {Object}
+     */
+    _evalOptions: function (element, options) {
+        var result = {};
+        var self = this;
+        var evalContext;
+        function evalOptions(mod) {
+            if (mod === undefined || mod === false || mod === true) {
+                return !!mod;
+            }
+            evalContext = evalContext || self._getEvalContext(element);
+            return new Domain(mod, evalContext).compute(evalContext);
+        }
+        if ('create' in options) {
+            result.create = evalOptions(options.create);
+        }
+        if ('delete' in options) {
+            result.delete = evalOptions(options.delete);
+        }
+        return result;
+    },
+
+    /**
      * Fetch all name_gets for the many2ones in a group
      *
      * @param {Object[]} groups a list of object with context and record sub keys
