@@ -65,18 +65,3 @@ class UtmCampaign(models.Model):
             ('state', 'not in', ['draft', 'cancel'])
         ]
         return action
-
-    # override
-    def merge_utm_campaigns(self, name=False, user_id=False, stage_id=False, tag_ids=False):
-        """
-            After merge the campaigns, redirect the 
-                - account.move
-                - sale.order
-            records that link to old campaigns to the new merged campaign.
-        """
-        merged_campaign, deactived_campaign_ids = super(UtmCampaign, self).merge_utm_campaigns(name, user_id, stage_id, tag_ids)
-        account_move_to_redirect = self.env['account.move'].search([('campaign_id.id', 'in', deactived_campaign_ids)])
-        account_move_to_redirect.mapped(lambda r: r.write({'campaign_id': merged_campaign}))
-        sale_order_to_redirect = self.env['sale.order'].search([('campaign_id.id', 'in', deactived_campaign_ids)])
-        sale_order_to_redirect.mapped(lambda r: r.write({'campaign_id': merged_campaign}))
-        return merged_campaign, deactived_campaign_ids

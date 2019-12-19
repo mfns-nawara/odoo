@@ -3,7 +3,7 @@
 
 from functools import reduce
 
-from odoo import fields, models, api, SUPERUSER_ID
+from odoo import fields, models, api, SUPERUSER_ID, _
 from odoo.exceptions import UserError
 
 class UtmMedium(models.Model):
@@ -39,7 +39,7 @@ class UtmCampaign(models.Model):
     # After merged with other utm campaign, unneeded one should be deactived, and it should refer to 
     # the new campaign to transfer statistics collected after merge to the new one.
     active = fields.Boolean(default=True)
-    reference_utm_campaign_id = fields.Many2one('utm.campaign')
+    reference_utm_campaign_id = fields.Many2one('utm.campaign', string="Merged Into Campaign", readonly=True)
 
     @api.model
     def _group_expand_stage_ids(self, stages, domain, order):
@@ -49,14 +49,15 @@ class UtmCampaign(models.Model):
         stage_ids = stages._search([], order=order, access_rights_uid=SUPERUSER_ID)
         return stages.browse(stage_ids)
 
-    @api.model
-    def merge_utm_campaigns(self, name=False, user_id=False, stage_id=False, tag_ids=False):
+    def _merge_utm_campaigns(self, campaign=False, name=False, user_id=False, stage_id=False, tag_ids=False):
         if len(self.ids) <= 1:
-            raise UserError('Please select more than one campaign from the list.')
+            raise UserError(_('Please select more than one campaign from the list.'))
         if not all(r.active for r in self):
-            raise UserError('Only active campaigns can be merged.')
+            raise UserError(_('Only active campaigns can be merged.'))
+        if campaign and campaign not in self:
+            raise UserError(_('Kept campaign should be one of the merged campaign.'))
 
-        merged_campaign = self[0]
+        merged_campaign = campaign or self[0]
 
         merged_data = self._merge_data()
         if name:
@@ -69,12 +70,31 @@ class UtmCampaign(models.Model):
             merged_data['tag_ids'] = tag_ids
         merged_campaign.write(merged_data)
 
-        self[1:].mapped(lambda r: r.write({'active': False, 'reference_utm_campaign_id': merged_campaign.id}))
-        deactived_campaign_ids = [r.id for r in self[1:]]
+        # deactive uneeded campaigns, set reference to the merged campaign, and update reference of other campaigns if the reference is deactived
+        deactived_campaigns = self - merged_campaign
+        deactived_campaigns.write({'active': False, 'reference_utm_campaign_id': merged_campaign.id})
+        self.search([('reference_utm_campaign_id', 'in', deactived_campaigns.ids)]).write({
+            'reference_utm_campaign_id': merged_campaign.id
+        })
 
-        return merged_campaign, deactived_campaign_ids
+        self._redirect_all_to_merged_campaign(merged_campaign, deactived_campaigns)
+
+        return merged_campaign, deactived_campaigns
+
+    def _redirect_all_to_merged_campaign(self, merged_campaign, deactived_campaigns):
+        for field in self.env['ir.model.fields'].search([('ttype', '=', 'many2one'), ('relation', '=', 'utm.campaign')]):
+            if not field.model_id.transient:
+                model = self.env[field.model]
+                if not field.related and model._auto and model._name not in self._get_modules_to_ignore():
+                    self._redirect_to_merged_campaign(model._name, field.name, merged_campaign, deactived_campaigns)
 
     @api.model
+    def _redirect_to_merged_campaign(self, model_name, field_name, merged_campaign, deactived_campaigns):
+        model = self.env[model_name]
+        record_to_redirect = model.search([(field_name, 'in', deactived_campaigns.ids)])
+        for record in record_to_redirect:
+            record.sudo().write({field_name: merged_campaign})
+
     def _merge_data(self):
         """ Prepare campaign data into a dictionary for merging:
                 - user_id: choose the first one
@@ -89,7 +109,7 @@ class UtmCampaign(models.Model):
         data['is_website'] = any(r.is_website for r in self)
         return data
 
-    def redirect_utm_campaign_view(self):
+    def _redirect_utm_campaign_view(self):
         self.ensure_one()
         return {
             'name': 'ok',
@@ -99,6 +119,10 @@ class UtmCampaign(models.Model):
             'view_id': False,
             'type': 'ir.actions.act_window'
         }
+
+    def _get_modules_to_ignore(self):
+        # when module need manully take care of the campaign merge, ignore it
+        return [self._name]
 
 class UtmSource(models.Model):
     _name = 'utm.source'

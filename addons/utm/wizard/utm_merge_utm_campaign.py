@@ -21,18 +21,26 @@ class MergeUtmCampaign(models.TransientModel):
         result['utm_campaign_ids'] = record_ids
         return result
 
+    campaign_id = fields.Many2one('utm.campaign', string='Keeped Campaign')
     name = fields.Char(string='Campaign Name', translate=True)
-    user_id = fields.Many2one(
-        'res.users', string='Responsible')
-    stage_id = fields.Many2one('utm.stage', string='Stage', ondelete='restrict', required=True,
-        default=lambda self: self.env['utm.stage'].search([], limit=1),
-        group_expand='_group_expand_stage_ids')
-    tag_ids = fields.Many2many(
-        'utm.tag', string='Tags')
+    user_id = fields.Many2one('res.users', string='Responsible')
+    stage_id = fields.Many2one('utm.stage', string='Stage', ondelete='restrict')
+    tag_ids = fields.Many2many('utm.tag', string='Tags')
     utm_campaign_ids = fields.Many2many('utm.campaign', 'merge_utm_campaign_rel', 'merge_id', 'utm_campaign_id', string='UTM Campaigns')
 
+    @api.onchange('campaign_id')
+    def _set_default(self):
+        self.name = self.campaign_id.name
+        self.user_id = self.campaign_id.user_id
+        self.stage_id = self.campaign_id.stage_id
+        self.tag_ids = self.campaign_id.tag_ids
 
     def action_merge(self):
         self.ensure_one()
-        merged_campaign, deactived_campaign_ids = self.utm_campaign_ids.merge_utm_campaigns(self.name, self.user_id, self.stage_id, self.tag_ids)
-        return merged_campaign.redirect_utm_campaign_view()
+        merged_campaign, deactived_campaigns = self.utm_campaign_ids._merge_utm_campaigns(
+            self.campaign_id, 
+            self.name, 
+            self.user_id, 
+            self.stage_id, 
+            self.tag_ids)
+        return merged_campaign._redirect_utm_campaign_view()

@@ -40,12 +40,3 @@ class UtmCampaign(models.Model):
         action['domain'] = [('campaign_id', '=', self.id)]
         action['context'] = {'active_test': False}
         return action
-
-    def merge_utm_campaigns(self, name=False, user_id=False, stage_id=False, tag_ids=False):
-        """
-            After merge the campaigns, redirect the crm.lead that link to old campaigns to the new merged campaign.
-        """
-        merged_campaign, deactived_campaign_ids = super(UtmCampaign, self).merge_utm_campaigns(name, user_id, stage_id, tag_ids)
-        crm_lead_to_redirect = self.env["crm.lead"].search([('campaign_id.id', 'in', deactived_campaign_ids)])
-        crm_lead_to_redirect.mapped(lambda r: r.write({'campaign_id': merged_campaign}))
-        return merged_campaign, deactived_campaign_ids

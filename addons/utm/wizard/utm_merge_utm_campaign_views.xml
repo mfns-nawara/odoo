@@ -6,16 +6,14 @@
             <field name="model">utm.merge.utm.campaign</field>
             <field name="arch" type="xml">
                 <form string="Merge UTM Campaign">
-                    <header>
-                        <field name="stage_id" widget="statusbar" options="{'clickable': '1'}"/>
-                    </header>
                     <sheet>
-                        <div class="alert alert-warning text-center"  role="alert">
-                            <span class="o_form_label">Marketing Campaigns will be updated if corresponding UTM Campaigns merged.</span>
-                        </div>
-                        <group id="top-group" string="Optinal New Info">
+                        <group id="top-group">
+                            <field name="campaign_id" domain="[('id', 'in', utm_campaign_ids)]"/>
+                         </group>
+                         <group>
                             <field name="name"/>
                             <field name="user_id"/>
+                            <field name="stage_id" widget="selection" />
                             <field name="tag_ids" widget="many2many_tags"/>
                         </group>
                         <group string="Select UTM Campaigns">
@@ -24,6 +22,7 @@
                                     <field name="name"/>
                                     <field name="user_id"/>
                                     <field name="stage_id"/>
+                                    <field name="tag_ids" widget="many2many_tags"/>
                                 </tree>
                             </field>
                         </group>

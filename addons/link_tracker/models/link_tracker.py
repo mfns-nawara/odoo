@@ -202,39 +202,46 @@ class LinkTracker(models.Model):
 
         return code_rec.link_id.redirected_url
 
-    @api.model
-    def clean_duplicates(self):
-        """
-            When utm campaigns merged, we may have duplicate (url, campaign_id, medium_id, source_id),
-            clean those to meet the unique constraint and redirect correponding link.tracker.code and 
-            link.tracker.click to the remianing ones.
-        """
-        duplicate_ids = self._get_duplicate_ids()
-        self._redirect_link_tracker_code(duplicate_ids)
-        self._redirect_link_tracker_click(duplicate_ids)
-        self.env['link.tracker'].search([('id', 'in', list(duplicate_ids.keys()))]).sudo().unlink()    
+    def _check_duplicates(self):
+        """  When utm campaigns merged, we may have duplicate (url, campaign_id, medium_id, source_id),
+        clean those to meet the unique constraint and redirect correponding link.tracker.code and 
+        link.tracker.click to the remianing ones.
+        1. Order link trackers by url / medium_id / source_id.
+        2. Accumulate duplicates that have the same values.
+        3. Update duplicates' clicks and codes then unlink them.
+        4. Repeat with next items. """
 
-    @api.model
-    def _get_duplicate_ids(self):
-        duplicate_ids = {}
-        merged_dict = {}
-        for link_tracker in self:
-            unique_tuple = (link_tracker.url, link_tracker.medium_id, link_tracker.source_id)
-            if unique_tuple in merged_dict:
-                duplicate_ids[link_tracker.id] = merged_dict[unique_tuple]
-            else:
-                merged_dict[unique_tuple] = link_tracker.id
-        return duplicate_ids
+        replacement_link = None
+        duplicates = self.env['link.tracker']
+        saved_unique_tuple = None
+        sorted_link_trackers = self.sorted(
+            lambda link_tracker: (link_tracker.url, link_tracker.medium_id, link_tracker.source_id)
+        )
+        for link_tracker in sorted_link_trackers:
+            current_unique_tuple = (link_tracker.url, link_tracker.medium_id, link_tracker.source_id)
+            if saved_unique_tuple != current_unique_tuple and duplicates:
+                duplicates._remove_duplicates(replacement_link)
+                saved_unique_tuple = None
 
-    def _redirect_link_tracker_code(self, duplicate_ids):
-        link_traker_code_ids = self.env['link.tracker.code'].search([('link_id.id', 'in', list(duplicate_ids.keys()))])
-        if link_traker_code_ids:
-            link_traker_code_ids.mapped(lambda r: r.write({'link_id': duplicate_ids[r.link_id.id]}))
+            if not saved_unique_tuple:
+                saved_unique_tuple = current_unique_tuple
+                replacement_link = link_tracker
+            elif current_unique_tuple == saved_unique_tuple:
+                duplicates |= link_tracker
 
-    def _redirect_link_tracker_click(self, duplicate_ids):
-        link_tracker_click_ids = self.env['link.tracker.click'].search([('link_id.id', 'in', list(duplicate_ids.keys()))])
-        if link_tracker_click_ids:
-            link_tracker_click_ids.mapped(lambda r: r.write({'link_id': duplicate_ids[r.link_id.id]}))
+        if duplicates and replacement_link:
+            duplicates._remove_duplicates(replacement_link)
+
+    def _remove_duplicates(self, replacement_link):
+        self.env['link.tracker.code'].sudo().search(
+            [('link_id', 'in', self.ids)]
+        ).write({'link_id': replacement_link.id})
+
+        self.env['link.tracker.click'].sudo().search(
+            [('link_id', 'in', self.ids)]
+        ).write({'link_id': replacement_link.id})
+
+        self.sudo().unlink()
 
     _sql_constraints = [
         ('url_utms_uniq', 'unique (url, campaign_id, medium_id, source_id)', 'The URL and the UTM combination must be unique')

@@ -40,9 +40,8 @@ class UtmMixin(models.AbstractModel):
                     records = Model.with_context(active_test=not field_name == 'campaign_id').search([('name', '=', value)], limit=1)
                     if not records:
                         records = Model.create({'name': value, 'is_website': True})
-                    if field_name == 'campaign_id':
-                        while not records.active:
-                            records = records.reference_utm_campaign_id
+                    if field_name == 'campaign_id' and not records.active and records.reference_utm_campaign_id:
+                        records = records.reference_utm_campaign_id
                     value = records.id
                 if value:
                     values[field_name] = value
