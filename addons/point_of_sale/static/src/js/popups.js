@@ -237,7 +237,8 @@ var PackLotLinePopupWidget = PopupWidget.extend({
         var lots = [];
         var pack_lot_lines = this.options.pack_lot_lines;
         var existing_lots = this.options.order.get_existing_lots();
-        this.lot_errors = {};
+        var product_id = pack_lot_lines.order_line.product.id;
+        var lot_errors = {};
 
         this.$('.packlot-line-input').each(function(index, el) {
             var cid = $(el).attr('cid');
@@ -245,7 +246,7 @@ var PackLotLinePopupWidget = PopupWidget.extend({
             var pack_line = pack_lot_lines.get({cid: cid});
 
             if (lots.indexOf(lot_name) > -1) {
-                self.lot_errors[cid] = _("This serial is already added in the order");
+                lot_errors[cid] = _("This Lot/Serial number is already added in the order.");
             }
             lots.push(lot_name);
             pack_line.set_lot_name(lot_name);
@@ -262,7 +263,7 @@ var PackLotLinePopupWidget = PopupWidget.extend({
                 var lot_name = lot.get_lot_name();
                 if (!lot_name) return;
                 if (!result.hasOwnProperty(lot_name)) {
-                    self.lot_errors[lot.cid] = _("This Lot/Serial number could not be found.");
+                    lot_errors[lot.cid] = _("This Lot/Serial number could not be found.");
                     return;
                 }
                 var lot_quantity = self.pos.db.load("lot_quantity", {});
@@ -272,15 +273,17 @@ var PackLotLinePopupWidget = PopupWidget.extend({
                 lot_quantity[lot_name] = available_qty;
                 self.pos.db.save("lot_quantity", lot_quantity);
                 if (available_qty <= 0) {
-                    self.lot_errors[lot.cid] = _("This Lot/Serial number has already been sold.");
+                    lot_errors[lot.cid] = _("This Lot/Serial number has already been sold.");
                 } else if (tracking_type == 'lot' && line_qty > available_qty - existing_qty) {
-                    self.lot_errors[lot.cid] = _("This Lot/Serial has a too low available quantity.");
+                    lot_errors[lot.cid] = _("This Lot/Serial has a too low available quantity.");
                 }
             });
-            if (_.isEmpty(self.lot_errors) ) {
+            if (_.isEmpty(lot_errors) ) {
+                self.remove_product_lot_error(product_id);
                 self.options.order.set('has_lot_error', false);
                 self.process_lots();
             } else {
+                self.set_product_errors(product_id, lot_errors);
                 self.options.order.set('has_lot_error', true);
                 self.renderElement();
                 self.focus();
@@ -329,8 +332,32 @@ var PackLotLinePopupWidget = PopupWidget.extend({
         var lot_model = pack_lot_lines.get({cid: cid});
         lot_model.remove();
         pack_lot_lines.set_quantity_by_lot();
-        if (this.lot_errors) delete this.lot_errors[cid];
+        var product_id = pack_lot_lines.order_line.product.id;
+        this.remove_product_lot_error(product_id, cid);
         this.renderElement();
+    },
+
+    get_product_errors: function (product_id) {
+        var errors = this.pos.db.load("lot_errors", {});
+        if (product_id) {
+            return errors[product_id] || {};
+        }
+        return errors;
+    },
+
+    set_product_errors: function (product_id, lot_errors) {
+        var errors = this.get_product_errors();
+        errors[product_id] = lot_errors;
+        return this.pos.db.save("lot_errors", errors);
+    },
+
+    remove_product_lot_error: function (product_id, cid) {
+        var errors = {};
+        if (cid) {
+            errors = this.get_product_errors(product_id);
+            delete errors[cid];
+        }
+        this.set_product_errors(product_id, errors);
     },
 
     lose_input_focus: function(ev){
