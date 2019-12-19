@@ -258,7 +258,7 @@ class TestMailAPIPerformance(BaseMailPerformance):
     def test_mail_composer(self):
         test_record = self.env['mail.test.full'].browse(self.test_record_full.id)
         customer_id = self.customer.id
-        with self.assertQueryCount(__system__=4, emp=4):
+        with self.assertQueryCount(__system__=5, emp=5):
             composer = self.env['mail.compose.message'].with_context({
                 'default_composition_mode': 'comment',
                 'default_model': test_record._name,
@@ -472,7 +472,7 @@ class TestMailComplexPerformance(BaseMailPerformance):
         self.umbrella.message_subscribe(self.user_portal.partner_id.ids)
         record = self.umbrella.with_user(self.env.user)
 
-        with self.assertQueryCount(__system__=73, emp=74):
+        with self.assertQueryCount(__system__=74, emp=75):
             record.message_post(
                 body='<p>Test Post Performances</p>',
                 message_type='comment',
@@ -489,7 +489,7 @@ class TestMailComplexPerformance(BaseMailPerformance):
         record = self.umbrella.with_user(self.env.user)
         template_id = self.env.ref('test_mail.mail_test_tpl').id
 
-        with self.assertQueryCount(__system__=84, emp=85):
+        with self.assertQueryCount(__system__=85, emp=86):
             record.message_post_with_template(template_id, message_type='comment', composition_mode='comment')
 
         self.assertEqual(record.message_ids[0].body, '<p>Adding stuff on %s</p>' % record.name)
@@ -580,7 +580,7 @@ class TestMailComplexPerformance(BaseMailPerformance):
         customer_id = self.customer.id
         user_id = self.user_portal.id
 
-        with self.assertQueryCount(__system__=123, emp=124):
+        with self.assertQueryCount(__system__=124, emp=125):
             rec = self.env['mail.test.full'].create({
                 'name': 'Test',
                 'umbrella_id': umbrella_id,
@@ -609,7 +609,7 @@ class TestMailComplexPerformance(BaseMailPerformance):
         rec1 = rec.with_context(active_test=False)      # to see inactive records
         self.assertEqual(rec1.message_partner_ids, self.user_portal.partner_id | self.env.user.partner_id)
         self.assertEqual(len(rec1.message_ids), 1)
-        with self.assertQueryCount(__system__=87, emp=88):
+        with self.assertQueryCount(__system__=88, emp=89):
             rec.write({
                 'name': 'Test2',
                 'umbrella_id': self.umbrella.id,
@@ -646,7 +646,7 @@ class TestMailComplexPerformance(BaseMailPerformance):
         rec1 = rec.with_context(active_test=False)      # to see inactive records
         self.assertEqual(rec1.message_partner_ids, self.user_portal.partner_id | self.env.user.partner_id)
 
-        with self.assertQueryCount(__system__=95, emp=96):
+        with self.assertQueryCount(__system__=96, emp=97):
             rec.write({
                 'name': 'Test2',
                 'umbrella_id': umbrella_id,
