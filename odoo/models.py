@@ -3676,8 +3676,6 @@ Record ids: %(records)s
                         if field_obj.type == 'many2one':
                             temp_vals = new_obj[field]
                             if temp_vals.id:
-                                # VFE TODO use exists ?
-                                # And _origin if needed ?
                                 true_vals[field] = temp_vals.id
                         # many2many and one2many computes
                         # shouldn't be computed before create.
@@ -3686,6 +3684,10 @@ Record ids: %(records)s
                         # if the field value isn't required
                         # to avoid creating noise in the db.
                         true_vals[field] = new_obj[field]
+                    # VFE TODO update the value even if falsy
+                    # if it is computed based on true_vals/vals
+                    # fields to avoid later useless recomputation ?
+                    # or define some fields as post-computed ?
 
             # distribute fields into sets for various purposes
             data = {}
