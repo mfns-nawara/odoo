@@ -188,6 +188,146 @@ class TestAccountMoveOutInvoiceOnchanges(InvoiceTestCommon):
             'amount_total': 520.0,
         })
 
+    def test_out_invoice_line_onchange_product_2_with_fiscal_pos(self):
+        tax_price_include = self.env['account.tax'].create({
+            'name': '21% incl',
+            'type_tax_use': 'sale',
+            'amount_type': 'percent',
+            'amount': 10,
+            'price_include': True,
+            'include_base_amount': True,
+        })
+        tax_price_exclude = self.env['account.tax'].create({
+            'name': '21% excl',
+            'type_tax_use': 'sale',
+            'amount_type': 'percent',
+            'amount': 15,
+        })
+
+        fiscal_position = self.env['account.fiscal.position'].create({
+            'name': 'fiscal_pos_a',
+            'tax_ids': [
+                (0, None, {
+                    'tax_src_id': tax_price_include.id,
+                    'tax_dest_id': tax_price_exclude.id,
+                }),
+            ],
+        })
+
+        product = self.env['product.product'].create({
+            'name': 'product',
+            'uom_id': self.env.ref('uom.product_uom_unit').id,
+            'lst_price': 110.0,
+            'taxes_id': [(6, 0, tax_price_include.ids)],
+        })
+
+        move_form = Form(self.env['account.move'].with_context(default_type='out_invoice'))
+        move_form.partner_id = self.partner_a
+        move_form.invoice_date = fields.Date.from_string('2019-01-01')
+        move_form.currency_id = self.currency_data['currency']
+        move_form.fiscal_position_id = fiscal_position
+        with move_form.invoice_line_ids.new() as line_form:
+            line_form.product_id = product
+        invoice = move_form.save()
+
+        self.assertInvoiceValues(invoice, [
+            {
+                'product_id': product.id,
+                'price_unit': 200.0,
+                'price_subtotal': 200.0,
+                'price_total': 230.0,
+                'tax_ids': tax_price_exclude.ids,
+                'tax_line_id': False,
+                'currency_id': self.currency_data['currency'].id,
+                'amount_currency': -200.0,
+                'debit': 0.0,
+                'credit': 100.0,
+            },
+            {
+                'product_id': False,
+                'price_unit': 30.0,
+                'price_subtotal': 30.0,
+                'price_total': 30.0,
+                'tax_ids': [],
+                'tax_line_id': tax_price_exclude.id,
+                'currency_id': self.currency_data['currency'].id,
+                'amount_currency': -30.0,
+                'debit': 0.0,
+                'credit': 15.0,
+            },
+            {
+                'product_id': False,
+                'price_unit': -230.0,
+                'price_subtotal': -230.0,
+                'price_total': -230.0,
+                'tax_ids': [],
+                'tax_line_id': False,
+                'currency_id': self.currency_data['currency'].id,
+                'amount_currency': 230.0,
+                'debit': 115.0,
+                'credit': 0.0,
+            },
+        ], {
+            'currency_id': self.currency_data['currency'].id,
+            'fiscal_position_id': fiscal_position.id,
+            'amount_untaxed': 200.0,
+            'amount_tax': 30.0,
+            'amount_total': 230.0,
+        })
+
+        uom_dozen = self.env.ref('uom.product_uom_dozen')
+        with Form(invoice) as move_form:
+            with move_form.invoice_line_ids.edit(0) as line_form:
+                line_form.product_uom_id = uom_dozen
+
+        self.assertInvoiceValues(invoice, [
+            {
+                'product_id': product.id,
+                'product_uom_id': uom_dozen.id,
+                'price_unit': 2400.0,
+                'price_subtotal': 2400.0,
+                'price_total': 2760.0,
+                'tax_ids': tax_price_exclude.ids,
+                'tax_line_id': False,
+                'currency_id': self.currency_data['currency'].id,
+                'amount_currency': -2400.0,
+                'debit': 0.0,
+                'credit': 1200.0,
+            },
+            {
+                'product_id': False,
+                'product_uom_id': False,
+                'price_unit': 360.0,
+                'price_subtotal': 360.0,
+                'price_total': 360.0,
+                'tax_ids': [],
+                'tax_line_id': tax_price_exclude.id,
+                'currency_id': self.currency_data['currency'].id,
+                'amount_currency': -360.0,
+                'debit': 0.0,
+                'credit': 180.0,
+            },
+            {
+                'product_id': False,
+                'product_uom_id': False,
+                'price_unit': -2760.0,
+                'price_subtotal': -2760.0,
+                'price_total': -2760.0,
+                'tax_ids': [],
+                'tax_line_id': False,
+                'currency_id': self.currency_data['currency'].id,
+                'amount_currency': 2760.0,
+                'debit': 1380.0,
+                'credit': 0.0,
+            },
+        ], {
+            'currency_id': self.currency_data['currency'].id,
+            'fiscal_position_id': fiscal_position.id,
+            'amount_untaxed': 2400.0,
+            'amount_tax': 360.0,
+            'amount_total': 2760.0,
+        })
+
     def test_out_invoice_line_onchange_business_fields_1(self):
         move_form = Form(self.invoice)
         with move_form.invoice_line_ids.edit(0) as line_form:
