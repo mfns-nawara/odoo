@@ -9,6 +9,7 @@ var weWidgets = require('wysiwyg.widgets');
 var websiteNavbarData = require('website.navbar');
 var websiteRootData = require('website.root');
 var Widget = require('web.Widget');
+var seo = require('website.seo')
 
 var _t = core._t;
 var qweb = core.qweb;
@@ -953,6 +954,7 @@ var PageManagement = Widget.extend({
         'click a.js_page_properties': '_onPagePropertiesButtonClick',
         'click a.js_clone_page': '_onClonePageButtonClick',
         'click a.js_delete_page': '_onDeletePageButtonClick',
+        'click a.fa-search': '_onSeoButtonClick',
     },
 
     //--------------------------------------------------------------------------
@@ -978,6 +980,9 @@ var PageManagement = Widget.extend({
     // Handlers
     //--------------------------------------------------------------------------
 
+    _onSeoButtonClick : function(ev){
+        new seo.SeoConfigurator(this).open();
+     },
     _onPagePropertiesButtonClick: function (ev) {
         var moID = $(ev.currentTarget).data('id');
         var dialog = new PagePropertiesDialog(this,moID, {'fromPageManagement': true}).open();
