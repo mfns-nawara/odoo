@@ -103,7 +103,9 @@ var UserMenu = Widget.extend({
                     })
                     .then(function (result) {
                         result.res_id = session.uid;
-                        self.do_action(result);
+                        return self.do_action(result);
+                    }).then(function () {
+                        core.bus.trigger('close_o_burger_menu');
                     });
             },
         });
