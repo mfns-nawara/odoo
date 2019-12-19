@@ -23,7 +23,7 @@
     </template>
 
     <template id="exception_on_mo">
-        <div class="alert alert-warning" role="alert"> 
+        <div class="alert alert-warning" role="alert">
             Exception(s) occurred on the manufacturing order(s):
             <a href="#" data-oe-model="mrp.production" t-att-data-oe-id="production_order.id"><t t-esc="production_order.name"/></a>.
             Manual actions may be needed.
