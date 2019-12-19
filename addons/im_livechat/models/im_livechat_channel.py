@@ -108,7 +108,7 @@ class ImLivechatChannel(models.Model):
             :retuns : return the res.users having their im_status online
         """
         self.ensure_one()
-        return self.user_ids.filtered(lambda user: user.im_status == 'online')
+        return self.user_ids
 
     def _get_livechat_mail_channel_vals(self, anonymous_name, operator, user_id=None, country_id=None):
         # partner to add to the mail.channel
