@@ -43,6 +43,28 @@ publicWidget.registry.websiteSlidesCourseSlidesList = publicWidget.Widget.extend
             placeholder: 'o_wslides_slides_list_slide_hilight position-relative mb-1'
         });
     },
+
+    /**
+     * This method will check that a section is empty/not empty
+     * when the slides are reordered and show/hide the
+     * "Empty category" placeholder.
+     *
+     * @private
+     */
+    _checkForEmptySections: function (){
+        var self = this;
+        this.$('.o_wslides_slide_list_category > ul').each(function (){
+            var categoryID = $(this).data('categoryId');
+            var categorySlideCount = $(this).find('.o_wslides_slides_list_slide:not(.o_not_editable)').length;
+            var emptyFlagContainer = self.$('.o_wslides_slide_list_category_header[data-category-id="'+ categoryID +'"] > div:first-child')
+            if (categorySlideCount === 0 && emptyFlagContainer.find('small').length === 0){
+                emptyFlagContainer.append('<small class="ml-1 text-muted">Empty</small>');
+            } else if (categorySlideCount > 0){
+                self.$('.o_wslides_slide_list_category_header[data-category-id="'+ categoryID +'"] > div > small').remove();
+            }
+        });
+    },
+
     _getSlides: function (){
         var categories = [];
         this.$('.o_wslides_js_list_item').each(function (){
@@ -59,18 +81,7 @@ publicWidget.registry.websiteSlidesCourseSlidesList = publicWidget.Widget.extend
                 ids: self._getSlides()
             }
         }).then(function (res) {
-            self._toggleCategoryEmptyFlag();
-        });
-    },
-    _toggleCategoryEmptyFlag: function (){
-        this.$('.o_wslides_slide_list').each(function (){
-            var categoryID = $(this).data('categoryId');
-            var categorySlideCount = $(this).find('.o_wslides_slides_list_slide:not(.o_not_editable)').length;
-            if (categorySlideCount === 0){
-                this.$('.category-empty[data-category-id='+ categoryID +']').removeClass('d-none');
-            } else {
-                this.$('.category-empty[data-category-id='+ categoryID +']').addClass('d-none');
-            }
+            self._checkForEmptySections();
         });
     },
     /**
