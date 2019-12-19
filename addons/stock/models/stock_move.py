@@ -135,6 +135,7 @@ class StockMove(models.Model):
     propagate_date_minimum_delta = fields.Integer(string='Reschedule if Higher Than',
         help='The change must be higher than this value to be propagated')
     delay_alert = fields.Boolean('Alert if Delay')
+    delay_alert_is_late = fields.Boolean('Alert delay set')
     picking_type_id = fields.Many2one('stock.picking.type', 'Operation Type', check_company=True)
     inventory_id = fields.Many2one('stock.inventory', 'Inventory', check_company=True)
     move_line_ids = fields.One2many('stock.move.line', 'move_id')
@@ -466,6 +467,9 @@ class StockMove(models.Model):
         if propagated_date_field:
             new_date = vals.get(propagated_date_field)
             for move in self:
+                # -------------------------------
+                move._delay_alert_check(new_date - move.date_expected)
+                # -------------------------------
                 move_dest_ids = move.move_dest_ids.filtered(lambda m: m.state not in ('done', 'cancel'))
                 if not move_dest_ids:
                     continue
@@ -540,6 +544,57 @@ class StockMove(models.Model):
                 note=msg,
                 user_id=doc.user_id.id or SUPERUSER_ID
             )
+
+    def _delay_alert_check(self, delta):
+        """Set an alert on late moves by using the `delay_alert_is_late` field.
+        The alert is always on the move that cannot be done because its preceding moves are late.
+        """
+        self.ensure_one()
+        if self.state in ('done', 'cancel'):
+            return
+
+        new_date = self.date_expected + delta
+        ontime_moves = self.browse()
+        late_moves = self.browse()
+
+        # Check if `self` is scheduled after the next moves. If so, the next moves are late.
+        next_done_moves = self.browse()
+        next_nondone_moves = self.browse()
+        next_moves_dates = []
+        for move in self.move_dest_ids:
+            if move.state == 'done':
+                next_done_moves |= move
+            elif move.state != 'cancel':
+                next_nondone_moves |= move
+        next_moves_dates += next_done_moves.mapped('date')
+        next_moves_dates += next_nondone_moves.mapped('date_expected')
+        if next_moves_dates:
+            next_moves_date = min(next_moves_dates)
+            if new_date > next_moves_date:
+                late_moves |= next_nondone_moves
+            else:
+                ontime_moves |= next_nondone_moves
+
+        # Check if `self` is scheduled before the previous moves. If so, `self` if late.
+        previous_done_moves = self.browse()
+        previous_nondone_moves = self.browse()
+        previous_moves_dates = []
+        for move in self.move_orig_ids:
+            if move.state == 'done':
+                previous_done_moves |= move
+            elif move.state != 'cancel':
+                previous_nondone_moves |= move
+        previous_moves_dates += previous_done_moves.mapped('date')
+        previous_moves_dates += previous_nondone_moves.mapped('date_expected')
+        if previous_moves_dates:
+            previous_moves_date = max(previous_moves_dates)
+            if new_date < previous_moves_date:
+                late_moves |= self
+            else:
+                ontime_moves |= self
+
+        late_moves.write({'delay_alert_is_late': True})
+        ontime_moves.write({'delay_alert_is_late': False})
 
     def action_show_details(self):
         """ Returns an action that will open a form view (in a popup) allowing to work on all the
