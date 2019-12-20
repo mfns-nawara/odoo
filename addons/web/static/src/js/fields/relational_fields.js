@@ -987,6 +987,7 @@ var FieldX2Many = AbstractField.extend({
         navigation_move: '_onNavigationMove',
         save_optional_fields: '_onSaveOrLoadOptionalFields',
         load_optional_fields: '_onSaveOrLoadOptionalFields',
+        update_options: '_onUpdateOptions'
     }),
 
     // We need to trigger the reset on every changes to be aware of the parent changes
@@ -1182,6 +1183,13 @@ var FieldX2Many = AbstractField.extend({
             return KanbanRenderer;
         }
     },
+    _onUpdateOptions: function () {
+        if (this.attrs.options) {
+            this.evalOptions = this.record.evalOptions({
+                options: this.attrs.options,
+            });
+        }
+    },
     /**
      * Instanciates or updates the adequate renderer.
      *
@@ -1191,17 +1199,15 @@ var FieldX2Many = AbstractField.extend({
      */
     _render: function () {
         var self = this;
+        if (this.attrs.options) {
+            this.evalOptions = this.record.evalOptions({
+                options: this.attrs.options,
+            });
+        }
+
         if (!this.view) {
             return this._super();
         }
-        if(this.attrs.options){
-            this.trigger_up('eval_field_options', {
-                options: this.attrs.options,
-                record: this.record,
-                callback: function (result) {
-                    this.evalOptions = result;
-                }});
-            }
 
         if (this.renderer) {
             this.currentColInvisibleFields = this._evalColumnInvisibleFields();
@@ -1223,7 +1229,7 @@ var FieldX2Many = AbstractField.extend({
             this.currentColInvisibleFields = this._evalColumnInvisibleFields();
             _.extend(rendererParams, {
                 editable: this.mode === 'edit' && arch.attrs.editable,
-                addCreateLine: !this.isReadonly && this.activeActions.create,
+                addCreateLine: !this.isReadonly && this.activeActions.create && this.evalOptions.create,
                 addTrashIcon: !this.isReadonly && this.activeActions.delete,
                 isMany2Many: this.isMany2Many,
                 columnInvisibleFields: this.currentColInvisibleFields,

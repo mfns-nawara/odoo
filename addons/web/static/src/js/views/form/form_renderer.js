@@ -161,6 +161,7 @@ var FormRenderer = BasicRenderer.extend({
      * @override
      */
     confirmChange: function () {
+        var defs = [];
         var self = this;
         return this._super.apply(this, arguments).then(function (resetWidgets) {
             _.each(resetWidgets, function (widget) {
@@ -169,7 +170,10 @@ var FormRenderer = BasicRenderer.extend({
             if (self.$('.o_field_invalid').length) {
                 self.canBeSaved(self.state.id);
             }
-            return resetWidgets;
+            defs.push(self._updateX2MOptions());
+            return Promise.all(defs).then(function () {
+                return resetWidgets;
+            });
         });
     },
     /**
@@ -972,6 +976,22 @@ var FormRenderer = BasicRenderer.extend({
         }).guardedCatch(function () {
             $form.remove();
         });
+    },
+    /*
+    */
+    _updateX2MOptions: function () {
+        var self = this;
+        var defs = [];
+        var fieldTypes = ['one2many','many2many'];
+        this.defs = defs;
+        _.each(this.allFieldWidgets[this.state.id], function (fieldWidget) {
+            if(fieldTypes.includes(fieldWidget.field.type) && fieldWidget._onUpdateOptions){
+                fieldWidget._onUpdateOptions();
+            }
+        });
+        delete this.defs;
+
+        return Promise.all(defs);
     },
     /**
      * Updates the form's $el with new content.

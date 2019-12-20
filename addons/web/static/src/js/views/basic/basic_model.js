@@ -592,6 +592,7 @@ var BasicModel = AbstractModel.extend({
                 data: data,
                 domain: element.domain.slice(0),
                 evalModifiers: element.evalModifiers,
+                evalOptions: element.evalOptions,
                 fields: element.fields,
                 fieldsInfo: element.fieldsInfo,
                 getContext: element.getContext,
@@ -2225,7 +2226,7 @@ var BasicModel = AbstractModel.extend({
      * @param {Object} options
      * @returns {Object}
      */
-    _evalOptions: function (element, options) {
+    _evalOptions: function (element, args) {
         var result = {};
         var self = this;
         var evalContext;
@@ -2236,11 +2237,11 @@ var BasicModel = AbstractModel.extend({
             evalContext = evalContext || self._getEvalContext(element);
             return new Domain(mod, evalContext).compute(evalContext);
         }
-        if ('create' in options) {
-            result.create = evalOptions(options.create);
+        if ('create' in args.options) {
+            result.create = evalOptions(args.options.create);
         }
-        if ('delete' in options) {
-            result.delete = evalOptions(options.delete);
+        if ('delete' in args.options) {
+            result.delete = evalOptions(args.options.delete);
         }
         return result;
     },
@@ -3896,6 +3897,7 @@ var BasicModel = AbstractModel.extend({
         dataPoint._editionViewType = {};
 
         dataPoint.evalModifiers = this._evalModifiers.bind(this, dataPoint);
+        dataPoint.evalOptions = this._evalOptions.bind(this, dataPoint);
         dataPoint.getContext = this._getContext.bind(this, dataPoint);
         dataPoint.getDomain = this._getDomain.bind(this, dataPoint);
         dataPoint.getFieldNames = this._getFieldNames.bind(this, dataPoint);
