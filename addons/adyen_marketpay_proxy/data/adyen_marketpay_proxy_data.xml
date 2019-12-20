@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<odoo>
+    <data noupdate="1">
+        <record model="ir.config_parameter" id="adyen_api_key">
+            <field name="key">adyen.api_key</field>
+            <field name="value">AQEvhmfxLo7PbhVDw0exgG89s9SXSYhIQ7xOV2pl5yj9zwJ/ec/HUPnUz2zfB8PqBlsQwV1bDb7kfNy1WIxIIkxgBw==-bkjTdguRhv/vEhck2bCxRPJcaKN6O9H0YBRRQYj6zfk=-6qLM9E}[n:&amp;6pQZ8</field>
+        </record>
+
+        <record model="ir.config_parameter" id="adyen_base_url">
+            <field name="key">adyen.api_base_url</field>
+            <field name="value">https://cal-test.adyen.com/cal/services/</field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="assets_frontend" inherit_id="website.assets_frontend" name="Adyen MarketPay Onboarding">
+        <xpath expr="//script[last()]" position="after">
+            <script type="text/javascript" src="/adyen_marketpay_onboarding/static/src/js/onboarding.js"></script>
+        </xpath>
+    </template>
+
+    <template id="account_holder" name="Adyen Account Holder">
+        <t t-call="portal.portal_layout">
+            <form class="o_adyen_onboarding_form ">
+                <div class="form-group">
+                    <div class="col-md-6">
+                        <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                            <label t-attf-class="btn btn-primary #{'active' if account_holder.legal_entity == 'Individual' else None}">
+                                <input type="radio" name="legal_entity" value="individual" t-att-checked="'checked' if account_holder.legal_entity == 'Individual' else None"/>Individual
+                            </label>
+                            <label t-attf-class="btn btn-primary #{'active' if account_holder.legal_entity == 'Business' else None}">
+                                <input type="radio" name="legal_entity" value="business" t-att-checked="'checked' if account_holder.legal_entity == 'Business' else None"/>Business
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group o_adyen_onboarding_individual d-none">
+                    <h2>Individual Details</h2>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label for="first_name">First Name</label>
+                            <input type="text" name="first_name" class="form-control" t-att-value="account_holder.first_name"/>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="last_name">Last Name</label>
+                            <input type="text" name="last_name" class="form-control" t-att-value="account_holder.last_name"/>
+                        </div>
+                    </div>
+
+                    <label for="gender">Gender</label>
+                    <select name="gender" class="form-control" data-placeholder="Legal Entity">
+                        <option value="male" t-att-selected="account_holder.gender == 'male'">Male</option>
+                        <option value="female" t-att-selected="account_holder.gender == 'female'">Female</option>
+                        <option value="unknown" t-att-selected="account_holder.gender == 'unknown'">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group o_adyen_onboarding_business d-none">
+                    <h2>Business Details</h2>
+
+                    <label for="legal_business_name">Legal Business Name</label>
+                    <input type="text" name="legal_business_name" class="form-control" t-att-value="account_holder.legal_business_name"/>
+
+                    <label for="doing_business_as">Doing Business As</label>
+                    <input type="text" name="doing_business_as" class="form-control" t-att-value="account_holder.doing_business_as"/>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" name="email" class="form-control" t-att-value="account_holder.email" required="required"/>
+
+                    <label for="country_id">Country</label>
+                    <select name="country_id" class="form-control" data-placeholder="Select a country" required="required">
+                        <t t-foreach="countries" t-as="country">
+                            <option t-att-value="country.id"><t t-esc="country.name"/></option>
+                        </t>
+                    </select>
+
+                    <input type="checkbox" name="use_payment_terminals" t-att-value="account_holder.use_payment_terminals"/>
+                    <label for="use_payment_terminals">Use payment terminals in the PoS</label>
+                </div>
+
+                <div class="form-group o_adyen_onboarding_stores d-none">
+                    <h2>Store Details</h2>
+                    <div class="list-group o_adyen_stores_list">
+                        <button type="button" class="list-group-item list-group-item-action o_adyen_add_store_button">
+                            <i class="fa fa-plus-circle"/> Add new store
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group o_adyen_onboarding_shareholders">
+                    <h2>Shareholders</h2>
+                    <div class="list-group o_adyen_shareholders_list">
+                        <button type="button" class="list-group-item list-group-item-action o_adyen_add_shareholder_button">
+                            <i class="fa fa-plus-circle"/> Add new shareholder
+                        </button>
+                    </div>
+                </div>
+
+                <button type="button" class="btn btn-primary o_adyen_onboarding_submit" name="submit">Save</button>
+            </form>
+        </t>
+    </template>
+</odoo>

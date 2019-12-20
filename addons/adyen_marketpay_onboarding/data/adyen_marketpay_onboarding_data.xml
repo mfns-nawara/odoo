@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<odoo>
+    <data noupdate="1">
+        <function model="adyen.account.holder" name="_configure_adyen_notifications"/>
+    </data>
+</odoo>

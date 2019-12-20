@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<!-- 
+    <record id="adyen_account_holder_view_form" model="ir.ui.view">
+        <field name="name">adyen.account.holder.view.form</field>
+        <field name="model">adyen.account.holder</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <field name="kyc_verification" widget="statusbar" statusbar_visible="UNCHECKED,PASSED"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_adyen_onboarding_page"
+                            class="oe_stat_button"
+                            icon="fa-user-check"
+                            type="object"
+                            string="Identity Check">
+                        </button>
+                    </div>
+                    <group>
+                        <field name="legal_entity"/>
+                        <field name="email"/>
+                        <field name="country_id"/>
+                        <field name="store_ids"/>
+                    </group>
+                    <group attrs="{'invisible': [('legal_entity', '!=', 'Individual')]}">
+                        <field name="first_name"/>
+                        <field name="last_name"/>
+                        <field name="gender"/>
+                    </group>
+                    <group attrs="{'invisible': [('legal_entity', '!=', 'Business')]}">
+                        <field name="doing_business_as"/>
+                        <field name="legal_business_name"/>
+                        <field name="shareholder_ids"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="adyen_account_holder_view_list" model="ir.ui.view">
+        <field name="name">adyen.account.holder.view.list</field>
+        <field name="model">adyen.account.holder</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="legal_entity"/>
+                <field name="email"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="adyen_onboarding_action" model="ir.actions.act_window">
+        <field name="name">Adyen Onboarding</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">adyen.account.holder</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem
+        id="pos_adyen.menu_pos_adyen_onboarding"
+        action="adyen_onboarding_action"
+        parent="point_of_sale.menu_point_config_product"
+        sequence="50"/> -->
+
+</odoo>
