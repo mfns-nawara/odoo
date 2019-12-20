@@ -3665,13 +3665,15 @@ Record ids: %(records)s
             # s.t. required and sql constraints works on
             # computed fields.
             new_obj = self.new(vals)
+            # VFE TODO ensure no real objects having a potential dependency on new_obj are recomputed
+            # self.env.norecompute ?
             true_vals = dict()
             for field in new_obj._fields:
                 field_obj = new_obj._fields.get(field)
                 if field in vals:
                     true_vals[field] = vals[field]
                     continue
-                if field_obj.store and not field_obj.related and field not in PROTECTED_FIELDS:
+                if field_obj.store and field not in PROTECTED_FIELDS:
                     if field_obj.relational:
                         if field_obj.type == 'many2one':
                             temp_vals = new_obj[field]
@@ -3688,6 +3690,12 @@ Record ids: %(records)s
                     # if it is computed based on true_vals/vals
                     # fields to avoid later useless recomputation ?
                     # or define some fields as post-computed ?
+
+            # VFE delete the new_obj after values recuperation s.t. some relational do not have double value (one virtual and one real) ?
+            # new_obj.unlink()
+
+            # VFE FIXME computes based on one2m or m2m may receive recordsets with new and not new ids... ?
+            # make a recursive computed field label to know whether they depends on 2m relational, or on a field depending on it ?
 
             # distribute fields into sets for various purposes
             data = {}
@@ -3724,6 +3732,10 @@ Record ids: %(records)s
                 # protect non-readonly computed fields against (re)computation
                 if field.compute and not field.readonly:
                     protected.update(self._field_computed.get(field, [field]))
+                if field.compute and field.readonly and field.store and key not in vals:
+                    # VFE related stored have been computed and shouln't be recomputed
+                    # even if readonly.
+                    protected.update(self._field_computed.get(field, [field]))
 
             data_list.append(data)
 
@@ -3731,6 +3743,7 @@ Record ids: %(records)s
         for model_name, parent_name in self._inherits.items():
             parent_data_list = []
             for data in data_list:
+                # VFE FIXME some things could maybe be removed here...
                 if not data['stored'].get(parent_name):
                     parent_data_list.append(data)
                 elif data['inherited'][model_name]:
