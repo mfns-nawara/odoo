@@ -58,6 +58,9 @@ class AccountMove(models.Model):
             else:
                 acquirer = payment_token.acquirer_id
 
+        if not vals.get('type'):
+            vals['type'] = 'server2server' if payment_token_id else 'form'
+
         # Check an acquirer is there.
         if not acquirer_id and not acquirer:
             raise ValidationError(_('A payment acquirer is required to create a transaction.'))

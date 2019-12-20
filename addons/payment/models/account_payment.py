@@ -75,6 +75,9 @@ class AccountPayment(models.Model):
             if vals:
                 transaction_vals.update(vals)
 
+            if not vals.get('type'):
+                vals['type'] = 'server2server' if vals.get('payment_token_id') else 'form'
+
             transaction = self.env['payment.transaction'].create(transaction_vals)
             transactions += transaction
 

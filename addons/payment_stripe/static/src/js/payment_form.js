@@ -75,7 +75,7 @@ PaymentForm.include({
                     window.location.reload();
                 }
             } else {
-                self.$el.find('input[name="save_token"]').prop('checked', self.$('#o_payment_save_token_acq_' + acquirerID).find('#o_payment_save_token').prop('checked'));
+                self.$el.find('input[name="save_token"]').val(self.$('#o_payment_save_token_acq_' + acquirerID).find('#o_payment_save_token').prop('checked') ? 'save_token': 'server2server');
                 $checkedRadio.val(result.id);
                 self.el.submit();
             }

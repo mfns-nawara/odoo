@@ -229,6 +229,7 @@ publicWidget.registry.PaymentForm = publicWidget.Widget.extend({
                             $("body").html(data['3d_secure']);
                         }
                         else {
+                            self.$el.find('input[name="save_token"]').val(self.$('#o_payment_save_token_acq_' + acquirer_id).find('#o_payment_save_token').prop('checked') ? 'save_token': 'server2server');
                             checked_radio.value = data.id; // set the radio value to the new card id
                             form.submit();
                             return new Promise(function () {});
@@ -273,7 +274,7 @@ publicWidget.registry.PaymentForm = publicWidget.Widget.extend({
                         route: $tx_url[0].value,
                         params: {
                             'acquirer_id': parseInt(acquirer_id),
-                            'save_token': form_save_token,
+                            'save_token': form_save_token ? 'save_token' : 'form',
                             'access_token': self.options.accessToken,
                             'success_url': self.options.successUrl,
                             'error_url': self.options.errorUrl,

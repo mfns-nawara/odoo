@@ -942,6 +942,9 @@ class SaleOrder(models.Model):
             'sale_order_ids': [(6, 0, self.ids)],
         })
 
+        if not vals.get('type'):
+            vals['type'] = 'server2server' if payment_token_id else 'form'
+
         transaction = self.env['payment.transaction'].create(vals)
 
         # Process directly if payment_token
