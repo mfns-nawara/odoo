@@ -64,7 +64,7 @@ class CustomerPortal(CustomerPortal):
             results = self._get_portal_order_details(order_sudo)
             template = request.env['ir.ui.view'].render_template('sale.sale_order_portal_content', {'sale_order': order_sudo, 'report_type': "html"})
             results['sale_template'] = template
-            results['line_unlink'] = quantity <= 0
+            results['unlink'] = quantity <= 0
             return results
 
         order_line.write({'product_uom_qty': quantity})

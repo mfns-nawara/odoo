@@ -31,17 +31,13 @@ publicWidget.registry.SaleUpdateLineButton = publicWidget.Widget.extend({
         var self = this;
         var $target = $(ev.currentTarget);
         var quantity = parseInt($target.val());
-        var $orderLine = $target.closest('tr');
-        var params = {
+
+        this._callUpdateLineRoute(self.orderDetail.orderId, {
             'line_id': $target.data('lineId'),
             'input_quantity': quantity >= 0 ? quantity : false,
-        };
-        if (self.orderDetail.token) {
-            params['access_token'] = self.orderDetail.token;
-        }
-        var orderID = self.orderDetail.orderId;
-        this._callUpdateLineRoute(orderID, params).then(function (data) {
-            self._updateOrderLineValues($orderLine, data);
+            'access_token': self.orderDetail.token
+        }).then(function (data) {
+            self._updateOrderLineValues($target.closest('tr'), data);
             self._updateOrderValues(data);
         });
     },
@@ -52,22 +48,20 @@ publicWidget.registry.SaleUpdateLineButton = publicWidget.Widget.extend({
      */
     _onClick: function (ev) {
         ev.preventDefault();
-        var self = this;
-        var $target = $(ev.currentTarget);
-        var params = {
+        var self = this,
+            $target = $(ev.currentTarget),
+            isUnlink = $target.is('[href*="unlink"]');
+
+        this._callUpdateLineRoute(self.orderDetail.orderId, {
             'line_id': $target.data('lineId'),
             'remove': $target.is('[href*="remove"]'),
-            'unlink': $target.is('[href*="unlink"]'),
-        };
-        if (self.orderDetail.token) {
-            params['access_token'] = self.orderDetail.token;
-        }
-        var orderID = self.orderDetail.orderId;
-        this._callUpdateLineRoute(orderID, params).then(function (data) {
-            if (data['sale_template'] && $target.is('[href*="unlink"]') || data['line_unlink']) {
-                var $template = $(data['sale_template']);
-                self.$('#portal_sale_content').empty();
-                self.$('#portal_sale_content').append($template);
+            'unlink': isUnlink,
+            'access_token': self.orderDetail.token
+        }).then(function (data) {
+            var $saleTemplate = $(data['sale_template']);
+            isUnlink = isUnlink || data['unlink'];
+            if ($saleTemplate.length && isUnlink) {
+                self.$('#portal_sale_content').empty().append($saleTemplate);
                 self.elems = self._getUpdatableElements();
             }
             self._updateOrderLineValues($target.closest('tr'), data);
@@ -86,18 +80,15 @@ publicWidget.registry.SaleUpdateLineButton = publicWidget.Widget.extend({
         var $target = $(ev.currentTarget);
         // to avoid double click on link with href.
         $target.css('pointer-events', 'none');
-        var params = {};
-        if (self.orderDetail.token) {
-            params['access_token'] = self.orderDetail.token;
-        }
+
         this._rpc({
             route: "/my/orders/" + self.orderDetail.orderId + "/add_option/" + $target.data('optionId'),
-            params: params
+            params: {
+                access_token: self.orderDetail.token
+            }
         }).then(function (data) {
             if (data) {
-                var $template = $(data['sale_template']);
-                self.$('#portal_sale_content').empty();
-                self.$('#portal_sale_content').append($template);
+                self.$('#portal_sale_content').empty().append($(data['sale_template']));
                 self.elems = self._getUpdatableElements();
                 self._updateOrderValues(data);
             }
@@ -127,10 +118,10 @@ publicWidget.registry.SaleUpdateLineButton = publicWidget.Widget.extend({
      * @param {Object} data: contains order and line updated values
      */
     _updateOrderLineValues: function ($orderLine, data) {
-        var linePriceTotal = data.order_line_price_total;
-        var linePriceSubTotal = data.order_line_price_subtotal;
-        var $linePriceTotal = $orderLine.find('.oe_order_line_price_total .oe_currency_value');
-        var $linePriceSubTotal = $orderLine.find('.oe_order_line_price_subtotal .oe_currency_value');
+        var linePriceTotal = data.order_line_price_total,
+            linePriceSubTotal = data.order_line_price_subtotal,
+            $linePriceTotal = $orderLine.find('.oe_order_line_price_total .oe_currency_value'),
+            $linePriceSubTotal = $orderLine.find('.oe_order_line_price_subtotal .oe_currency_value');
 
         if (!$linePriceTotal.length && !$linePriceSubTotal.length) {
             $linePriceTotal = $linePriceSubTotal = $orderLine.find('.oe_currency_value').last();
@@ -151,10 +142,10 @@ publicWidget.registry.SaleUpdateLineButton = publicWidget.Widget.extend({
      * @param {Object} data: contains order and line updated values
      */
     _updateOrderValues: function (data) {
-        var orderAmountTotal = data.order_amount_total;
-        var orderAmountUntaxed = data.order_amount_untaxed;
-        var orderAmountUndiscounted = data.order_amount_undiscounted;
-        var orderTotalsTable = $(data.order_totals_table);
+        var orderAmountTotal = data.order_amount_total,
+            orderAmountUntaxed = data.order_amount_untaxed,
+            orderAmountUndiscounted = data.order_amount_undiscounted,
+            $orderTotalsTable = $(data.order_totals_table);
         if (orderAmountUntaxed !== undefined) {
             this.elems.$orderAmountUntaxed.text(orderAmountUntaxed);
         }
@@ -166,8 +157,8 @@ publicWidget.registry.SaleUpdateLineButton = publicWidget.Widget.extend({
         if (orderAmountUndiscounted !== undefined) {
             this.elems.$orderAmountUndiscounted.text(orderAmountUndiscounted);
         }
-        if (orderTotalsTable.length) {
-            this.elems.$orderTotalsTable.find('table').replaceWith(orderTotalsTable);
+        if ($orderTotalsTable.length) {
+            this.elems.$orderTotalsTable.find('table').replaceWith($orderTotalsTable);
         }
     },
     /**
