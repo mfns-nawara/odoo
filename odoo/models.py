@@ -3673,7 +3673,9 @@ Record ids: %(records)s
                 if field in vals:
                     true_vals[field] = vals[field]
                     continue
-                if field_obj.store and field not in PROTECTED_FIELDS:
+                if field_obj.store and not field_obj.related and field not in PROTECTED_FIELDS:
+                    # VFE if we do not use the related here, account tests crashes
+                    # (virtual and real records are accessed in their tests and crashes)
                     if field_obj.relational:
                         if field_obj.type == 'many2one':
                             temp_vals = new_obj[field]
@@ -3691,8 +3693,7 @@ Record ids: %(records)s
                     # fields to avoid later useless recomputation ?
                     # or define some fields as post-computed ?
 
-            # VFE delete the new_obj after values recuperation s.t. some relational do not have double value (one virtual and one real) ?
-            # new_obj.unlink()
+            # VFE how to avoid the virtual new_obj to be present in relationals ?
 
             # VFE FIXME computes based on one2m or m2m may receive recordsets with new and not new ids... ?
             # make a recursive computed field label to know whether they depends on 2m relational, or on a field depending on it ?
@@ -3732,10 +3733,11 @@ Record ids: %(records)s
                 # protect non-readonly computed fields against (re)computation
                 if field.compute and not field.readonly:
                     protected.update(self._field_computed.get(field, [field]))
-                if field.compute and field.readonly and field.store and key not in vals:
-                    # VFE related stored have been computed and shouln't be recomputed
-                    # even if readonly.
-                    protected.update(self._field_computed.get(field, [field]))
+                # VFE no use if we do not take related stored fields from the new.
+                # if field.compute and field.readonly and field.store and key not in vals:
+                #     # VFE related stored have been computed and shouln't be recomputed
+                #     # even if readonly.
+                #     protected.update(self._field_computed.get(field, [field]))
 
             data_list.append(data)
 
