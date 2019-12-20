@@ -26,12 +26,13 @@ class StockRule(models.Model):
 
     @api.depends('action')
     def _compute_picking_type_code_domain(self):
-        treated = self.browse()
+        remaining = self.browse()
         for rule in self:
             if rule.action == 'manufacture':
                 rule.picking_type_code_domain = 'mrp_operation'
-                treated |= rule
-        super(StockRule, self - treated)._compute_picking_type_code_domain()
+            else:
+                remaining |= rule
+        super(StockRule, remaining)._compute_picking_type_code_domain()
 
     @api.model
     def _run_manufacture(self, procurements):
