@@ -83,9 +83,7 @@ publicWidget.registry.SaleUpdateLineButton = publicWidget.Widget.extend({
 
         this._rpc({
             route: "/my/orders/" + self.orderDetail.orderId + "/add_option/" + $target.data('optionId'),
-            params: {
-                access_token: self.orderDetail.token
-            }
+            params: {access_token: self.orderDetail.token}
         }).then(function (data) {
             if (data) {
                 self.$('#portal_sale_content').empty().append($(data['sale_template']));

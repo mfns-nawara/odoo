@@ -32,7 +32,7 @@
                 <section>
                     <h3>Options</h3>
                     <t t-set="display_discount" t-value="True in [option.discount > 0 for option in sale_order.sale_order_option_ids]"/>
-                    <table id="sales_order_optional_product" class="table table-sm">
+                    <table class="table table-sm">
                         <thead>
                             <tr>
                                 <th class="text-left">Product</th>

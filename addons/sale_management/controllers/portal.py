@@ -62,8 +62,10 @@ class CustomerPortal(CustomerPortal):
         if unlink or quantity <= 0:
             order_line.unlink()
             results = self._get_portal_order_details(order_sudo)
-            template = request.env['ir.ui.view'].render_template('sale.sale_order_portal_content', {'sale_order': order_sudo, 'report_type': "html"})
-            results['sale_template'] = template
+            results['sale_template'] = request.env['ir.ui.view'].render_template('sale.sale_order_portal_content', {
+                'sale_order': order_sudo,
+                'report_type': "html"
+            })
             results['unlink'] = quantity <= 0
             return results
 
@@ -86,6 +88,8 @@ class CustomerPortal(CustomerPortal):
 
         option_sudo.add_option_to_order()
         results = self._get_portal_order_details(order_sudo)
-        template = request.env['ir.ui.view'].render_template("sale.sale_order_portal_content", {'sale_order': option_sudo.order_id, 'report_type': "html"})
-        results['sale_template'] = template
+        results['sale_template'] = request.env['ir.ui.view'].render_template("sale.sale_order_portal_content", {
+            'sale_order': option_sudo.order_id,
+            'report_type': "html"
+        })
         return results
