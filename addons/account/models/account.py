@@ -1272,6 +1272,17 @@ class AccountJournal(models.Model):
         # We simply call the setup bar function.
         return self.env['res.company'].setting_init_bank_account_action()
 
+    def action_resequence(self):
+        resequence_wizard = self.env['account.resequence.wizard'].create({'journal_id': self.id})
+        return {
+            'name': _('Reorder Journal Entries'),
+            'res_model': 'account.resequence.wizard',
+            'res_id': resequence_wizard.id,
+            'view_mode': 'form',
+            'type': 'ir.actions.act_window',
+            'target': 'new',
+        }
+
     def create_invoice_from_attachment(self, attachment_ids=[]):
         ''' Create the invoices from files.
          :return: A action redirecting to account.move tree/form view.
@@ -1482,9 +1493,9 @@ class AccountTax(models.Model):
             JOIN account_tax tax ON tax.id = line.tax_line_id
             WHERE line.tax_line_id IN %s
             AND line.company_id != tax.company_id
-            
+
             UNION ALL
-            
+
             SELECT line.id
             FROM account_move_line_account_tax_rel tax_rel
             JOIN account_tax tax ON tax.id = tax_rel.account_tax_id
