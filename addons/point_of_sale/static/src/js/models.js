@@ -1597,10 +1597,12 @@ exports.Orderline = Backbone.Model.extend({
 
         lots.forEach(function (lot) {
             var available_qty = self.order.get_available_quantity(lot.get_lot_name());
-            if (self.product.tracking == "serial" && self.quantity == lots.length && available_qty == 0) {
+
+            if (self.quantity < 0) {
                 valid_lots++;
-            }
-            if (self.product.tracking == "lot" && available_qty >= 0) {
+            } else if (self.product.tracking == "serial" && self.quantity == lots.length && available_qty == 0) {
+                valid_lots++;
+            } else if (self.product.tracking == "lot" && available_qty >= 0) {
                 valid_lots++;
             }
         });
@@ -2581,7 +2583,7 @@ exports.Order = Backbone.Model.extend({
             this.orderlines.forEach(function(line) {
                 if (line.has_product_lot) {
                     line.pack_lot_lines.each(function (lot) {
-                        if (lot.get_lot_name() == lot_name) {
+                        if (lot.get_lot_name() == lot_name && line.quantity > 0) {
                             total_reserved_qty += line.product.tracking == 'serial' || line.quantity;
                         }
                     });
