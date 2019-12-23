@@ -102,6 +102,32 @@ var KanbanColumnProgressBar = Widget.extend({
             self._render();
         });
     },
+    removeFilter() {
+        this.activeFilter = false;
+    },
+    reset(columnState) {
+        var self = this;
+        this.columnState = columnState;
+
+        var subgroupCounts = {};
+        let allSubgroupCount = 0;
+        _.each(this.colors, function (val, key) {
+            var subgroupCount = self.columnState.progressBarValues.counts[key] || 0;
+            if (self.activeFilter === key && subgroupCount === 0) {
+                self.activeFilter = false;
+            }
+            subgroupCounts[key] = subgroupCount;
+            allSubgroupCount += subgroupCount;
+        });
+        subgroupCounts.__false = this.columnState.count - allSubgroupCount;
+
+        this.groupCount = this.columnState.count;
+        this.subgroupCounts = subgroupCounts;
+        this.prevTotalCounterValue = this.totalCounterValue;
+        this.totalCounterValue = this.sumField ? (this.columnState.aggregateValues[this.sumField] || 0) : this.columnState.count;
+
+        this._render();
+    },
 
     //--------------------------------------------------------------------------
     // Private
