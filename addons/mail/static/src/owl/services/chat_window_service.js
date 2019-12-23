@@ -56,7 +56,9 @@ const ChatWindowService = AbstractService.extend({
             this.component.destroy();
             this.component = undefined;
         }
+        console.log(`AKU - ${this.env.session.is_bound}`);
         await this.env.session.is_bound;
+        console.log(`AKU - mounting chat window manager`);
         ChatWindowManager.env = this.env;
         this.component = new ChatWindowManager(null);
         const parentNode = this._getParentNode();

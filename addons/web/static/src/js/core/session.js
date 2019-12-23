@@ -232,6 +232,7 @@ var Session = core.Class.extend(mixins.EventDispatcherMixin, {
         });
     },
     load_qweb: function (mods) {
+        console.log(`AKU - loading qweb`);
         var self = this;
         var lock = this.qweb_mutex.exec(function () {
             var cacheId = self.cache_hashes && self.cache_hashes.qweb;
@@ -239,6 +240,7 @@ var Session = core.Class.extend(mixins.EventDispatcherMixin, {
             return $.get(route).then(function (doc) {
                 if (!doc) { return; }
                 const owlTemplates = [];
+                console.log(`AKU - loading owl templates`);
                 for (let child of doc.querySelectorAll("templates > [owl]")) {
                     child.removeAttribute('owl');
                     owlTemplates.push(child.outerHTML);

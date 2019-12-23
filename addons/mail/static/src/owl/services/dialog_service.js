@@ -54,8 +54,10 @@ const DialogService = AbstractService.extend({
             this.component.destroy();
             this.component = undefined;
         }
+        console.log(`AKU - ${this.env.session.is_bound}`);
         await this.env.session.is_bound;
         DialogManager.env = this.env;
+        console.log(`AKU - mounting dialog manager`);
         this.component = new DialogManager(null);
         const parentNode = this._getParentNode();
         await this.component.mount(parentNode);
