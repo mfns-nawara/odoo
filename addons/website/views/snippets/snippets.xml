@@ -217,7 +217,9 @@
     <!-- Background Image -->
     <div data-js="background" string="Background"
         data-selector="section, .parallax, .carousel-item"
-        data-exclude=".s_hr, .s_image_gallery, .o_gallery .carousel-item"/>
+        data-exclude=".s_hr, .s_image_gallery, .o_gallery .carousel-item">
+        <we-imagepicker class="o_we_inline" string="Background" data-background="" data-allow-videos=":not(.parallax, .s_parallax_bg)"/>
+    </div>
 
     <!-- Background Image Size/Position -->
     <div data-js="BackgroundPosition"

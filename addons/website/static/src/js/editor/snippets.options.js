@@ -47,6 +47,18 @@ options.Class.include({
 });
 
 options.registry.background.include({
+    background: async function (previewMode, widgetValue, params) {
+        if (previewMode === 'reset' && this.videoSrc) {
+            return this._setBgVideo(false, this.videoSrc);
+        }
+
+        const _super = this._super.bind(this);
+        if (!params.isVideo) {
+            await this._setBgVideo(previewMode, '');
+            return _super(...arguments);
+        }
+        return this._setBgVideo(previewMode, widgetValue);
+    },
 
     //--------------------------------------------------------------------------
     // Private
@@ -55,37 +67,9 @@ options.registry.background.include({
     /**
      * @override
      */
-    _getDefaultTextContent: function () {
-        if (this._getMediaDialogOptions().noVideos) {
-            return this._super(...arguments);
-        }
-        return _t("Choose a picture or a video");
-    },
-    /**
-     * @override
-     */
-    _getEditableMedia: function () {
-        if (!this._hasBgvideo()) {
-            return this._super(...arguments);
-        }
-        return this.$('.o_bg_video_iframe')[0];
-    },
-    /**
-     * @override
-     */
-    _getMediaDialogOptions: function () {
-        return _.extend(this._super(...arguments), {
-            // For now, disable the possibility to have a parallax video bg
-            noVideos: this.$target.is('.parallax, .s_parallax_bg'),
-            isForBgVideo: true,
-        });
-    },
-    /**
-     * @override
-     */
-    _computeWidgetState: function (methodName, params) {
-        if (methodName === 'chooseImage') {
-            return this._hasBgvideo() ? 'true' : '';
+    _computeWidgetState: function (methodName) {
+        if (methodName === 'background' && this.$target[0].classList.contains('o_background_video')) {
+            return this.$('> .o_bg_video_container iframe').attr('src');
         }
         return this._super(...arguments);
     },
@@ -103,6 +87,7 @@ options.registry.background.include({
             return;
         }
 
+        this.videoSrc = value;
         var target = this.$target[0];
         target.classList.toggle('o_background_video', !!(value && value.length));
         if (value && value.length) {
@@ -113,15 +98,6 @@ options.registry.background.include({
         await this._refreshPublicWidgets();
         await this.updateUI();
     },
-    /**
-     * Returns whether the current target has a background video or not.
-     *
-     * @private
-     * @returns {boolean}
-     */
-    _hasBgvideo: function () {
-        return this.$target[0].classList.contains('o_background_video');
-    },
 
     //--------------------------------------------------------------------------
     // Handlers
@@ -130,26 +106,12 @@ options.registry.background.include({
     /**
      * @override
      */
-     _onBackgroundColorUpdate: function (ev, previewMode) {
-        var ret = this._super(...arguments);
+     _onBackgroundColorUpdate: async function (ev, previewMode) {
+        const ret = await this._super(...arguments);
         if (ret) {
-            this._setBgVideo(previewMode);
+            this._setBgVideo(previewMode, '');
         }
         return ret;
-    },
-    /**
-     * @override
-     */
-    _onSaveMediaDialog: async function (data) {
-        if (!data.bgVideoSrc) {
-            const _super = this._super.bind(this);
-            const args = arguments;
-            await this._setBgVideo(false);
-            return _super(...args);
-        }
-        // if the user chose a video, only add the video without removing the
-        // background
-        await this._setBgVideo(false, data.bgVideoSrc);
     },
 });
 
