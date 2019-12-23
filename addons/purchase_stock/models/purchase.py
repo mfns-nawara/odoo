@@ -99,8 +99,8 @@ class PurchaseOrder(models.Model):
             if order.state in ('draft', 'sent', 'to approve', 'purchase'):
                 for order_line in order.order_line:
                     order_line.move_ids._action_cancel()
-                    if order_line.move_dest_ids:
-                        move_dest_ids = order_line.move_dest_ids
+                    move_dest_ids = order_line.move_dest_ids.filtered(lambda x: x.state not in ('done', 'cancel'))
+                    if move_dest_ids:
                         if order_line.propagate_cancel:
                             move_dest_ids._action_cancel()
                         else:
