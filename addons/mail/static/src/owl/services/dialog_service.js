@@ -54,6 +54,7 @@ const DialogService = AbstractService.extend({
             this.component.destroy();
             this.component = undefined;
         }
+        await this.env.session.is_bound;
         DialogManager.env = this.env;
         this.component = new DialogManager(null);
         const parentNode = this._getParentNode();

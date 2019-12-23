@@ -56,6 +56,7 @@ const ChatWindowService = AbstractService.extend({
             this.component.destroy();
             this.component = undefined;
         }
+        await this.env.session.is_bound;
         ChatWindowManager.env = this.env;
         this.component = new ChatWindowManager(null);
         const parentNode = this._getParentNode();
