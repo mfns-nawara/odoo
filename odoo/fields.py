@@ -992,7 +992,7 @@ class Field(MetaField('DummyField', (object,), {})):
                     ]))
                 value = env.cache.get(record, self)
 
-            elif self.compute and not self.store:
+            elif self.compute:
                 if env.is_protected(self, record):
                     value = self.convert_to_cache(False, record, validate=False)
                     env.cache.set(record, self, value)

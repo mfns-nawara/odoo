@@ -5420,9 +5420,6 @@ Record ids: %(records)s
             origin = origin.id
         record = self.browse([NewId(origin, ref)])
         record._update_cache(values, validate=False)
-        fields = [self._fields[name] for name in values]
-        with self.env.protecting(fields, record):
-            record.modified(values)
 
         return record
 
