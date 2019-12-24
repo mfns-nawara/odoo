@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
+import datetime
+
 from odoo import api, fields, models, _
 from odoo.tools.safe_eval import safe_eval
 
@@ -14,12 +16,15 @@ class Team(models.Model):
     use_opportunities = fields.Boolean('Pipeline', default=True, help="Check this box to manage a presales process with opportunities.")
     alias_id = fields.Many2one('mail.alias', string='Alias', ondelete="restrict", required=True, help="The email address associated with this channel. New emails received will automatically create new leads assigned to the channel.")
 
+    all_leads_count = fields.Integer(
+        string='# Leads/Opps', compute='_compute_all_leads_count',
+        help='Both leads and opportunities assigned to this team.')
     unassigned_leads_count = fields.Integer(
-        compute='_compute_unassigned_leads_count',
-        string='Unassigned Leads')
+        string='# Unassigned Leads', compute='_compute_unassigned_leads_count')
+    assigned_all_leads_month_count = fields.Integer(
+        string='# This month assigned Leads/Opps', compute='_compute_assigned_all_leads_month_count')
     opportunities_count = fields.Integer(
-        compute='_compute_opportunities',
-        string='Number of open opportunities')
+        string='# open opportunities', compute='_compute_opportunities')
     overdue_opportunities_count = fields.Integer(
         compute='_compute_overdue_opportunities',
         string='Number of overdue opportunities')
@@ -36,6 +41,14 @@ class Team(models.Model):
     alias_user_id = fields.Many2one('res.users', related='alias_id.alias_user_id', inherited=True, domain=lambda self: [
         ('groups_id', 'in', self.env.ref('sales_team.group_sale_salesman_all_leads').id)])
 
+    def _compute_all_leads_count(self):
+        leads_data = self.env['crm.lead'].read_group([
+            ('team_id', 'in', self.ids),
+        ], ['team_id'], ['team_id'])
+        counts = {datum['team_id'][0]: datum['team_id_count'] for datum in leads_data}
+        for team in self:
+            team.all_leads_count = counts.get(team.id, 0)
+
     def _compute_unassigned_leads_count(self):
         leads_data = self.env['crm.lead'].read_group([
             ('team_id', 'in', self.ids),
@@ -45,6 +58,17 @@ class Team(models.Model):
         counts = {datum['team_id'][0]: datum['team_id_count'] for datum in leads_data}
         for team in self:
             team.unassigned_leads_count = counts.get(team.id, 0)
+
+    def _compute_assigned_all_leads_month_count(self):
+        limit_date = datetime.datetime.now() - datetime.timedelta(days=30)
+        leads_data = self.env['crm.lead'].read_group([
+            ('team_id', 'in', self.ids),
+            ('date_open', '>=', fields.Datetime.to_string(limit_date))
+            ('user_id', '!=', False),
+        ], ['team_id'], ['team_id'])
+        counts = {datum['team_id'][0]: datum['team_id_count'] for datum in leads_data}
+        for team in self:
+            team.assigned_all_leads_month_count = counts.get(team.id, 0)
 
     def _compute_opportunities(self):
         opportunity_data = self.env['crm.lead'].search([
