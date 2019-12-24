@@ -210,7 +210,7 @@
         .o_data_row:not(.o_selected_row) .o_data_cell {
             &.o_toggle_button_cell:not(.o_readonly_modifier) button, // registry: toggle_button
             &.o_boolean_favorite_cell:not(.o_readonly_modifier) .o_favorite, // registry: boolean_favorite
-            .custom-checkbox:not(.o_readonly_modifier) {
+            .custom-checkbox:not(.o_field_widget):not(.o_readonly_modifier) {
                 pointer-events: none;
             }
         }
