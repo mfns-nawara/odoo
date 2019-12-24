@@ -54,8 +54,8 @@ class MailComposer(models.TransientModel):
         result = super(MailComposer, self).default_get(fields)
 
         # author
-        missing_author = 'author_id' in fields and 'author_id' not in result
-        missing_email_from = 'email_from' in fields and 'email_from' not in result
+        missing_author = 'author_id' in fields and 'author_id' not in result and not self.author_id
+        missing_email_from = 'email_from' in fields and 'email_from' not in result and not self.email_from
         if missing_author or missing_email_from:
             author_id, email_from = self.env['mail.thread']._message_compute_author(result.get('author_id'), result.get('email_from'), raise_exception=False)
             if missing_email_from:
@@ -162,7 +162,6 @@ class MailComposer(models.TransientModel):
             doc_name_get = self.env[values.get('model')].browse(values.get('res_id')).name_get()
             result['record_name'] = doc_name_get and doc_name_get[0][1] or ''
             subject = tools.ustr(result['record_name'])
-            result['author_id'] = self.author_id.id
 
         re_prefix = _('Re:')
         if subject and not (subject.startswith('Re:') or subject.startswith(re_prefix)):
@@ -292,6 +291,9 @@ class MailComposer(models.TransientModel):
                                             if target['email_normalized'] and target['email_normalized'] in blacklist])
 
         for res_id in res_ids:
+            author_id, email_from = self.env['mail.thread']._message_compute_author(email_from=self.email_from, raise_exception=False)
+            #record = self.env[self.model].browse(res_id)
+            #author_id = record.user_id.partner_id.id
             # static wizard (mail.message) values
             mail_values = {
                 'subject': self.subject,
@@ -299,8 +301,8 @@ class MailComposer(models.TransientModel):
                 'parent_id': self.parent_id and self.parent_id.id,
                 'partner_ids': [partner.id for partner in self.partner_ids],
                 'attachment_ids': [attach.id for attach in self.attachment_ids],
-                'author_id': self.author_id.id,
-                'email_from': self.email_from,
+                'author_id': author_id,
+                'email_from': email_from,
                 'record_name': self.record_name,
                 'no_auto_thread': self.no_auto_thread,
                 'mail_server_id': self.mail_server_id.id,
@@ -399,8 +401,8 @@ class MailComposer(models.TransientModel):
             if values.get('attachment_ids', []) or attachment_ids:
                 values['attachment_ids'] = [(6, 0, values.get('attachment_ids', []) + attachment_ids)]
         else:
-            default_values = self.with_context(default_composition_mode=composition_mode, default_model=model, default_res_id=res_id).default_get(['composition_mode', 'model', 'res_id', 'parent_id', 'partner_ids', 'subject', 'body', 'author_id', 'email_from', 'reply_to', 'attachment_ids', 'mail_server_id'])
-            values = dict((key, default_values[key]) for key in ['subject', 'body', 'author_id', 'partner_ids', 'email_from', 'reply_to', 'attachment_ids', 'mail_server_id'] if key in default_values)
+            default_values = self.with_context(default_composition_mode=composition_mode, default_model=model, default_res_id=res_id).default_get(['composition_mode', 'model', 'res_id', 'parent_id', 'partner_ids', 'subject', 'body', 'email_from', 'reply_to', 'attachment_ids', 'mail_server_id'])
+            values = dict((key, default_values[key]) for key in ['subject', 'body', 'partner_ids', 'email_from', 'reply_to', 'attachment_ids', 'mail_server_id'] if key in default_values)
 
         if values.get('body_html'):
             values['body'] = values.pop('body_html')
@@ -461,7 +463,6 @@ class MailComposer(models.TransientModel):
 
         subjects = self.env['mail.template']._render_template(self.subject, self.model, res_ids)
         bodies = self.env['mail.template']._render_template(self.body, self.model, res_ids, post_process=True)
-        author_id = self.env['mail.template']._render_template(self.author_id, self.model, res_ids)
         emails_from = self.env['mail.template']._render_template(self.email_from, self.model, res_ids)
         replies_to = self.env['mail.template']._render_template(self.reply_to, self.model, res_ids)
         default_recipients = {}
@@ -474,7 +475,6 @@ class MailComposer(models.TransientModel):
             results[res_id] = {
                 'subject': subjects[res_id],
                 'body': bodies[res_id],
-                'author_id': author_id[res_id],
                 'email_from': emails_from[res_id],
                 'reply_to': replies_to[res_id],
             }
