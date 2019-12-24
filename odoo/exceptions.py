@@ -28,6 +28,7 @@ class except_orm(Exception):
         self.name = name
         self.value = value
         self.args = (name, value)
+        self.options = {}
 
 
 class UserError(except_orm):
