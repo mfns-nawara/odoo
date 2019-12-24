@@ -13,12 +13,10 @@ publicWidget.registry.SaleUpdateLineButton = publicWidget.Widget.extend({
     /**
      * @override
      */
-    start: function () {
-        var self = this;
-        return this._super.apply(this, arguments).then(function () {
-            self.orderDetail = self.$el.find('table#sales_order_table').data();
-            self.elems = self._getUpdatableElements();
-        });
+    async start() {
+        await this._super(...arguments);
+        this.orderDetail = this.$el.find('table#sales_order_table').data();
+        this.elems = this._getUpdatableElements();
     },
     /**
      * Process the change in line quantity
@@ -26,17 +24,17 @@ publicWidget.registry.SaleUpdateLineButton = publicWidget.Widget.extend({
      * @private
      * @param {Event} ev
      */
-    _onChangeQuantity: function (ev) {
+    _onChangeQuantity(ev) {
         ev.preventDefault();
-        var self = this;
-        var $target = $(ev.currentTarget);
-        var quantity = parseInt($target.val());
+        let self = this,
+            $target = $(ev.currentTarget),
+            quantity = parseInt($target.val());
 
         this._callUpdateLineRoute(self.orderDetail.orderId, {
             'line_id': $target.data('lineId'),
             'input_quantity': quantity >= 0 ? quantity : false,
             'access_token': self.orderDetail.token
-        }).then(function (data) {
+        }).then((data) => {
             self._updateOrderLineValues($target.closest('tr'), data);
             self._updateOrderValues(data);
         });
@@ -46,9 +44,9 @@ publicWidget.registry.SaleUpdateLineButton = publicWidget.Widget.extend({
      *
      * @param {Event} ev
      */
-    _onClick: function (ev) {
+    _onClick(ev) {
         ev.preventDefault();
-        var self = this,
+        let self = this,
             $target = $(ev.currentTarget),
             isUnlink = $target.is('[href*="unlink"]');
 
@@ -57,7 +55,7 @@ publicWidget.registry.SaleUpdateLineButton = publicWidget.Widget.extend({
             'remove': $target.is('[href*="remove"]'),
             'unlink': isUnlink,
             'access_token': self.orderDetail.token
-        }).then(function (data) {
+        }).then((data) => {
             var $saleTemplate = $(data['sale_template']);
             isUnlink = isUnlink || data['unlink'];
             if ($saleTemplate.length && isUnlink) {
@@ -74,17 +72,17 @@ publicWidget.registry.SaleUpdateLineButton = publicWidget.Widget.extend({
      * @private
      * @param {Event} ev
      */
-    _onClickOptionalProduct: function (ev) {
+    _onClickOptionalProduct(ev) {
         ev.preventDefault();
-        var self = this;
-        var $target = $(ev.currentTarget);
+        let self = this,
+            $target = $(ev.currentTarget);
         // to avoid double click on link with href.
         $target.css('pointer-events', 'none');
 
         this._rpc({
             route: "/my/orders/" + self.orderDetail.orderId + "/add_option/" + $target.data('optionId'),
             params: {access_token: self.orderDetail.token}
-        }).then(function (data) {
+        }).then((data) => {
             if (data) {
                 self.$('#portal_sale_content').empty().append($(data['sale_template']));
                 self.elems = self._getUpdatableElements();
@@ -101,8 +99,8 @@ publicWidget.registry.SaleUpdateLineButton = publicWidget.Widget.extend({
      * @param {Object} params
      * @return {Deferred}
      */
-    _callUpdateLineRoute: function (order_id, params) {
-        var url = "/my/orders/" + order_id + "/update_line_dict";
+    _callUpdateLineRoute(order_id, params) {
+        let url = "/my/orders/" + order_id + "/update_line_dict";
         return this._rpc({
             route: url,
             params: params,
@@ -115,8 +113,8 @@ publicWidget.registry.SaleUpdateLineButton = publicWidget.Widget.extend({
      * @param {Element} $orderLine: orderline element to update
      * @param {Object} data: contains order and line updated values
      */
-    _updateOrderLineValues: function ($orderLine, data) {
-        var linePriceTotal = data.order_line_price_total,
+    _updateOrderLineValues($orderLine, data) {
+        let linePriceTotal = data.order_line_price_total,
             linePriceSubTotal = data.order_line_price_subtotal,
             $linePriceTotal = $orderLine.find('.oe_order_line_price_total .oe_currency_value'),
             $linePriceSubTotal = $orderLine.find('.oe_order_line_price_subtotal .oe_currency_value');
@@ -139,8 +137,8 @@ publicWidget.registry.SaleUpdateLineButton = publicWidget.Widget.extend({
      * @private
      * @param {Object} data: contains order and line updated values
      */
-    _updateOrderValues: function (data) {
-        var orderAmountTotal = data.order_amount_total,
+    _updateOrderValues(data) {
+        let orderAmountTotal = data.order_amount_total,
             orderAmountUntaxed = data.order_amount_untaxed,
             orderAmountUndiscounted = data.order_amount_undiscounted,
             $orderTotalsTable = $(data.order_totals_table);
@@ -167,10 +165,10 @@ publicWidget.registry.SaleUpdateLineButton = publicWidget.Widget.extend({
      * @private
      * @return {Object}: Jquery elements to update
      */
-    _getUpdatableElements: function () {
-        var $orderAmountUntaxed = $('[data-id="total_untaxed"]').find('span, b');
-        var $orderAmountTotal = $('[data-id="total_amount"]').find('span, b');
-        var $orderAmountUndiscounted = $('[data-id="amount_undiscounted"]').find('span, b');
+    _getUpdatableElements() {
+        let $orderAmountUntaxed = $('[data-id="total_untaxed"]').find('span, b'),
+            $orderAmountTotal = $('[data-id="total_amount"]').find('span, b'),
+            $orderAmountUndiscounted = $('[data-id="amount_undiscounted"]').find('span, b');
 
         if (!$orderAmountUntaxed.length) {
             $orderAmountUntaxed = $orderAmountTotal.eq(1);
