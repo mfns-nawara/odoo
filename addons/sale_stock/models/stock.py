@@ -50,7 +50,7 @@ class StockMove(models.Model):
     def _prepare_procurement_values(self):
         values = super(StockMove, self)._prepare_procurement_values()
         values.update({
-            'product_custom_attribute_values': self.sale_line_id._prepare_custom_attributes(),
+            'product_custom_attribute_values': self.product_custom_attribute_values,
         })
         return values
 
