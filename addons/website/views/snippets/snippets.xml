@@ -418,5 +418,81 @@
         data-target="> .container, > .container-fluid">
         <we-checkbox string="Stretch" data-select-class="container|container-fluid" data-no-preview="true"/>
     </div>
+
+    <!-- FIXME theme options are here for now -->
+    <div data-selector="theme" data-no-check="true">
+        <we-select string="Main Layout">
+            <we-button data-customize-theme="">Full</we-button> <!-- "/website/static/src/img/options/layout-full.png" -->
+            <we-button data-customize-theme="website.option_layout_boxed_variables" id="option_layout_boxed">Boxed</we-button> <!-- "/website/static/src/img/options/layout-boxed.png" -->
+        </we-select>
+        <!--
+        <content id="theme_customize_content_switch_theme">
+             <a class="btn btn-primary" href="/web#action=website_theme_install.theme_install_kanban_action">Switch theme</a>
+        </content>
+        <content id="theme_customize_content_colors" string="Colors">
+            <list string="Main">
+                <opt data-widget="color" data-color-type="theme" data-color="primary" string="Primary"/>
+                <opt data-widget="color" data-color-type="theme" data-color="secondary" string="Secondary"/>
+                <opt data-widget="color" data-color-type="theme" data-color="alpha" string="Primary"/>
+                <opt data-widget="color" data-color-type="theme" data-color="beta" string="Secondary"/>
+                <opt data-widget="color" data-color-type="theme" data-color="gamma" string="Extra Color"/>
+                <opt data-widget="color" data-color-type="theme" data-color="delta" string="Extra Color"/>
+                <opt data-widget="color" data-color-type="theme" data-color="epsilon" string="Extra Color"/>
+            </list>
+            <list string="Status">
+                <opt data-widget="color" data-color-type="theme" data-color="success" string="Success"/>
+                <opt data-widget="color" data-color-type="theme" data-color="info" string="Info"/>
+                <opt data-widget="color" data-color-type="theme" data-color="warning" string="Warning"/>
+                <opt data-widget="color" data-color-type="theme" data-color="danger" string="Error"/>
+            </list>
+            <list string="Text">
+                <opt data-widget="color" data-color="text" string="Text"/>
+                <opt data-widget="color" data-color="h1" string="Headings 1"/>
+                <opt data-widget="color" data-color="h2" string="Headings 2"/>
+                <opt data-widget="color" data-color="h3" string="Headings 3"/>
+                <opt data-widget="color" data-color="h4" string="Headings 4"/>
+                <opt data-widget="color" data-color="h5" string="Headings 5"/>
+                <opt data-widget="color" data-color="h6" string="Headings 6"/>
+            </list>
+            <list string="Background">
+                <opt data-widget="color" data-color="body" string="Body"/>
+                <opt data-widget="color" data-color="menu" string="Menus"/>
+                <opt data-widget="color" data-color="footer" string="Footer"/>
+            </list>
+        </content>
+        <content id="theme_customize_content_navbar" string="Navbar">
+            <list string="Main Layout">
+                <checkbox><opt data-xmlid="website.affix_top_menu" data-reload="/"/></checkbox>
+                <checkbox><opt data-xmlid="portal.portal_show_sign_in" data-reload="/"/></checkbox>
+                <opt data-widget="input" data-unit="rem" data-variable="header-font-size" string="Font Size"/>
+            </list>
+            <list string="Logo">
+                <checkbox><opt data-xmlid="website.layout_logo_show" data-reload="/"/></checkbox>
+                <opt data-widget="input" data-unit="rem" data-variable="logo-height" string="Logo Height"/>
+            </list>
+        </content>
+        <content id="theme_customize_content_layout" string="Layout">
+            <list string="Background">
+                <opt id="option_no_background" string="None" data-xmlid=""/>
+                <opt string="Choose an image" data-xmlid="website.option_custom_body_image"/>
+                <opt string="Choose a pattern" data-xmlid="website.option_custom_body_image, website.option_custom_body_pattern"/>
+            </list>
+        </content>
+        <content id="theme_customize_content_fonts" string="Fonts">
+            <list string="Title">
+                <fontselection data-variable="headings-font-number"/>
+            </list>
+            <list string="Body">
+                <fontselection data-variable="font-number"/>
+            </list>
+            <list string="Button">
+                <fontselection data-variable="buttons-font-number"/>
+            </list>
+            <list string="Navbar">
+                <fontselection data-variable="navbar-font-number"/>
+            </list>
+        </content>
+        -->
+    </div>
 </template>
 </odoo>
