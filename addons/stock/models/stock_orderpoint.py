@@ -9,7 +9,7 @@ from odoo.exceptions import UserError, ValidationError
 from odoo.osv import expression
 
 
-class Orderpoint(models.Model):
+class StockWarehouseOrderpoint(models.Model):
     """ Defines Minimum stock rules. """
     _name = "stock.warehouse.orderpoint"
     _description = "Minimum Inventory Rule"
@@ -17,7 +17,7 @@ class Orderpoint(models.Model):
 
     @api.model
     def default_get(self, fields):
-        res = super(Orderpoint, self).default_get(fields)
+        res = super().default_get(fields)
         warehouse = None
         if 'warehouse_id' not in res and res.get('company_id'):
             warehouse = self.env['stock.warehouse'].search([('company_id', '=', res['company_id'])], limit=1)
@@ -131,7 +131,7 @@ class Orderpoint(models.Model):
             for orderpoint in self:
                 if orderpoint.company_id.id != vals['company_id']:
                     raise UserError(_("Changing the company of this record is forbidden at this point, you should rather archive it and create a new one."))
-        return super(Orderpoint, self).write(vals)
+        return super().write(vals)
 
     def _get_product_context(self):
         """Used to call `virtual_available` when running an orderpoint."""
