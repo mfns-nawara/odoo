@@ -103,12 +103,15 @@ class StockRule(models.Model):
         date_planned = date_planned - relativedelta(days=company_id.manufacturing_lead)
         return date_planned
 
-    def _get_lead_days(self, product_id):
-        delay, delay_description = super(StockRule, self)._get_lead_days(product_id)
+    def _get_lead_days(self, product):
+        """Extend the fonction in order to add the product and company
+        manufacture delay to the cumulative delay and its description.
+        """
+        delay, delay_description = super()._get_lead_days(product)
         manufature_rule = self.filtered(lambda r: r.action == 'manufacture')
         if not manufature_rule:
             return delay, delay_description
-        manufacture_delay = product_id.produce_delay
+        manufacture_delay = product.produce_delay
         if manufacture_delay:
             delay += manufacture_delay
             delay_description += '<tr><td>%s</td><td>+ %d %s</td></tr>' % (_('Manufacturing Lead Time'), manufacture_delay, _('day(s)'))

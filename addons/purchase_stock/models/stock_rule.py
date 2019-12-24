@@ -117,11 +117,16 @@ class StockRule(models.Model):
                         procurement.values, po))
             self.env['purchase.order.line'].sudo().create(po_line_values)
 
-    def _get_lead_days(self, product_id):
-        lead_days, lead_days_description = super(StockRule, self)._get_lead_days(product_id)
-        if 'buy' not in self.mapped('action') or not product_id._prepare_sellers():
+    def _get_lead_days(self, product):
+        """Extend the fonction in order to add the supplier delay, the company
+        security lead time and the company days to purchase. The days to
+        purchase and company lead time are always displayed for onboarding
+        purpose in order to indicate that those confirmations are available.
+        """
+        lead_days, lead_days_description = super()._get_lead_days(product)
+        if 'buy' not in self.mapped('action') or not product._prepare_sellers():
             return lead_days, lead_days_description
-        supplier_delay = product_id._prepare_sellers()[0].delay
+        supplier_delay = product._prepare_sellers()[0].delay
         if supplier_delay:
             lead_days_description += '<tr><td>%s</td><td>+ %d %s</td></tr>' % (_('Vendor Lead Time'), supplier_delay, _('day(s)'))
         security_delay = self.filtered(lambda r: r.action == 'buy').picking_type_id.company_id.po_lead

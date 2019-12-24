@@ -304,7 +304,11 @@ class StockRule(models.Model):
                 move_values[field] = values.get(field)
         return move_values
 
-    def _get_lead_days(self, product_id):
+    def _get_lead_days(self, product):
+        """Assuming a procurement with product and going through a set of rules
+        in self. Returns the cumulative delay and its description that will
+        be apply.
+        """
         delay = sum(self.filtered(lambda r: r.action in ['pull', 'pull_push']).mapped('delay'))
         delay_description = ''.join(['<tr><td>%s %s</td><td>+ %d %s</td></tr>' % (_('Delay on'), rule.name, rule.delay, _('day(s)')) for rule in self if rule.action in ['pull', 'pull_push'] and rule.delay])
         return delay, delay_description
