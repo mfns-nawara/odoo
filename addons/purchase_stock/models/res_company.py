@@ -8,5 +8,5 @@ class ResCompany(models.Model):
     _inherit = 'res.company'
 
     days_to_purchase = fields.Float(
-        string='Days to Purchase', required=True, default=0.0,
+        string='Days to Purchase', required=True,
         help="Days needed to confirm a PO, define when a PO should be validated")
