@@ -411,5 +411,9 @@ class PurchaseOrderLine(models.Model):
         args can be merged. If it returns an empty record then a new line will
         be created.
         """
-        lines = self.filtered(lambda l: l.propagate_date == values['propagate_date'] and l.propagate_date_minimum_delta == values['propagate_date_minimum_delta'] and l.propagate_cancel == values['propagate_cancel'] and l.orderpoint_id == values['orderpoint_id'])
+        lines = self.filtered(
+            lambda l: l.propagate_date == values['propagate_date'] and
+            l.propagate_date_minimum_delta == values['propagate_date_minimum_delta'] and
+            l.propagate_cancel == values['propagate_cancel'] and
+            (values['orderpoint_id'] and not values['move_dest_ids']) and l.orderpoint_id == values['orderpoint_id'] or True)
         return lines and lines[0] or self.env['purchase.order.line']

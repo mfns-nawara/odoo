@@ -176,9 +176,7 @@ class StockMove(models.Model):
     display_assign_serial = fields.Boolean(compute='_compute_display_assign_serial')
     next_serial = fields.Char('First SN')
     next_serial_count = fields.Integer('Number of SN')
-    orderpoint_id = fields.Many2one(
-        'stock.warehouse.orderpoint', 'Original Reordering Rule',
-        check_company=True)
+    orderpoint_id = fields.Many2one('stock.warehouse.orderpoint', 'Original Reordering Rule', check_company=True)
 
     @api.onchange('product_id', 'picking_type_id')
     def onchange_product(self):
