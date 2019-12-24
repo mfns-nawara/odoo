@@ -14,6 +14,7 @@ from odoo import http, tools, _
 from odoo.addons.http_routing.models.ir_http import slug
 from odoo.addons.website.models.ir_http import sitemap_qs2dom
 from odoo.addons.website_profile.controllers.main import WebsiteProfile
+from odoo.addons.web_editor.controllers.main import Web_Editor
 from odoo.http import request
 
 _logger = logging.getLogger(__name__)
@@ -677,3 +678,13 @@ class WebsiteForum(WebsiteProfile):
         if not request.session.uid:
             return {'error': 'anonymous_user'}
         return post.unlink_comment(comment.id)[0]
+
+class Web_Editor(Web_Editor):
+    def _image_to_attachment(self, res_model, res_id, data, name, datas_fname, disable_optimization=None):
+        if (res_model == 'forum.post' and request.env.user.share):
+            attachments = request.env['ir.attachment'].sudo()
+            public = True
+        else:
+            attachments = request.env['ir.attachment']
+            public = res_model == 'ir.ui.view'
+        return super(Web_Editor, self)._record_image_to_attachment(attachments, res_model, res_id, data, name, datas_fname, public, disable_optimization=disable_optimization)

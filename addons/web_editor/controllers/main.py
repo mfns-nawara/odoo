@@ -163,7 +163,11 @@ class Web_Editor(http.Controller):
         return attachment.read(['name', 'mimetype', 'checksum', 'url', 'res_id', 'res_model', 'access_token'])[0]
 
     def _image_to_attachment(self, res_model, res_id, data, name, datas_fname, disable_optimization=None):
-        Attachments = request.env['ir.attachment']
+        attachments = request.env['ir.attachment']
+        public = res_model == 'ir.ui.view'
+        return self._record_image_to_attachment(attachments, res_model, res_id, data, name, datas_fname, public, disable_optimization=disable_optimization)
+
+    def _record_image_to_attachment(self, attachments, res_model, res_id, data, name, datas_fname, public, disable_optimization=None):
         try:
             image = Image.open(io.BytesIO(data))
             w, h = image.size
@@ -175,11 +179,11 @@ class Web_Editor(http.Controller):
                 data = tools.image_save_for_web(image)
         except IOError:
             pass
-        attachment = Attachments.create({
+        attachment = attachments.create({
             'name': name,
             'datas_fname': datas_fname,
             'datas': base64.b64encode(data),
-            'public': res_model == 'ir.ui.view',
+            'public': public,
             'res_id': res_id,
             'res_model': res_model,
         })
