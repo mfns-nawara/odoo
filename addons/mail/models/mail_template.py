@@ -141,8 +141,7 @@ class MailTemplate(models.Model):
 
     @api.depends('author_id')
     def _compute_email_from(self):
-        email_from = self.author_id.replace(' user', ' user.email_formatted') if self.author_id else False
-        self.email_from = email_from.replace('user_id', 'user_id.email_formatted') if email_from else False
+        self.email_from = self.author_id.replace('user_id', 'user_id.email_formatted |safe') if self.author_id else False
 
     def _inverse_email_from(self):
         self.author_id = self.email_from.replace('.email_formatted', '') if self.email_from else False
