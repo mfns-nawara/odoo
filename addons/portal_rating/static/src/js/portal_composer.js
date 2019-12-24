@@ -75,6 +75,24 @@ PortalComposer.include({
     //--------------------------------------------------------------------------
 
     /**
+     * Only returns a Promise (to prevent multiple submissions) that is 
+     * never resolved when form is valid, otherwise user cannot re-send
+     * after correcting invalid fields.
+     *
+     * @override
+     * @private
+     * @returns {Promise}
+     */
+    _onSubmitButtonClick: function () {
+        var $textarea = this.$('textarea');
+        if ($textarea[0].checkValidity()) {
+            return this._super.apply(this, arguments);
+        } else {
+            return;
+        }
+    },
+
+    /**
      * @private
      */
     _onChangeStarValue: function () {
