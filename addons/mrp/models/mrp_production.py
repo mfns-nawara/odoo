@@ -998,6 +998,18 @@ class MrpProduction(models.Model):
             'target': 'new',
         }
 
+    def button_unbuild(self):
+        self.ensure_one()
+        return {
+            'name': _('Unbuild'),
+            'view_mode': 'form',
+            'res_model': 'mrp.unbuild',
+            'view_id': self.env.ref('mrp.mrp_unbuild_form_view').id,
+            'type': 'ir.actions.act_window',
+            'context': {'default_mo_id': self.id, 'default_bom_id': self.bom_id.id},
+            'target': 'new',
+        }
+
     def action_see_move_scrap(self):
         self.ensure_one()
         action = self.env.ref('stock.action_stock_scrap').read()[0]

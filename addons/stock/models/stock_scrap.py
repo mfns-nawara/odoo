@@ -175,6 +175,7 @@ class StockScrap(models.Model):
             })
             return {
                 'name': _('Insufficient Quantity'),
+                'name': self.product_id,
                 'view_mode': 'form',
                 'res_model': 'stock.warn.insufficient.qty.scrap',
                 'view_id': self.env.ref('stock.stock_warn_insufficient_qty_scrap_form_view').id,
