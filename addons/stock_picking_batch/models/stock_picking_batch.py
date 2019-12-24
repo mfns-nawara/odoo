@@ -35,13 +35,10 @@ class StockPickingBatch(models.Model):
         help='Technical field used to compute whether the check availability button should be shown.')
     allowed_picking_ids = fields.One2many('stock.picking', compute='_compute_allowed_picking_ids')
     move_ids = fields.One2many(
-        'stock.move',
-        string="Stock moves",
-        compute='_compute_move_ids',
-        readonly=True, states={'draft': [('readonly', False)]})
+        'stock.move', string="Stock moves",
+        compute='_compute_move_ids', inverse='_inverse_move_ids')
     move_line_ids = fields.One2many(
-        'stock.move.line', string='Stock move lines',
-        compute='_compute_move_ids', readonly=False)
+        'stock.move.line', 'batch_id', string='Stock move lines')
     state = fields.Selection(
         [('draft', 'Draft'),
          ('in_progress', 'In progress'),
@@ -72,7 +69,6 @@ class StockPickingBatch(models.Model):
     def _compute_move_ids(self):
         for batch in self:
             batch.move_ids = batch.picking_ids.move_lines
-            batch.move_line_ids = batch.picking_ids.move_lines.move_line_ids
             batch.show_check_availability = any(m.state != 'assigned' for m in batch.move_ids)
 
     @api.depends('picking_ids', 'picking_ids.state')
@@ -86,6 +82,15 @@ class StockPickingBatch(models.Model):
             # Batch picking is marked as done if all its not canceled transfers are done.
             elif all(picking.state in ['cancel', 'done'] for picking in batch.picking_ids):
                 batch.state = 'done'
+
+    def _inverse_move_ids(self):
+        for batch in self:
+            new_moves = batch.move_ids.filtered(lambda move: not move.id)
+            for picking in batch.picking_ids:
+                new_picking_moves = new_moves.filtered(lambda move: move.picking_id.id == picking.id)
+                new_picking_moves.location_id = picking.location_id
+                new_picking_moves.location_dest_id = picking.location_dest_id
+                picking.move_lines += new_picking_moves
 
     # -------------------------------------------------------------------------
     # CRUD
