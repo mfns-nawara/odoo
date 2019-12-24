@@ -35,5 +35,20 @@
     <xpath expr="//div[@data-js='layout_column']" position="attributes">
         <attribute name="data-exclude" add=".s_latest_posts, .s_latest_posts_big_picture" separator=","/>
     </xpath>
+    
+    <xpath expr="//div[@data-js='js_get_posts_selectBlog']" position="before">
+        <div data-js='s_latest_posts_style' data-selector=".s_latest_posts_big_picture .js_get_posts">
+            <we-select string="List Style">
+                <we-button data-select-class="">Default</we-button>
+                <we-button data-select-class="effect-marley">Marley</we-button>
+                <we-button data-select-class="effect-dexter">Dexter</we-button>
+                <we-button data-select-class="effect-chico">Silly-Chico</we-button>
+                <we-button data-select-class="effect-steve">Lonely Steve</we-button>
+            </we-select>
+        </div>
+        <div data-js='s_latest_posts_options' data-selector=".s_latest_posts_big_picture .js_get_posts">
+            <we-checkbox string="First is bigger" data-select-class="first_is_big"/>
+        </div>
+    </xpath>
 </template>
 </odoo>
