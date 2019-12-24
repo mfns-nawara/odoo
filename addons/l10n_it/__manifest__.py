@@ -20,9 +20,9 @@ Italian accounting chart and localization.
     'website': 'http://www.odoo.com/',
     'data': [
         'data/l10n_it_chart_data.xml',
+        'data/account_tax_tags.xml',
         'data/account.account.template.csv',
         'data/account.tax.group.csv',
-        'data/account_tax_tags.xml',
         'data/account_tax_template.xml',
         'data/account.fiscal.position.template.csv',
         'data/account.chart.template.csv',
