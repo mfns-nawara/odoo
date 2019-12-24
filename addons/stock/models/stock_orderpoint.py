@@ -133,8 +133,8 @@ class Orderpoint(models.Model):
                     raise UserError(_("Changing the company of this record is forbidden at this point, you should rather archive it and create a new one."))
         return super(Orderpoint, self).write(vals)
 
-    def _procurement_from_orderpoint_get_context(self):
-        """ Make groups for a given orderpoint; by default schedule all operations in one without date """
+    def _get_product_context(self):
+        """Used to call `virtual_available` when running an orderpoint."""
         self.ensure_one()
         return {
             'location': self.location_id.id,

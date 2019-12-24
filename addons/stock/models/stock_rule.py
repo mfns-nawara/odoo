@@ -357,11 +357,20 @@ class ProcurementGroup(models.Model):
         required=True)
 
     @api.model
-    def run(self, procurements, raise_if_exception=True):
-        """ Method used in a procurement case. The purpose is to supply the
-        product passed as argument in the location also given as an argument.
-        In order to be able to find a suitable location that provide the product
-        it will search among stock.rule.
+    def run(self, procurements, raise_user_error=True):
+        """Fulfil `procurements` with the help of stock rules.
+
+        Procurements are needs of products at a certain location. To fulfil
+        these needs, we need to create some sort of documents (`stock.move`
+        by default, but extensions of `_run_` methods allow to create every
+        type of documents).
+
+        :param procurements: the description of the procurement
+        :type list: list of `~odoo.addons.stock.models.stock_rule.ProcurementGroup.Procurement`
+        :param raise_if_exception: will raise either an UserError or a ProcurementException
+        :type raise_if_exception: boolan, optional
+        :raises UserError: if `raise_user_error` is True and a procurement isn't fulfillable
+        :raises ProcurementException: if `raise_user_error` is False and a procurement isn't fulfillable
         """
 
         def raise_exception(procurement_errors):
@@ -519,6 +528,7 @@ class ProcurementGroup(models.Model):
         orderpoints = self.env['stock.warehouse.orderpoint']
         orderpoints_noprefetch = self.env['stock.warehouse.orderpoint'].with_context(prefetch_fields=False).search(domain,
             order=self._procurement_from_orderpoint_get_order()).ids
+        previous_orderpoints = False
         while orderpoints or orderpoints_noprefetch:
             orderpoints_exceptions = []
 
@@ -532,17 +542,20 @@ class ProcurementGroup(models.Model):
             else:
                 orderpoints = self.env['stock.warehouse.orderpoint'].browse(orderpoints)
 
+            if set(previous_orderpoints.ids) == set(orderpoints.ids):
+                # don't try to run again the same orderpoints if the first loop failed
+                _logger.error("Unable to process orderpoints.")
+                return
+
+            previous_orderpoints = orderpoints
             # Calculate groups that can be executed together
-            orderpoints_contexts = {}
+            orderpoints_contexts = defaultdict(lambda: self.env['stock.warehouse.orderpoint'])
 
             procurements = []
             for orderpoint in orderpoints:
-                orderpoint_context = orderpoint._procurement_from_orderpoint_get_context()
+                orderpoint_context = orderpoint._get_product_context()
                 product_context = frozendict({**self.env.context, **orderpoint_context})
-                if product_context in orderpoints_contexts:
-                    orderpoints_contexts[product_context] |= orderpoint
-                else:
-                    orderpoints_contexts[product_context] = orderpoint
+                orderpoints_contexts[product_context] |= orderpoint
 
             for orderpoint_context, orderpoints_by_context in orderpoints_contexts.items():
                 substract_quantity = orderpoints_by_context._quantity_in_progress()
