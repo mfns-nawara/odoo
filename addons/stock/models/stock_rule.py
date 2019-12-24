@@ -17,8 +17,15 @@ _logger = logging.getLogger(__name__)
 
 
 class ProcurementException(Exception):
+    """An exception raised by ProcurementGroup `run` containing all the faulty
+    procurements.
+    """
     def __init__(self, procurement_exceptions):
-        self.procurement_exceptions = procurement_exceptions or []
+        """:param procurement_exceptions: a list of tuples containing the faulty
+        procurement and their error messages
+        :type procurement_exceptions: list
+        """
+        self.procurement_exceptions = procurement_exceptions
 
 
 class StockRule(models.Model):
@@ -362,7 +369,7 @@ class ProcurementGroup(models.Model):
         """
 
         def raise_exception(procurement_errors):
-            if raise_if_exception:
+            if raise_user_error:
                 dummy, errors = zip(*procurement_errors)
                 raise UserError('\n'.join(errors))
             else:
