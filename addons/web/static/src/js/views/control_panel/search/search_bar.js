@@ -1,260 +1,249 @@
 odoo.define('web.SearchBar', function (require) {
-"use strict";
+    "use strict";
 
-var AutoComplete = require('web.AutoComplete');
-var searchBarAutocompleteRegistry = require('web.search_bar_autocomplete_sources_registry');
-var SearchFacet = require('web.SearchFacet');
-var Widget = require('web.Widget');
+    const AutoComplete = require('web.AutoComplete');
+    const searchBarAutocompleteRegistry = require('web.search_bar_autocomplete_sources_registry');
+    const SearchFacet = require('web.SearchFacet');
+    const { useAutofocus } = require('web.custom_hooks');
 
-var SearchBar = Widget.extend({
-    template: 'SearchView.SearchBar',
-    events: _.extend({}, Widget.prototype.events, {
-        'compositionend .o_searchview_input': '_onCompositionendInput',
-        'compositionstart .o_searchview_input': '_onCompositionstartInput',
-        'keydown': '_onKeydown',
-    }),
-    /**
-     * @override
-     * @param {Object} [params]
-     * @param {Object} [params.context]
-     * @param {Object[]} [params.facets]
-     * @param {Object} [params.fields]
-     * @param {Object[]} [params.filterFields]
-     * @param {Object[]} [params.filters]
-     * @param {Object[]} [params.groupBys]
-     */
-    init: function (parent, params) {
-        this._super.apply(this, arguments);
+    const { Component, hooks } = owl;
+    const { useGetters, useState, useStore, useDispatch } = hooks;
 
-        this.context = params.context;
+    class SearchBar extends Component {
+        /**
+         * @override
+         * @param {Object} [props]
+         * @param {Object} [props.context]
+         * @param {Object} [props.fields]
+         */
+        constructor() {
+            super(...arguments);
 
-        this.facets = params.facets;
-        this.fields = params.fields;
-        this.filterFields = params.filterFields;
+            useAutofocus();
+            this.dispatch = useDispatch(this.env.controlPanelStore);
+            this.filters = useStore(state => state.filters, { store: this.env.controlPanelStore });
+            this.getters = useGetters(this.env.controlPanelStore);
+            this.groups = useStore(state => state.groups, { store: this.env.controlPanelStore });
+            this.query = useStore(state => state.query, { store: this.env.controlPanelStore });
+            this.state = useState({ inputValue: "" });
 
-        this.autoCompleteSources = [];
-        this.searchFacets = [];
-        this._isInputComposing = false;
-    },
-    /**
-     * @override
-     */
-    start: function () {
-        this.$input = this.$('input');
-        var self = this;
-        var defs = [this._super.apply(this, arguments)];
-        _.each(this.facets, function (facet) {
-            defs.push(self._renderFacet(facet));
-        });
-        defs.push(this._setupAutoCompletion());
-        return Promise.all(defs);
-    },
-
-    //--------------------------------------------------------------------------
-    // Public
-    //--------------------------------------------------------------------------
-
-    /**
-     * Focus the searchbar.
-     */
-    focus: function () {
-      this.$input.focus();
-    },
-
-    //--------------------------------------------------------------------------
-    // Private
-    //--------------------------------------------------------------------------
-
-    /**
-     * @private
-     */
-    _focusFollowing: function () {
-        var focusedIndex = this._getFocusedFacetIndex();
-        var $toFocus;
-        if (focusedIndex === this.searchFacets.length - 1) {
-            $toFocus = this.$input;
-        } else {
-            $toFocus = this.searchFacets.length && this.searchFacets[focusedIndex + 1].$el;
+            this.autoCompleteWidgets = this._setupAutoCompletionWidgets();
+            this.wasInputVisible = false;
         }
 
-        if ($toFocus.length) {
-            $toFocus.focus();
-        }
-    },
-    /**
-     * @private
-     */
-    _focusPreceding: function () {
-        var focusedIndex = this._getFocusedFacetIndex();
-        var $toFocus;
-        if (focusedIndex === -1) {
-            $toFocus = this.searchFacets.length && _.last(this.searchFacets).$el;
-        } else if (focusedIndex === 0) {
-            $toFocus = this.$input;
-        } else {
-            $toFocus = this.searchFacets.length && this.searchFacets[focusedIndex - 1].$el;
-        }
-
-        if ($toFocus.length) {
-            $toFocus.focus();
-        }
-    },
-    /**
-     * @private
-     * @returns {integer}
-     */
-    _getFocusedFacetIndex: function () {
-        return _.findIndex(this.searchFacets, function (searchFacet) {
-            return searchFacet.$el[0] === document.activeElement;
-        });
-    },
-    /**
-     * Provide auto-completion result for req.term.
-     *
-     * @private
-     * @param {Object} req request to complete
-     * @param {String} req.term searched term to complete
-     * @param {Function} callback
-     */
-    _getAutoCompleteSources: function (req, callback) {
-        var defs = this.autoCompleteSources.map(function (source) {
-            return source.getAutocompletionValues(req.term);
-        });
-        Promise.all(defs).then(function (result) {
-            var resultCleaned = _(result).chain()
-                .compact()
-                .flatten(true)
-                .value();
-            callback(resultCleaned);
-        });
-    },
-    /**
-     * @private
-     * @param {Object} facet
-     * @returns {Promise}
-     */
-    _renderFacet: function (facet) {
-        var searchFacet = new SearchFacet(this, facet);
-        this.searchFacets.push(searchFacet);
-        return searchFacet.insertBefore(this.$('input'));
-    },
-    /**
-     * @private
-     * @returns {Promise}
-     */
-    _setupAutoCompletion: function () {
-        var self = this;
-        this._setupAutoCompletionWidgets();
-        this.autoComplete = new AutoComplete(this, {
-            $input: this.$('input'),
-            source: this._getAutoCompleteSources.bind(this),
-            select: this._onAutoCompleteSelected.bind(this),
-            get_search_string: function () {
-                return self.$input.val().trim();
-            },
-        });
-        return this.autoComplete.appendTo(this.$el);
-    },
-    /**
-     * @private
-     */
-    _setupAutoCompletionWidgets: function () {
-        var self = this;
-        var registry = searchBarAutocompleteRegistry;
-        _.each(this.filterFields, function (filter) {
-            var field = self.fields[filter.attrs.name];
-            var Obj = registry.getAny([filter.attrs.widget, field.type]);
-            if (Obj) {
-                self.autoCompleteSources.push(new (Obj) (self, filter, field, self.context));
+        mounted() {
+            const input = this.el.querySelector('.o_searchview_input');
+            if (input) {
+                this.autoComplete = new AutoComplete(this, {
+                    $input: $(input),
+                    source: this._getAutoCompleteSources.bind(this, this.autoCompleteWidgets),
+                    select: this._onAutoCompleteSelected.bind(this),
+                    get_search_string: () => this.state.inputValue.trim(),
+                });
+                this.autoComplete.appendTo($(this.el.querySelector('.o_searchview_input_container')));
             }
-        });
-    },
-
-    //--------------------------------------------------------------------------
-    // Handlers
-    //--------------------------------------------------------------------------
-
-    /**
-     * @private
-     * @param {Event} e
-     * @param {Object} ui
-     * @param {Object} ui.item selected completion item
-     */
-    _onAutoCompleteSelected: function (e, ui) {
-        e.preventDefault();
-        var facet = ui.item.facet;
-        if (!facet) {
-            // this happens when selecting "(no result)" item
-            this.trigger_up('reset');
-            return;
+            this.wasInputVisible = Boolean(input);
         }
-        var filter = facet.filter;
-        if (filter.type === 'field') {
-            var values = filter.autoCompleteValues;
-            values.push(facet.values[0]);
-            this.trigger_up('autocompletion_filter', {
-                filterId: filter.id,
-                autoCompleteValues: values,
-            });
-        } else {
-            this.trigger_up('autocompletion_filter', {
-                filterId: filter.id,
+
+        patched() {
+            const input = this.el.querySelector('.o_searchview_input');
+            if (!this.wasInputVisible && input) {
+                this.autoComplete = new AutoComplete(this, {
+                    $input: $(input),
+                    source: this._getAutoCompleteSources.bind(this, this.autoCompleteWidgets),
+                    select: this._onAutoCompleteSelected.bind(this),
+                    get_search_string: () => this.state.inputValue.trim(),
+                });
+                this.autoComplete.appendTo($(this.el.querySelector('.o_searchview_input_container')));
+            }
+            this.wasInputVisible = Boolean(input);
+        }
+
+        //--------------------------------------------------------------------------
+        // Properties
+        //--------------------------------------------------------------------------
+
+
+        get facets() {
+            return this.query.map(groupId => {
+                const group = this.groups[groupId];
+                return {
+                    group: group,
+                    filters: group.activeFilterIds.map(({ filterId }) => this.filters[filterId])
+                };
             });
         }
-    },
-    /**
-     * @rivate
-     * @param {CompositionEvent} ev
-     */
-    _onCompositionendInput: function () {
-        this._isInputComposing = false;
-    },
-    /**
-     * @rivate
-     * @param {CompositionEvent} ev
-     */
-    _onCompositionstartInput: function () {
-        this._isInputComposing = true;
-    },
-    /**
-     * @private
-     * @param {KeyEvent} e
-     */
-    _onKeydown: function (e) {
-        if (this._isInputComposing) {
-            return;
-        }
-        switch(e.which) {
-            case $.ui.keyCode.LEFT:
-                this._focusPreceding();
-                e.preventDefault();
-                break;
-            case $.ui.keyCode.RIGHT:
-                this._focusFollowing();
-                e.preventDefault();
-                break;
-            case $.ui.keyCode.DOWN:
-                // if the searchbar dropdown is closed, try to focus the renderer
-                const $dropdown = this.$('.o_searchview_autocomplete:visible');
-                if (!$dropdown.length) {
-                    this.trigger_up('navigation_move', { direction: 'down' });
-                    e.preventDefault();
-                }
-                break;
-            case $.ui.keyCode.BACKSPACE:
-                if (this.$input.val() === '') {
-                    this.trigger_up('facet_removed');
-                }
-                break;
-            case $.ui.keyCode.ENTER:
-                if (this.$input.val() === '') {
-                    this.trigger_up('reload');
-                }
-                break;
-        }
-    },
-});
 
-return SearchBar;
+        /**
+         * @private
+         * @returns {number}
+         */
+        get focusedIndex() {
+            const facets = this.el.querySelectorAll('.o_searchview_facet');
+            return (facets.length && [...facets].indexOf(document.activeElement)) || null;
+        }
 
+        //--------------------------------------------------------------------------
+        // Private
+        //--------------------------------------------------------------------------
+
+        /**
+         * Provide auto-completion result for `request.term`.
+         * @private
+         * @param {Widgets[]} widgets Array of source widgets.
+         * @param {Object} request Rrequest to complete.
+         * @param {string} request.term Searched term to complete.
+         * @param {Function} callback
+         */
+        async _getAutoCompleteSources(widgets, request, callback) {
+            const defs = widgets.map(widget => widget.getAutocompletionValues(request.term));
+            const results = await Promise.all(defs);
+            const cleanedResult = results
+                .filter(r => Boolean(r)) // Remove falsy elements
+                .reduce((flat, res) => flat.concat(res), []); // Flatten the results
+            callback(cleanedResult);
+        }
+
+        /**
+         * @private
+         */
+        _getKeyNavElements() {
+            return [
+                ...this.el.getElementsByClassName('o_searchview_facet'),
+                this.el.querySelector('.o_searchview_input'),
+            ];
+        }
+
+        /**
+         * @private
+         */
+        _setupAutoCompletionWidgets() {
+            const registry = searchBarAutocompleteRegistry;
+            return this.getters.getFiltersOfType('field').reduce(
+                (widgets, filter) => {
+                    const field = this.props.fields[filter.attrs.name];
+                    const constructor = registry.getAny([filter.attrs.widget, field.type]);
+                    if (constructor) {
+                        widgets.push(new constructor(this, filter, field, this.props.context));
+                    }
+                    return widgets;
+                },
+                []
+            );
+        }
+
+        //--------------------------------------------------------------------------
+        // Handlers
+        //--------------------------------------------------------------------------
+
+        /**
+         * @private
+         * @param {Event} e
+         * @param {Object} ui
+         * @param {Object} ui.item selected completion item
+         */
+        _onAutoCompleteSelected(ev, ui) {
+            ev.preventDefault();
+            const facet = ui.item.facet;
+            if (!facet) {
+                // this happens when selecting "(no result)" item
+                this.trigger('reset');
+                return;
+            }
+            const filter = facet.filter;
+            if (filter.type === 'field') {
+                const values = filter.autoCompleteValues;
+                values.push(facet.values[0]);
+                this.dispatch('toggleAutoCompletionFilter', filter.id, values);
+            } else {
+                this.dispatch('toggleAutoCompletionFilter', filter.id);
+            }
+            this.state.inputValue = "";
+        }
+
+        /**
+         * @private
+         * @param {Event} ev
+         */
+        _onInputSearch(ev) {
+            this.state.inputValue = ev.target.value;
+        }
+
+        /**
+         * @private
+         * @param {KeyboardEvent} ev
+         */
+        _onKeydown(ev) {
+            if (
+                ev.target.tagName === 'INPUT' &&
+                (
+                    ev.target.selectionStart > 0 ||
+                    ev.target.selectionEnd < ev.target.value
+                )
+            ) {
+                return;
+            }
+            const keyNavElements = this._getKeyNavElements();
+            const keyNavIndex = keyNavElements.indexOf(ev.target);
+            let newIndex;
+            switch (ev.key) {
+                case 'ArrowLeft':
+                    if (
+                        keyNavIndex < 0 || (ev.target.tagName === 'INPUT' &&
+                        ev.target.selectionStart > 0)
+                    ) {
+                        return;
+                    }
+                    newIndex = keyNavIndex - 1;
+                    if (newIndex < 0) {
+                        newIndex = keyNavElements.length - 1;
+                    }
+                    ev.preventDefault();
+                    keyNavElements[newIndex].focus();
+                    break;
+                case 'ArrowRight':
+                    if (
+                        keyNavIndex < 0 || (ev.target.tagName === 'INPUT' &&
+                        ev.target.selectionEnd < this.state.inputValue.length)
+                    ) {
+                        return;
+                    }
+                    newIndex = keyNavIndex + 1;
+                    if (newIndex >= keyNavElements.length) {
+                        newIndex = 0;
+                    }
+                    ev.preventDefault();
+                    keyNavElements[newIndex].focus();
+                    break;
+                case 'ArrowDown':
+                    // if the searchbar dropdown is closed, try to focus the renderer
+                    const dropdown = this.el.querySelector('.o_searchview_autocomplete');
+                    if (!dropdown) {
+                        this.trigger('navigation_move', { direction: 'down' });
+                        ev.preventDefault();
+                    }
+                    break;
+                case 'Backspace':
+                    if (!this.state.inputValue.length && this.query.length) {
+                        this.dispatch('deactivateGroup', this.query[this.query.length -1]);
+                    }
+                    break;
+                case 'Enter':
+                    if (!this.state.inputValue.length) {
+                        this.trigger('reload');
+                    }
+                    break;
+            }
+        }
+    }
+    SearchBar.components = { SearchFacet };
+    SearchBar.defaultProps = {
+        fields: {},
+    };
+    SearchBar.props = {
+        fields: Object,
+    };
+    SearchBar.template = 'SearchBar';
+
+    return SearchBar;
 });

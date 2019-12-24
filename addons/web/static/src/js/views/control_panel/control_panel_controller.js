@@ -1,9 +1,14 @@
 odoo.define('web.ControlPanelController', function (require) {
 "use strict";
 
-var mvc = require('web.mvc');
+const { Controller } = require('web.mvc');
+return Controller.extend({
+    init() {
+        throw new Eror(`Woops! You tried to instanciate a "ControlPanelController"!`);
+    }
+});
 
-var ControlPanelController = mvc.Controller.extend({
+var ControlPanelController = Controller.extend({
     className: 'o_cp_controller',
     custom_events: {
         facet_removed: '_onFacetRemoved',

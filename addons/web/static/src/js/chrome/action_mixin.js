@@ -178,11 +178,9 @@ var ActionMixin = {
      * @param {Object} [options]
      * @param {boolean} [options.clear]
      */
-    updateControlPanel: function (status, options) {
+    updateControlPanel: async function (newProps) {
         if (this._controlPanel) {
-            status = status || {};
-            status.title = status.title || this.getTitle();
-            this._controlPanel.updateContents(status, options || {});
+            return this._controlPanel.updateProps(newProps);
         }
     },
     // TODO: add hooks methods:
@@ -198,7 +196,7 @@ var ActionMixin = {
      */
     _setTitle: function (title) {
         this._title = title;
-        this.updateControlPanel({title: this._title}, {clear: false});
+        return this.updateControlPanel({ title });
     },
     /**
      * FIXME: this logic should be rethought

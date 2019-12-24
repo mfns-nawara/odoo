@@ -50,12 +50,13 @@ odoo.define('web.custom_hooks', function (require) {
      * @param {EventTarget} target
      * @param {string} eventName
      * @param {Function} handler
+     * @param {(Object|boolean)} [eventParams]
      */
-    function useExternalListener(target, eventName, handler) {
+    function useExternalListener(target, eventName, handler, eventParams) {
         const boundHandler = handler.bind(Component.current);
 
-        onMounted(() => target.addEventListener(eventName, boundHandler));
-        onWillUnmount(() => target.removeEventListener(eventName, boundHandler));
+        onMounted(() => target.addEventListener(eventName, boundHandler, eventParams));
+        onWillUnmount(() => target.removeEventListener(eventName, boundHandler, eventParams));
     }
 
     return {

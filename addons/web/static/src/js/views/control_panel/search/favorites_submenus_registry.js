@@ -1,8 +1,7 @@
 odoo.define('web.favorites_submenus_registry', function (require) {
-"use strict";
+    "use strict";
 
-var Registry = require('web.Registry');
+    const Registry = require('web.Registry');
 
-return new Registry();
-
+    return new Registry();
 });

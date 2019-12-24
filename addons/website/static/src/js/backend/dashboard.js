@@ -404,9 +404,9 @@ var Dashboard = AbstractAction.extend({
         $buttons.on('click', this.on_go_to_website.bind(this));
 
         this.updateControlPanel({
+            buttons: () => this.$buttons ? [...this.$buttons] : [],
             cp_content: {
                 $searchview: this.$searchview,
-                $buttons: $buttons,
             },
         });
     },
