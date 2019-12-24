@@ -100,9 +100,8 @@ publicWidget.registry.SaleUpdateLineButton = publicWidget.Widget.extend({
      * @return {Deferred}
      */
     _callUpdateLineRoute(order_id, params) {
-        let url = "/my/orders/" + order_id + "/update_line_dict";
         return this._rpc({
-            route: url,
+            route: "/my/orders/" + order_id + "/update_line_dict",
             params: params,
         });
     },
