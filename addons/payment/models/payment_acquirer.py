@@ -971,11 +971,11 @@ class PaymentTransaction(models.Model):
     # --------------------------------------------------
 
     def s2s_do_transaction(self, **kwargs):
-        custom_method_name = '%s_s2s_do_transaction' % self.acquirer_id.provider
         for trans in self:
+            custom_method_name = '%s_s2s_do_transaction' % trans.acquirer_id.provider
             trans._log_payment_transaction_sent()
             if hasattr(trans, custom_method_name):
-                return getattr(trans, custom_method_name)(**kwargs)
+                getattr(trans, custom_method_name)(**kwargs)
 
     def s2s_do_refund(self, **kwargs):
         custom_method_name = '%s_s2s_do_refund' % self.acquirer_id.provider
