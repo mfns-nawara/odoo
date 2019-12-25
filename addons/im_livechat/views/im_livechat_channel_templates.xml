@@ -203,7 +203,7 @@
                     </t>
 
                     odoo.define('im_livechat.livesupport', function (require) {
-            <t t-if="info['available']" t-translation="off">
+            <t t-translation="off">
                         var rootWidget = require('root.widget');
                         var im_livechat = require('im_livechat.im_livechat');
                         var button = new im_livechat.LivechatButton(
