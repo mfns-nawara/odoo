@@ -3326,7 +3326,7 @@ QUnit.test('chatter: display suggested partners only once', async function (asse
 });
 
 QUnit.test('chatter: suggested recipients reflect saved changes', async function (assert) {
-    assert.expect(5);
+    assert.expect(6);
 
     this.data.partner.records[0].foo = "Marc";
 
@@ -3355,7 +3355,7 @@ QUnit.test('chatter: suggested recipients reflect saved changes', async function
             }
             if (route === '/mail/get_suggested_recipients') {
                 assert.step('get_suggested_recipients');
-                return suggestedRecipients;
+                return Promise.resolve(suggestedRecipients);
             }
             return this._super(route, args);
         },
@@ -3366,11 +3366,13 @@ QUnit.test('chatter: suggested recipients reflect saved changes', async function
         form.$('div.o_composer_suggested_partners label').text().replace(/\s+/g, ''),
         "Marc",
         "should have the correct original recipient name");
+    assert.verifySteps(['get_suggested_recipients'],
+        'get_suggested_recipients route should be called');
 
     await testUtils.fields.editInput(form.$('.o_field_char'), 'Bob');
     await testUtils.dom.click(form.$('.o_form_button_save'));
-    assert.verifySteps(['get_suggested_recipients', 'get_suggested_recipients'],
-        'route should be called two times');
+    assert.verifySteps(['get_suggested_recipients'],
+        'get_suggested_recipients route should be called');
     assert.strictEqual(
         form.$('div.o_composer_suggested_partners label').text().replace(/\s+/g, ''),
         "Bob",

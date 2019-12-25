@@ -166,7 +166,7 @@ var Chatter = Widget.extend({
     async updateSuggestedPartners() {
         this._resetSuggestedPartners();
         if (this._composer && this._isComposerOpen) {
-            const suggestedPartners = await this._getSuggestedPartnersProm();
+            const suggestedPartners = await this._getSuggestedPartners();
             this._composer.updateSuggestedPartners(suggestedPartners);
         }
     },
@@ -282,35 +282,36 @@ var Chatter = Widget.extend({
      * return _suggestedPartnersProm else first loads suggested receipient
      * and then return _suggestedPartnersProm
      */
-    _getSuggestedPartnersProm() {
+    async _getSuggestedPartners() {
         if (!this._suggestedPartnersProm) {
-            this._suggestedPartnersProm = new Promise((resolve, reject) => {
-                this._rpc({
-                    route: '/mail/get_suggested_recipients',
-                    params: {
-                        model: this.record.model,
-                        res_ids: [this.context.default_res_id],
-                    },
-                }).then((result) => {
-                    if (!this._suggestedPartnersProm) {
-                        return; // widget has been reset (e.g. we just switched to another record)
-                    }
-                    const suggestedPartners = [];
-                    const threadRecipients = result[this.context.default_res_id];
-                    _.each(threadRecipients, function (recipient) {
-                        const parsedEmail = recipient[1] && mailUtils.parseEmail(recipient[1]);
-                        suggestedPartners.push({
-                            checked: true,
-                            partner_id: recipient[0],
-                            full_name: recipient[1],
-                            name: parsedEmail[0],
-                            email_address: parsedEmail[1],
-                            reason: recipient[2],
-                        });
-                    });
-                    resolve(suggestedPartners);
-                });
+            var def;
+            this._suggestedPartnersProm = new Promise(function (resolve) {
+                def = resolve;
             });
+            const result = await this._rpc({
+                route: '/mail/get_suggested_recipients',
+                params: {
+                    model: this.record.model,
+                    res_ids: [this.context.default_res_id],
+                },
+            });
+            if (!this._suggestedPartnersProm) {
+                return; // widget has been reset (e.g. we just switched to another record)
+            }
+            const suggestedPartners = [];
+            const threadRecipients = result[this.context.default_res_id];
+            for (const recipient of threadRecipients) {
+                const parsedEmail = recipient[1] && mailUtils.parseEmail(recipient[1]);
+                suggestedPartners.push({
+                    checked: true,
+                    partner_id: recipient[0],
+                    full_name: recipient[1],
+                    name: parsedEmail[0],
+                    email_address: parsedEmail[1],
+                    reason: recipient[2],
+                });
+            }
+            def(suggestedPartners);
         }
         return this._suggestedPartnersProm;
     },
@@ -337,14 +338,14 @@ var Chatter = Widget.extend({
     /**
      * @private
      * @param {Object} options
-     * @param {Object[]} [options.suggested_partners=[]]
+     * @param {Object[]} [options.suggestedPartners=[]]
      * @param {boolean} [options.isLog]
      */
     _openComposer: function (options) {
         var self = this;
         var oldComposer = this._composer;
         // create the new composer
-        this._composer = new ChatterComposer(this, this.record.model, options.suggested_partners || [], {
+        this._composer = new ChatterComposer(this, this.record.model, options.suggestedPartners || [], {
             commandsEnabled: false,
             context: this.context,
             inputMinHeight: 50,
@@ -606,9 +607,11 @@ var Chatter = Widget.extend({
     _onDiscardRecordChanges: function (ev) {
         this._discardChanges().then(ev.data.proceed);
     },
-    _onOpenComposerMessage: function () {
-        return this._getSuggestedPartnersProm().then((suggested_partners) => {
-            this._openComposer({ isLog: false, suggested_partners: suggested_partners });
+    async _onOpenComposerMessage() {
+        const suggestedPartners = await this._getSuggestedPartners();
+        this._openComposer({
+            isLog: false,
+            suggestedPartners,
         });
     },
     /**
