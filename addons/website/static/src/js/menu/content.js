@@ -981,8 +981,20 @@ var PageManagement = Widget.extend({
     //--------------------------------------------------------------------------
 
     _onSeoButtonClick : function(ev){
-        new seo.SeoConfigurator(this).open();
-     },
+        var url = window.location.origin+ev.currentTarget.dataset.url;
+        this._getHTML(url);
+    },
+    _getHTML: function(url){
+        var xhr = new XMLHttpRequest();
+        var self = this;
+        xhr.onload = function() {
+            var page = this.responseXML;
+            new seo.SeoConfigurator(self,{page:page}).open();
+        }
+        xhr.open( 'GET', url, true );
+        xhr.responseType = 'document';
+        xhr.send();
+    },
     _onPagePropertiesButtonClick: function (ev) {
         var moID = $(ev.currentTarget).data('id');
         var dialog = new PagePropertiesDialog(this,moID, {'fromPageManagement': true}).open();

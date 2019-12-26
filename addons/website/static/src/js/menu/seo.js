@@ -217,17 +217,18 @@ var Preview = Widget.extend({
 });
 
 var HtmlPage = Class.extend(mixins.PropertiesMixin, {
-    init: function () {
+    init: function (page) {
+        this.page = page;
         mixins.PropertiesMixin.init.call(this);
         this.initTitle = this.title();
-        this.defaultTitle = $('meta[name="default_title"]').attr('content');
+        this.defaultTitle = $(this.page).find('meta[name="default_title"]').attr('content') || $('meta[name="default_title"]').attr('content');
         this.initDescription = this.description();
     },
     url: function () {
-        return window.location.origin + window.location.pathname;
+        return this.page ? this.page.URL : window.location.origin + window.location.pathname;
     },
     title: function () {
-        return $('title').text().trim();
+        return $(this.page).find('title').text().trim() || $('title').text().trim();
     },
     changeTitle: function (title) {
         // TODO create tag if missing
@@ -235,7 +236,7 @@ var HtmlPage = Class.extend(mixins.PropertiesMixin, {
         this.trigger('title-changed', title);
     },
     description: function () {
-        return ($('meta[name=description]').attr('content') || '').trim();
+        return $(this.page).find('meta[name="default_description"]').attr('content') || ($('meta[name=description]').attr('content') || '').trim();
     },
     changeDescription: function (description) {
         // TODO create tag if missing
@@ -339,7 +340,7 @@ var MetaTitleDescription = Widget.extend({
      * @override
      */
     start: function () {
-        this.$title = this.$('input[name=website_meta_title]');
+        this.$title = this.htmlPage.initTitle || this.$('input[name=website_meta_title]');
         this.$description = this.$('textarea[name=website_meta_description]');
         this.$warning = this.$('div#website_meta_description_warning');
         this.$preview = this.$('.js_seo_preview');
@@ -351,7 +352,7 @@ var MetaTitleDescription = Widget.extend({
             this.$description.attr('disabled', true);
         }
         if (this.htmlPage.title().trim() !== this.htmlPage.defaultTitle.trim()) {
-            this.$title.val(this.htmlPage.title());
+            this.$title.val(this.htmlPage.title())
         }
         if (this.htmlPage.description().trim() !== this.previewDescription) {
             this.$description.val(this.htmlPage.description());
@@ -363,7 +364,7 @@ var MetaTitleDescription = Widget.extend({
      * Get the current title
      */
     getTitle: function () {
-        return this.$title.val().trim() || this.htmlPage.defaultTitle;
+        return  $('#website_meta_title').val() || this.htmlPage.defaultTitle;
     },
     /**
      * Get the current description
@@ -535,9 +536,9 @@ var MetaImageSelector = Widget.extend({
      * @param {Object} data
      */
     init: function (parent, data) {
-        this.metaTitle = data.title || '';
+        this.metaTitle = data.htmlpage.initTitle || data.title || '';
         this.activeMetaImg = data.metaImg;
-        this.serverUrl = data.htmlpage.url();
+        this.serverUrl = typeof(data.htmlpage.url) != 'function' ? data.htmlpage.url : data.htmlpage.url();
         data.pageImages.unshift(_.str.sprintf('/web/image/res.company/%s/logo', odoo.session_info.website_company_id));
         data.pageImages.unshift(_.str.sprintf('/web/image/website/%s/social_default_image', odoo.session_info.website_id));
         this.images = _.uniq(data.pageImages);
@@ -638,15 +639,15 @@ var SeoConfigurator = Dialog.extend({
                 {text: _t('Discard'), close: true},
             ],
         });
-
+        this.page = options.page;
         this._super(parent, options);
     },
     start: function () {
         var self = this;
 
         this.$modal.addClass('oe_seo_configuration');
+        this.htmlPage = this.page ? new HtmlPage(this.page) : new HtmlPage();
 
-        this.htmlPage = new HtmlPage();
 
         this.disableUnsavableFields().then(function () {
             // Image selector
@@ -714,7 +715,7 @@ var SeoConfigurator = Dialog.extend({
         var self = this;
         var data = {};
         if (this.canEditTitle) {
-            data.website_meta_title = this.metaTitleDescription.$title.val();
+            data.website_meta_title = this.metaTitleDescription.getTitle();
         }
         if (this.canEditDescription) {
             data.website_meta_description = this.metaTitleDescription.$description.val();
