@@ -24,7 +24,7 @@ FormController.include({
         const changedFields = await this._super(...arguments);
         const chatter = this.renderer.chatter;
         if (chatter) {
-            await chatter.updateSuggestedPartners();
+            await chatter.resetSuggestedPartners();
         }
         return changedFields;
     },

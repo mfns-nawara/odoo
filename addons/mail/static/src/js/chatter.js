@@ -113,6 +113,17 @@ var Chatter = Widget.extend({
     //--------------------------------------------------------------------------
 
     /**
+     * resets _suggestedPartnersProm and call _openComposer
+     * if composer is already open, to update suggested recipients
+     */
+    async resetSuggestedPartners() {
+        this._suggestedPartnersProm = undefined;
+        if (this._composer && this._isComposerOpen) {
+            const suggestedPartners = await this._getSuggestedPartners();
+            this._composer.updateSuggestedPartners(suggestedPartners);
+        }
+    },
+    /**
      * @param {Object} record
      * @param {integer} [record.res_id=undefined]
      * @param {Object[]} [fieldNames=undefined]
@@ -158,17 +169,6 @@ var Chatter = Widget.extend({
             self._updateMentionSuggestions();
         });
         this._updateAttachmentCounter();
-    },
-    /**
-     * resets _suggestedPartnersProm and call _openComposer
-     * if composer is already open, to update suggested recipients
-     */
-    async updateSuggestedPartners() {
-        this._resetSuggestedPartners();
-        if (this._composer && this._isComposerOpen) {
-            const suggestedPartners = await this._getSuggestedPartners();
-            this._composer.updateSuggestedPartners(suggestedPartners);
-        }
     },
 
     //--------------------------------------------------------------------------
@@ -299,7 +299,7 @@ var Chatter = Widget.extend({
                 return; // widget has been reset (e.g. we just switched to another record)
             }
             const suggestedPartners = [];
-            const threadRecipients = result[this.context.default_res_id];
+            const threadRecipients = result[this.context.default_res_id] || [];
             for (const recipient of threadRecipients) {
                 const parsedEmail = recipient[1] && mailUtils.parseEmail(recipient[1]);
                 suggestedPartners.push({
@@ -460,12 +460,6 @@ var Chatter = Widget.extend({
             }
         }).then(always).guardedCatch(always);
     },
-    /**
-     * @private
-     */
-    _resetSuggestedPartners() {
-        this._suggestedPartnersProm = undefined;
-    },
     _renderButtons: function () {
         return QWeb.render('mail.chatter.Buttons', {
             newMessageButton: !!this.fields.thread,
@@ -495,7 +489,7 @@ var Chatter = Widget.extend({
             };
             // reset the _suggestedPartnersProm to ensure a reload of the
             // suggested partners when opening the composer on another record
-            this._resetSuggestedPartners();
+            this.resetSuggestedPartners();
         }
         this.record = record;
         this.recordName = record.data.display_name;
@@ -660,7 +654,7 @@ var Chatter = Widget.extend({
      */
     _onResetSuggestedPartners(ev) {
         ev.stopPropagation();
-        this._resetSuggestedPartners();
+        this.resetSuggestedPartners();
     },
     /**
      * @private
