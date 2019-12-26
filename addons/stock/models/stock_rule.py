@@ -528,7 +528,7 @@ class ProcurementGroup(models.Model):
         orderpoints = self.env['stock.warehouse.orderpoint']
         orderpoints_noprefetch = self.env['stock.warehouse.orderpoint'].with_context(prefetch_fields=False).search(domain,
             order=self._procurement_from_orderpoint_get_order()).ids
-        previous_orderpoints = False
+        previous_orderpoints = self.env['stock.warehouse.orderpoint']
         while orderpoints or orderpoints_noprefetch:
             orderpoints_exceptions = []
 
