@@ -367,8 +367,8 @@ class ProcurementGroup(models.Model):
 
         :param procurements: the description of the procurement
         :type list: list of `~odoo.addons.stock.models.stock_rule.ProcurementGroup.Procurement`
-        :param raise_if_exception: will raise either an UserError or a ProcurementException
-        :type raise_if_exception: boolan, optional
+        :param raise_user_error: will raise either an UserError or a ProcurementException
+        :type raise_user_error: boolan, optional
         :raises UserError: if `raise_user_error` is True and a procurement isn't fulfillable
         :raises ProcurementException: if `raise_user_error` is False and a procurement isn't fulfillable
         """
@@ -587,7 +587,7 @@ class ProcurementGroup(models.Model):
 
             try:
                 with self.env.cr.savepoint():
-                    self.env['procurement.group'].with_context(from_orderpoint=True).run(procurements, raise_if_exception=False)
+                    self.env['procurement.group'].with_context(from_orderpoint=True).run(procurements, raise_user_error=False)
                     orderpoints._post_process_scheduler()
                     orderpoints = self.env['stock.warehouse.orderpoint']
             except ProcurementException as errors:

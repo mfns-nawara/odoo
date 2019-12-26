@@ -130,7 +130,7 @@ class ProcurementGroup(models.Model):
     _inherit = 'procurement.group'
 
     @api.model
-    def run(self, procurements, raise_if_exception=True):
+    def run(self, procurements, raise_user_error=True):
         """ If 'run' is called on a kit, this override is made in order to call
         the original 'run' method with the values of the components of that kit.
         """
@@ -153,7 +153,7 @@ class ProcurementGroup(models.Model):
                         procurement.origin, procurement.company_id, values))
             else:
                 procurements_without_kit.append(procurement)
-        return super(ProcurementGroup, self).run(procurements_without_kit, raise_if_exception=raise_if_exception)
+        return super(ProcurementGroup, self).run(procurements_without_kit, raise_user_error=raise_user_error)
 
     def _get_moves_to_assign_domain(self):
         domain = super(ProcurementGroup, self)._get_moves_to_assign_domain()
