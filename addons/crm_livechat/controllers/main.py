@@ -19,8 +19,12 @@ class LivechatController(LivechatController):
 
 class CrmController(http.Controller):
 
-    @http.route('/livechat/generate_lead', type='json', auth="public")
+    @http.route(['/livechat/generate_lead', '/livechat/update_lead_description'], type='json', auth="public")
     def generate_lead(self, name=False, email_from=False, content=False, lead_id=False, channel_uuid=False):
         channel = request.env['mail.channel'].with_user(SUPERUSER_ID).search([('uuid', '=', channel_uuid)])
         if channel:
-            return channel.generate_lead(name=name, email_from=email_from, content=content, lead_id=lead_id)
+            if lead_id:
+                lead = request.env['crm.lead'].sudo().browse(lead_id)
+                lead.write({'description': lead.description + "\n" + content if lead.description else content})
+            else:
+                return channel.generate_lead(name=name, email_from=email_from, content=content, lead_id=lead_id)

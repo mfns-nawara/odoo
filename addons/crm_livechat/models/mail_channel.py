@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo import models, _, api
+from odoo import models, _
 from odoo.tools import html2plaintext, html_escape
 
 
@@ -44,12 +44,7 @@ class MailChannel(models.Model):
         lead._onchange_partner_id()
         return lead
 
-    @api.model
     def generate_lead(self, name=False, email_from=False, content=False, lead_id=False):
-        if lead_id:
-            lead = self.env['crm.lead'].browse(lead_id)
-            lead.write({'description': lead.description + "\n" + content if lead.description else content})
-        else:
             lead = self._convert_visitor_to_lead(self.env.user.partner_id, self.env['mail.channel.partner'], name, email_from=email_from)
             template = self.env.ref('crm_livechat.visitor_lead_creation_email_template', raise_if_not_found=False)
             if template:

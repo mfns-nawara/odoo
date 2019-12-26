@@ -11,6 +11,5 @@ class ImLivechatChannel(models.Model):
         res = super(ImLivechatChannel, self).get_livechat_info()
         has_generate_lead_group = self.with_user(SUPERUSER_ID).env['res.users'].has_group('crm_livechat.group_generate_lead')
         if has_generate_lead_group:
-            res['options'] = self._get_channel_infos()
             res['options']['generate_lead'] = has_generate_lead_group
         return res

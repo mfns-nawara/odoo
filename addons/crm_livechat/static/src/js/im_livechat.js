@@ -14,7 +14,7 @@ LiveChat.LivechatButton.include({
     // This is useful in order to create a lead for the current visitor.
     init(parent, serverURL, options) {
         this._LeadGenerationTimer = new Timer({
-            duration: 30 * 60 * 1000,
+            duration: 10 * 1000,
             onTimeout: this._notifyNoOperator.bind(this),
         });
         this._super.apply(this, arguments);
@@ -52,11 +52,9 @@ LiveChat.LivechatButton.include({
      */
     _notifyNoOperator() {
         var self = this;
-        if (this.options.generate_lead) {
-            if (this._livechat) {
-                this._chatWindow.$('.o_mail_thread_content, .o_thread_composer').toggle();
-                this._generateLead(this._chatWindow, this._livechat._uuid);
-            }
+        if (this.options.generate_lead && this._livechat) {
+            this._chatWindow.$('.o_mail_thread_content, .o_thread_composer').toggle();
+            this._generateLead(this._chatWindow, this._livechat._uuid);
         } else {
             this._super.apply(this, arguments);
         }
@@ -70,7 +68,7 @@ LiveChat.LivechatButton.include({
         if (this.options.generate_lead) {
             if (this.lead_id) {
                 this._rpc({
-                    route: '/livechat/generate_lead',
+                    route: '/livechat/update_lead_description',
                     params: {
                         lead_id: this.lead_id,
                         content: ev.data.messageData.content,
