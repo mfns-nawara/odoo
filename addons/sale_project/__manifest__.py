@@ -20,6 +20,7 @@ This module allow to generate a project/task from sales order.
         'security/sale_project_security.xml',
         'views/product_views.xml',
         'views/sale_order_views.xml',
+        'views/project_task_views.xml',
     ],
     'auto_install': True,
 }
