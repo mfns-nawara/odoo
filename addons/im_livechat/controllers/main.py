@@ -165,7 +165,7 @@ class ImLiveChatController(BusController):
     def _poll(self, dbname, channels, last, options):
         res = super(ImLiveChatController, self)._poll(dbname, channels, last, options)
         notifications = []
-        for mail_channel in request.env['mail.channel'].sudo().search([('channel_type', '=', 'livechat'), ('uuid', 'in', list(channels)), ('livechat_active', '=', True)]):
+        for mail_channel in request.env['mail.channel'].sudo().search([('channel_type', '=', 'livechat'), ('uuid', 'in', list(channels))]):
             im_status = mail_channel.livechat_operator_id.im_status
             if im_status != options.get('im_status'):
                 data = {

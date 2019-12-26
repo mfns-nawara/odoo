@@ -193,7 +193,10 @@ var LivechatButton = Widget.extend({
                 }
             } else if (notification[1]._type === 'operator_status') {
                 if (notification[1].im_status == 'offline') {
-                    this._chatWindow.$el.find('.o_thread_window_header').after(QWeb.render('im_livechat.ThreadWindow.NoOperatorMessage'));
+                    this._chatWindow.$el.find('.o_thread_window_header').after($('<div>', {
+                        text: 'No operator available',
+                        class: 'o_no_operator_available alert alert-info'
+                    }));
                 } else {
                     this._chatWindow.$el.find('.o_no_operator_available').remove();
                 }
